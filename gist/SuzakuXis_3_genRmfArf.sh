@@ -1,6 +1,8 @@
 # _SuzakuXis_3_genRmfArf
 ## rmfおよびarf作成
-echo ${My_Suzaku_D:=$(pwd)}
+FLAG_rmf=true # arg
+FLAG_arf=true # arg
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -19,7 +21,7 @@ done
 cd $My_Suzaku_D
 
 ### arf
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do

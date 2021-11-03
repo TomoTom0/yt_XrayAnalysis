@@ -1,6 +1,6 @@
 # _SwiftXrt_7_fitDirectory
 ## fitディレクトリにまとめ
-echo ${My_Swift_D:=$(pwd)} # 未定義時に代入
+declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
 cd $My_Swift_D
 tmp_prefix="xrt_"
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))

@@ -1,7 +1,7 @@
 # _SuzakuXis_b_afterDs9
 # _SuzakuXis_2_xselect
 ## extarct spec with xselect
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -80,7 +80,9 @@ done
 cd $My_Suzaku_D
 # _SuzakuXis_3_genRmfArf
 ## rmfおよびarf作成
-echo ${My_Suzaku_D:=$(pwd)}
+FLAG_rmf=true # arg
+FLAG_arf=true # arg
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -99,7 +101,7 @@ done
 cd $My_Suzaku_D
 
 ### arf
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -153,7 +155,7 @@ done
 cd $My_Suzaku_D
 # _SuzakuXis_4_addascaspec
 ## addascaspec
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -187,7 +189,11 @@ done
 cd $My_Suzaku_D
 # _SuzakuXis_5_editHeader
 ## edit header
-echo ${My_Suzaku_D:=$(pwd)}
+FLAG_minimum=false # arg
+FLAG_strict=false # arg
+origSrc=nu%OBSID%A01_sr.pha # arg
+origBkg=nu%OBSID%A01_bk.pha # arg
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -196,7 +202,7 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
     if [[ ! -r $My_Suzaku_Dir/fit ]]; then continue; fi
     cd $My_Suzaku_Dir/fit
     find . -regextype sed -regex "xis_[A-Z]+[0-9]+__*.*" |
-        rename "s/(xis_[A-Z]+[0-9]+)__/\$1_${My_Suzaku_ID}_/" -f
+        rename -f "s/(xis_[A-Z]+[0-9]+)__/\$1_${My_Suzaku_ID}_/"
     nongrp_names=($(find . -name "xis_*_nongrp.fits" -printf "%f\n"))
     for nongrp_name in ${nongrp_names[@]}; do
         xis_cam_fb=$(echo $nongrp_name | sed -r -n "s/^.*(xis_[A-Z]+[0-9]+)_.*$/\1/p")
@@ -258,7 +264,7 @@ cd $My_Suzaku_D
 # _SuzakuXis_6_grppha
 ## grppha
 declare -A grp_nums=(["FI"]=25 ["BI"]=25) # arg
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -287,7 +293,7 @@ done
 cd $My_Suzaku_D
 # _SuzakuXis_7_fitDirectory
 ## fitディレクトリにまとめ
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 tmp_prefix=xis_
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))

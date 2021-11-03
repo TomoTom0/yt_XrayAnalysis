@@ -1,13 +1,15 @@
 # _Newton_10_fitDirectory
 ## fitディレクトリにまとめ
-echo ${My_Newton_D:=$(pwd)}
+FLAG_hardCopy=false # arg
+FLAG_symbLink=false # arg
+tmp_prefix="newton_" # arg
+declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
 cd $My_Newton_D
-tmp_prefix=newton_
 mkdir -p $My_Newton_D/fit $My_Newton_D/../fit/
 
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Newton_ID in ${obs_dirs[@]}; do
-    cp $My_Newton_D/$My_Newton_ID/ODF/fit/${tmp_prefix}* ${My_Newton_D}/fit/ -f
+    cp -f $My_Newton_D/$My_Newton_ID/ODF/fit/${tmp_prefix}* ${My_Newton_D}/fit/
 done
 ### remove the files with the same name as new files
 find $My_Newton_D/fit/ -name "${tmp_prefix}*.*" \

@@ -1,6 +1,6 @@
 # _SuzakuHxd_2_obtainRspGti
 ## set rsp, gti
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 
 function _Obtain_SuzakuHxd_RspIndex() {

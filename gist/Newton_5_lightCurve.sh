@@ -1,6 +1,7 @@
 # _Newton_5_lightCurve
 ## light curve
-echo ${My_Newton_D:=$(pwd)}
+declare -A pis=(["mos1"]="PI in [200:12000]" ["mos2"]="PI in [200:12000]" ["pn"]="PI in [200:15000]") # arg
+declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
 cd $My_Newton_D
 
 if [[ x == x$(alias sas 2>/dev/null) ]]; then
@@ -28,7 +29,7 @@ for My_Newton_ID in ${obs_dirs[@]}; do
             rateset=${My_Newton_D}/lc/newton_${cam}_lc_src_${My_Newton_ID}.fits \
             maketimecolumn=yes timecolumn=TIME \
             timebinsize=100 makeratecolumn=yes \
-            expression="((X,Y) in CIRCLE(${coor_arg}))&&(PI in [200:10000])"
+            expression="((X,Y) in CIRCLE(${coor_arg}))&&(${pis[$cam]})"
     done
 done
 cd $My_Newton_D

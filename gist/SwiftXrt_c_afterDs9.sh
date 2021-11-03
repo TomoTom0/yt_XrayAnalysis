@@ -1,7 +1,7 @@
 # _SwiftXrt_c_afterDs9
 # _SwiftXrt_3_products
 ## xrtproducts
-echo ${My_Swift_D:=$(pwd)} # 未定義時に代入
+declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
 cd $My_Swift_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Swift_ID in ${obs_dirs[@]}; do
@@ -24,7 +24,7 @@ done
 cd $My_Swift_D
 # _SwiftXrt_4_obtainRmf
 ## obtain rmf
-echo ${My_Swift_D:=$(pwd)} # 未定義時に代入
+declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
 cd $My_Swift_D
 function _ObtainXrtRmfVersion() {
     mjd_in=$1
@@ -88,7 +88,7 @@ done
 cd $My_Swift_D
 # _SwiftXrt_5_editHEader
 ## edit header
-echo ${My_Swift_D:=$(pwd)} # 未定義時に代入
+declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
 cd $My_Swift_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Swift_ID in ${obs_dirs[@]}; do
@@ -99,7 +99,7 @@ for My_Swift_ID in ${obs_dirs[@]}; do
     cd $My_Swift_Dir/xrt/output/fit
 
     find . -name "xrt__*" |
-        rename "s/xrt__/xrt_${My_Swift_ID}_/" -f
+        rename -f "s/xrt__/xrt_${My_Swift_ID}_/"
 
     nongrp_name=xrt_${My_Swift_ID}_nongrp.fits
 
@@ -120,7 +120,7 @@ cd $My_Swift_D
 # _SwiftXrt_6_grppha
 ## grppha
 gnum=50 # arg
-echo ${My_Swift_D:=$(pwd)} # 未定義時に代入
+declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
 cd $My_Swift_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Swift_ID in ${obs_dirs[@]}; do
@@ -143,7 +143,7 @@ done
 cd $My_Swift_D
 # _SwiftXrt_7_fitDirectory
 ## fitディレクトリにまとめ
-echo ${My_Swift_D:=$(pwd)} # 未定義時に代入
+declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
 cd $My_Swift_D
 tmp_prefix="xrt_"
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))

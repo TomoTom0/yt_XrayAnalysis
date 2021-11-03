@@ -37,7 +37,7 @@ __obtain_options allArgs flagsAll flagsArgDict argc kwargs flagsIn
 
 if [[ " ${!flagsIn[@]} " =~ " help " ]]; then
     __usage
-    return 0
+    exit 1
 fi
 
 # ----------------------------------------- #

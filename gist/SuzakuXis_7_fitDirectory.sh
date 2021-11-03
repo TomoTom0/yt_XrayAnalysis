@@ -1,6 +1,6 @@
 # _SuzakuXis_7_fitDirectory
 ## fitディレクトリにまとめ
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 tmp_prefix=xis_
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))

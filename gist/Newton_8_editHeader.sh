@@ -1,6 +1,8 @@
 # _Newton_8_editHeader
 ## edit header
-echo ${My_Newton_D:=$(pwd)}
+FLAG_minimum=false # arg
+FLAG_strict=false # arg
+declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
 cd $My_Newton_D
 
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
@@ -13,12 +15,9 @@ for My_Newton_ID in ${obs_dirs[@]}; do
         sed -r -n "s/^newton_(mos1|mos2|mos12|pn)_${My_Newton_ID}_nongrp.fits$/\1/p"))
     for cam in ${all_cams_tmp2[@]}; do
         nongrp_name=newton_${cam}_${My_Newton_ID}_nongrp.fits
-        rm ${grp_name} -f
-
         if [[ $cam == "mos12" ]]; then
-
             # edit header for nongrp
-            oldName=newton_mos1_${My_Newton_ID}_pi.fits
+            oldName=newton_mos1_${My_Newton_ID}_nongrp.fits
             newName=$nongrp_name
 
             cp_keys=(LONGSTRN DATAMODE TELESCOP OBS_ID OBS_MODE REVOLUT
@@ -35,9 +34,17 @@ for My_Newton_ID in ${obs_dirs[@]}; do
                 ["BACKFILE"]=newton_${cam}_${My_Newton_ID}_bkg.fits
                 ["RESPFILE"]=newton_${cam}_${My_Newton_ID}_rmf.fits
             )
+            if [[ ${FLAG_strict:=false} == "true" ]]; then
+                cp_keys2=()
+            fi
+            if [[ ${FLAG_minimum:=false} == "true" ]]; then
+                cp_keys=()
+                cp_keys2=()
+            fi
+
 
             for key in ${cp_keys[@]} ${cp_keys2[@]}; do
-                orig_val=$(fkeyprint infile="${oldName}+0" keynam="${key}" |
+                orig_val=$(fkeyprint infile="${oldName}+1" keynam="${key}" |
                     grep "${key}\s*=" |
                     sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
 
@@ -59,7 +66,7 @@ for My_Newton_ID in ${obs_dirs[@]}; do
 
             for key in ${!tr_keys[@]}; do
                 fparkey value="${tr_keys[$key]}" \
-                    fitsfile=${nongrp_name}+0 \
+                    fitsfile=${nongrp_name}+1 \
                     keyword="${key}" add=yes
             done
         fi

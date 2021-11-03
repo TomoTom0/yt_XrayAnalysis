@@ -1,6 +1,6 @@
 # _SwiftXrt_2_ds9
 ## ds9で領域指定
-echo ${My_Swift_D:=$(pwd)} # 未定義時に代入
+declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
 cd $My_Swift_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Swift_ID in ${obs_dirs[@]}; do

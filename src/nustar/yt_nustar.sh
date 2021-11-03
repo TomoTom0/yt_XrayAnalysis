@@ -472,7 +472,12 @@ EOF
         nongrp_name=AB_${My_Nustar_ID}_nongrp.fits
 
         ### edit header for spectrum file
-        oldName=nu${My_Nustar_ID}A01_sr.pha
+        _oldName_tmp=${origSrc/\%OBSID%/${My_Nustar_ID}}
+        if [[ -r ${_oldName_tmp} ]]; then
+            oldName=_origSrc_tmp
+        else
+            oldName=nu${My_Nustar_ID}A01_sr.pha
+        fi
         newName=$nongrp_name
 
         ### same values
@@ -525,7 +530,12 @@ EOF
         done
 
         ### edit header for bkg file
-        oldName=nu${My_Nustar_ID}A01_bk.pha
+        _oldName_tmp=${origBkg/\%OBSID%/${My_Nustar_ID}}
+        if [[ -r ${_oldName_tmp} ]]; then
+            oldName=_origSrc_tmp
+        else
+            oldName=nu${My_Nustar_ID}A01_bk.pha
+        fi
         newName=AB_${My_Nustar_ID}_bkg.fits
 
         ### same values

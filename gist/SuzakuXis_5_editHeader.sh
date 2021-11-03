@@ -1,6 +1,10 @@
 # _SuzakuXis_5_editHeader
 ## edit header
-echo ${My_Suzaku_D:=$(pwd)}
+FLAG_minimum=false # arg
+FLAG_strict=false # arg
+origSrc=nu%OBSID%A01_sr.pha # arg
+origBkg=nu%OBSID%A01_bk.pha # arg
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -9,7 +13,7 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
     if [[ ! -r $My_Suzaku_Dir/fit ]]; then continue; fi
     cd $My_Suzaku_Dir/fit
     find . -regextype sed -regex "xis_[A-Z]+[0-9]+__*.*" |
-        rename "s/(xis_[A-Z]+[0-9]+)__/\$1_${My_Suzaku_ID}_/" -f
+        rename -f "s/(xis_[A-Z]+[0-9]+)__/\$1_${My_Suzaku_ID}_/"
     nongrp_names=($(find . -name "xis_*_nongrp.fits" -printf "%f\n"))
     for nongrp_name in ${nongrp_names[@]}; do
         xis_cam_fb=$(echo $nongrp_name | sed -r -n "s/^.*(xis_[A-Z]+[0-9]+)_.*$/\1/p")

@@ -1,7 +1,7 @@
 # _Newton_9_grppha
 ## grppha
-declare -A gnums=(["pn"]=50 ["mos12"]=50 ["mos1"]=50 ["mos2"]=50) # arg
-echo ${My_Newton_D:=$(pwd)}
+declare -A gnums=(["pn"]=50 ["mos12"]=50 ["mos1"]=30 ["mos2"]=30) # arg
+declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
 cd $My_Newton_D
 
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
@@ -14,6 +14,7 @@ for My_Newton_ID in ${obs_dirs[@]}; do
         sed -r -n "s/^newton_(mos1|mos2|mos12|pn)_${My_Newton_ID}_nongrp.fits$/\1/p"))
     for cam in ${all_cams_tmp2[@]}; do
         gnum=${gnums[$cam]}
+        if [[ $gnum -le 0 ]]; then continue; fi
         grp_name=newton_${cam}_${My_Newton_ID}_grp${gnum}.fits
         nongrp_name=newton_${cam}_${My_Newton_ID}_nongrp.fits
         cat <<EOF | bash

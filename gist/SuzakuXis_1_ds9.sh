@@ -1,6 +1,7 @@
 # _SuzakuXis_1_ds9
 ## ds9
-echo ${My_Suzaku_D:=$(pwd)}
+FLAG_simple=false # arg
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -37,7 +38,9 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
             -regions save $My_Suzaku_D/saved.reg -exit
     fi
     cp ${My_Suzaku_D}/saved.reg xis.reg -f
+    echo ""
     echo "----  save as xis.reg with overwriting  ----"
+    echo ""
     ds9 $evt_file \
         -scale log -cmap bb -mode region \
         -regions load xis.reg

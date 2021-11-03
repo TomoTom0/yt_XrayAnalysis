@@ -1,6 +1,6 @@
 # _SuzakuHxd_1_obtainNxb
 ## download NXB (Non X-ray Background source)
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 
 function _mjd2date() {

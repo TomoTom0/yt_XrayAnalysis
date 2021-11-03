@@ -1,7 +1,7 @@
 # _SuzakuHxd_a_all
 # _SuzakuHxd_1_obtainNxb
 ## download NXB (Non X-ray Background source)
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 
 function _mjd2date() {
@@ -64,7 +64,7 @@ done
 cd $My_Suzaku_D
 # _SuzakuHxd_2_obtainRspGti
 ## set rsp, gti
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 
 function _Obtain_SuzakuHxd_RspIndex() {
@@ -113,7 +113,7 @@ done
 cd $My_Suzaku_D
 # _SuzakuHxd_3_xselect
 ## extract spec
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 for My_Suzaku_ID in ${obs_dirs[@]}; do
     My_Suzaku_Dir=$My_Suzaku_D/$My_Suzaku_ID/hxd/event_cl
@@ -146,7 +146,7 @@ done
 cd $My_Suzaku_D
 # _SuzakuHxd_4_corrections
 ## dead time correction and BGD EXPOSURE correction
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 for My_Suzaku_ID in ${obs_dirs[@]}; do
     My_Suzaku_Dir=$My_Suzaku_D/$My_Suzaku_ID/hxd/event_cl
@@ -181,14 +181,14 @@ cd $My_Suzaku_D
 
 # _SuzakuHxd_5_editHeader
 ## edit header
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 for My_Suzaku_ID in ${obs_dirs[@]}; do
     My_Suzaku_Dir=$My_Suzaku_D/$My_Suzaku_ID/hxd/event_cl
     if [[ ! -r $My_Suzaku_Dir/fit ]]; then continue; fi
 
     cd $My_Suzaku_Dir/fit
-    find . -name "hxd__*" | xargs -n 1 rename "s/hxd__/hxd_${My_Suzaku_ID}_/" -f
+    find . -name "hxd__*" | rename -f "s/hxd__/hxd_${My_Suzaku_ID}_/"
     for nongrp_name in $(ls hxd_[0-9]*_nongrp.fits); do
         grp_name=${nongrp_name/_nongrp.fits/_grp${grp_num}.fits}
 
@@ -209,7 +209,7 @@ cd $My_Suzaku_D
 # _SuzakuHxd_6_grppha
 ## grppha
 gnum=25 # arg
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 for My_Suzaku_ID in ${obs_dirs[@]}; do
     My_Suzaku_Dir=$My_Suzaku_D/$My_Suzaku_ID/hxd/event_cl
@@ -231,7 +231,7 @@ done
 cd $My_Suzaku_D
 # _SuzakuHxd_7_fitDirectory
 # to fit directory
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 
 mkdir -p fit $My_Suzaku_D/../fit

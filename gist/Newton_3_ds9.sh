@@ -1,6 +1,7 @@
 # _Newton_3_ds9
 ## ds9で領域指定
-echo ${My_Newton_D:=$(pwd)}
+FLAG_simple=false # arg
+declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
 cd $My_Newton_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Newton_ID in ${obs_dirs[@]}; do
@@ -11,7 +12,7 @@ for My_Newton_ID in ${obs_dirs[@]}; do
     cd $My_Newton_Dir/fit
     _evt_tmps=($(find $My_Newton_Dir/fit/ -name "*_filt_time.fits"))
     evt_file=${_evt_tmps[0]}
-    if [[ ! -r ${My_Newton_D}/saved.reg ]]; then
+    if [[ ! -r ${My_Newton_D}/saved.reg && "${FLAG_simple:=false}" == "false" ]]; then
         # saved.regが存在しないなら、新たに作成する
         declare -A tmp_dict=(["RA_OBJ"]="0" ["DEC_OBJ"]="0")
         for key in ${!tmp_dict[@]}; do
@@ -38,13 +39,27 @@ for My_Newton_ID in ${obs_dirs[@]}; do
     fi
 
     for cam in ${all_cams[@]}; do
-        cp ${My_Newton_D}/saved.reg ${cam}.reg -f
-        echo "----  save as ${cam}.reg with overwriting  ----"
-        ds9 $My_Newton_Dir/fit/${cam}_filt_time.fits \
-            -scale log -cmap bb -mode region \
-            -bin factor 16 -regions load ${cam}.reg
-        ### adjust mos1.reg, mos2.reg, pn.reg
-        cp ${cam}.reg ${My_Newton_D}/saved.reg -f
+        if [[ "${FLAG_simple:=false}" == "false" ]]; then
+            cp ${My_Newton_D}/saved.reg ${cam}.reg -f
+            echo ""
+            echo "----  save as ${cam}.reg with overwriting  ----"
+            echo ""
+            ds9 $My_Newton_Dir/fit/${cam}_filt_time.fits \
+                -scale log -cmap bb -mode region \
+                -bin factor 16 -regions load ${cam}.reg
+            ### adjust mos1.reg, mos2.reg, pn.reg
+            cp ${cam}.reg ${My_Newton_D}/saved.reg -f
+        else
+            # simple mode
+            echo ""
+            echo "----  save as ${cam}.reg  ----"
+            echo ""
+            ds9 $My_Newton_Dir/fit/${cam}_filt_time.fits \
+                -scale log -cmap bb -mode region \
+                -bin factor 16 -regions
+            ### make mos1.reg, mos2.reg, pn.reg
+
+        fi
     done
 done
 cd $My_Newton_D

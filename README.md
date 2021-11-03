@@ -24,7 +24,7 @@ or add the following content to `~/.bashrc` or `~/.bash_profile`
 ## ~/.bashrc
 
 # yt_XrayAnalysis
-if [[ -r ${dir_path}/bin/setup.sh ]]; then
+if [[ -r Path_Of_ytXrayAnalysis_Directory/bin/setup.sh ]]; then
     source Path_Of_ytXrayAnalysis_Directory/bin/setup.sh
 fi
 

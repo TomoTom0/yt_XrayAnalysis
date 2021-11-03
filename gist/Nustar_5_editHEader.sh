@@ -1,6 +1,10 @@
 # _Nustar_5_editHEader
 ## edit header
-echo ${My_Nustar_D:=$(pwd)} # 未定義時に代入
+FLAG_minimum=false # arg
+FLAG_strict=false # arg
+origSrc=nu%OBSID%A01_sr.pha # arg
+origBkg=nu%OBSID%A01_bk.pha # arg
+declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} # 未定義時に代入
 cd $My_Nustar_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Nustar_ID in ${obs_dirs[@]}; do
@@ -36,6 +40,14 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
         MJD-OBS FILIN001 DEADC NPIXSOU CRPIX1 CRPIX2 LTV1
         CRVAL1P LTV2 CRVAL2P BBOX1 BBOX2 X-OFFSET
         Y-OFFSET TOTCTS)
+
+    if [[ ${FLAG_strict:=false} == "true" ]]; then
+        cp_keys2=()
+    fi
+    if [[ ${FLAG_minimum:=false} == "true" ]]; then
+        cp_keys=()
+        cp_keys2=()
+    fi
 
     declare -A tr_keys=(
         ["BACKFILE"]="AB_${My_Nustar_ID}_bkg.fits"
@@ -82,10 +94,18 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
     ### near values
     cp_keys2=(INSTRUME DATE ONTIME LIVETIME DEADC)
 
+    if [[ ${FLAG_strict:=false} == "true" ]]; then
+        cp_keys2=()
+    fi
+    if [[ ${FLAG_minimum:=false} == "true" ]]; then
+        cp_keys=()
+        cp_keys2=()
+    fi
+
     declare -A tr_keys=()
 
     for key in ${cp_keys[@]} ${cp_keys2[@]}; do
-        orig_val=$(fkeyprint infile="${oldName}+0" keynam="${key}" |
+        orig_val=$(fkeyprint infile="${oldName}+1" keynam="${key}" |
             grep "${key}\s*=" |
             sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
 

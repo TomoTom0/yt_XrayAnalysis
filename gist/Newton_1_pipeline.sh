@@ -1,7 +1,8 @@
 # _Newton_1_pipeline
 ## はじめの処理
 all_cams=(mos1 mos2 pn) # arg
-echo ${My_Newton_D:=$(pwd)}
+FLAG_clean=false # arg
+declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
 cd $My_Newton_D
 
 if [[ x == x$(alias sas 2>/dev/null) ]]; then
@@ -24,23 +25,25 @@ for My_Newton_ID in ${obs_dirs[@]}; do
     fi
     export SAS_CCF=$My_Newton_Dir/ccf.cif &&
         rm *SUM.SAS -f && odfingest # make *SUM.SAS
-    if [[ x == x$(find . -name "*SUM.SAS" -printf "1") ]]; then
+    if [[ x == x$(find . -name "*SUM.SAS" -printf 1) ]]; then
         echo "Error occured in odfingest"
         kill -INT $$
     fi
     _SAS_ODF_tmps=($(ls $My_Newton_Dir/*SUM.SAS))
     export SAS_ODF=${_SAS_ODF_tmps[-1]}
     rm -f *_EMOS[12]_*_ImagingEvts.ds && emproc
-    if [[ x11 != x$(find . -name "*_EMOS[12]_*_ImagingEvts.ds" -printf "1") ]]; then
+    if [[ x11 != x$(find . -name "*_EMOS[12]_*_ImagingEvts.ds" -printf 1) ]]; then
         echo "Error occured in emproc"
         kill -INT $$
     fi
     rm -f *_EPN_*_ImagingEvts.ds && epproc
-    if [[ x == x$(find . -name "*_EPN_*_ImagingEvts.ds" -printf "1") ]]; then
+    if [[ x == x$(find . -name "*_EPN_*_ImagingEvts.ds" -printf 1) ]]; then
         echo "Error occured in epproc"
         kill -INT $$
     fi
-
+    if [[ "${FLAG_clean:=false}" == "true" ]]; then
+        rm $My_Newton_Dir/fit -rf
+    fi
     mkdir $My_Newton_Dir/fit -p
 
     cp *_EMOS1_*_ImagingEvts.ds fit/mos1.fits -f

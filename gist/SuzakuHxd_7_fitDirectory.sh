@@ -1,6 +1,6 @@
 # _SuzakuHxd_7_fitDirectory
 # to fit directory
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 
 mkdir -p fit $My_Suzaku_D/../fit

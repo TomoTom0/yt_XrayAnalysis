@@ -1,13 +1,13 @@
 # _SuzakuHxd_5_editHeader
 ## edit header
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 for My_Suzaku_ID in ${obs_dirs[@]}; do
     My_Suzaku_Dir=$My_Suzaku_D/$My_Suzaku_ID/hxd/event_cl
     if [[ ! -r $My_Suzaku_Dir/fit ]]; then continue; fi
 
     cd $My_Suzaku_Dir/fit
-    find . -name "hxd__*" | xargs -n 1 rename "s/hxd__/hxd_${My_Suzaku_ID}_/" -f
+    find . -name "hxd__*" | rename -f "s/hxd__/hxd_${My_Suzaku_ID}_/"
     for nongrp_name in $(ls hxd_[0-9]*_nongrp.fits); do
         grp_name=${nongrp_name/_nongrp.fits/_grp${grp_num}.fits}
 

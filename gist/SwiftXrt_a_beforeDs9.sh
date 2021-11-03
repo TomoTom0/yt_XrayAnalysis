@@ -1,7 +1,7 @@
 # _SwiftXrt_a_beforeDs9
 # _SwiftXrt_1_pipeline
 ## pipeline
-echo ${My_Swift_D:=$(pwd)}
+declare -g My_Swift_D=${My_Swift_D:=$(pwd)}
 cd $My_Swift_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Swift_ID in ${obs_dirs[@]}; do

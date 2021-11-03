@@ -1,6 +1,6 @@
 # _SwiftXrt_5_editHEader
 ## edit header
-echo ${My_Swift_D:=$(pwd)} # 未定義時に代入
+declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
 cd $My_Swift_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Swift_ID in ${obs_dirs[@]}; do
@@ -11,7 +11,7 @@ for My_Swift_ID in ${obs_dirs[@]}; do
     cd $My_Swift_Dir/xrt/output/fit
 
     find . -name "xrt__*" |
-        rename "s/xrt__/xrt_${My_Swift_ID}_/" -f
+        rename -f "s/xrt__/xrt_${My_Swift_ID}_/"
 
     nongrp_name=xrt_${My_Swift_ID}_nongrp.fits
 

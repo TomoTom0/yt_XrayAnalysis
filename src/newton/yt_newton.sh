@@ -1,6 +1,9 @@
 #!/bin/bash
 
-dir_path=$(cd $(dirname ${BASH_SOURCE:-$0}); pwd)
+dir_path=$(
+    cd $(dirname ${BASH_SOURCE:-$0})
+    pwd
+)
 source ${dir_path}/../../lib/obtain_options.sh
 
 alias yt_newton_1="_Newton_1_pipeline"
@@ -16,7 +19,7 @@ function _Newton_1_pipeline() {
 
     function __usage() {
         echo "Usage: ${FUNCNAME[1]} [-h,--help] [--ignore mos1,mos2,pn]" 1>&2
-        cat << EOF
+        cat <<EOF
 
 ${FUNCNAME[1]}
     execute first pipeline for EMOS and EPN
@@ -65,7 +68,7 @@ EOF
     # ---------------------
     all_cams=(mos1 mos2 pn)
     FLAG_clean=false
-    if [[ x${FUNCNAME} != x ]]; then
+    if [[ "x${FUNCNAME}" != x ]]; then
         if [[ -n ${kwargs[ignore__cameras]} ]]; then
             all_cams=$(echo ${kwargs[ignore__cameras]} | grep -o -E "(mos1|mos2|pn)")
         fi
@@ -77,7 +80,7 @@ EOF
     declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
     cd $My_Newton_D
 
-    if [[ x == x$(alias sas 2>/dev/null) ]]; then
+    if [[ x == "x$(alias sas 2>/dev/null)" ]]; then
         echo "Error: alias sas is not defined."
         kill -INT $$
     fi
@@ -142,7 +145,7 @@ function _Newton_2_filter() {
 
     function __usage() {
         echo "Usage: ${FUNCNAME[1]} [-h,--help] [--filter FILTER_MOS1,MOS2,PN] ..." 1>&2
-        cat << EOF
+        cat <<EOF
 
 ${FUNCNAME[1]}
     filter with Counts in order to remove flare
@@ -218,7 +221,7 @@ EOF
     cd $My_Newton_D
     declare -A xmms=(["mos1"]="#XMMEA_EM" ["mos2"]="#XMMEA_EM" ["pn"]="#XMMEA_EP")
 
-    if [[ x == x$(alias sas 2>/dev/null) ]]; then
+    if [[ x == "x$(alias sas 2>/dev/null)" ]]; then
         echo "Error: alias sas is not defined."
         kill -INT $$
     fi
@@ -235,27 +238,27 @@ EOF
         for cam in ${all_cams_tmp[@]}; do
             rm tmp_${cam}_filt.fits -f &&
                 evselect table=${cam}.fits withfilteredset=yes \
-                expression="(PATTERN <= 12)&&(${pis[$cam]})&&${xmms[$cam]}" \
-                filteredset=tmp_${cam}_filt.fits filtertype=expression \
-                keepfilteroutput=yes \
-                updateexposure=yes filterexposure=yes
+                    expression="(PATTERN <= 12)&&(${pis[$cam]})&&${xmms[$cam]}" \
+                    filteredset=tmp_${cam}_filt.fits filtertype=expression \
+                    keepfilteroutput=yes \
+                    updateexposure=yes filterexposure=yes
 
             rm tmp_${cam}_lc_hard.fits -f &&
                 evselect table=${cam}.fits withrateset=yes \
-                rateset=tmp_${cam}_lc_hard.fits \
-                maketimecolumn=yes timecolumn=TIME timebinsize=100 makeratecolumn=yes \
-                expression="(PATTERN == 0)&&(${pis_hard[$cam]})&&${xmms[$cam]}"
+                    rateset=tmp_${cam}_lc_hard.fits \
+                    maketimecolumn=yes timecolumn=TIME timebinsize=100 makeratecolumn=yes \
+                    expression="(PATTERN == 0)&&(${pis_hard[$cam]})&&${xmms[$cam]}"
 
             rm ${cam}_gti.fits -f &&
                 tabgtigen table=tmp_${cam}_lc_hard.fits gtiset=${cam}_gti.fits \
-                timecolumn=TIME \
-                expression="(RATE <= ${rates[$cam]})"
+                    timecolumn=TIME \
+                    expression="(RATE <= ${rates[$cam]})"
 
             rm ${cam}_filt_time.fits -f &&
                 evselect table=tmp_${cam}_filt.fits withfilteredset=yes \
-                expression="GTI(${cam}_gti.fits,TIME)" filteredset=${cam}_filt_time.fits \
-                filtertype=expression keepfilteroutput=yes \
-                updateexposure=yes filterexposure=yes
+                    expression="gti(${cam}_gti.fits,TIME) && (PI>150) && ${xmms[$cam]}" filteredset=${cam}_filt_time.fits \
+                    filtertype=expression keepfilteroutput=yes \
+                    updateexposure=yes filterexposure=yes
         done
 
     done
@@ -277,7 +280,7 @@ function _Newton_3_ds9() {
 
     function __usage() {
         echo "Usage: ${FUNCNAME[1]} [-h,--help] [--simple]" 1>&2
-        cat << EOF
+        cat <<EOF
 
 ${FUNCNAME[1]}
     make region files about source and background with ds9
@@ -339,7 +342,7 @@ EOF
         if [[ ! -r $My_Newton_Dir/fit ]]; then continue; fi
 
         cd $My_Newton_Dir/fit
-        _evt_tmps=($(find $My_Newton_Dir/fit/ -name "*_filt_time.fits"))
+        _evt_tmps=($(find $My_Newton_Dir/fit/ -name "*_filt_time.fits" -printf "%f\n"))
         evt_file=${_evt_tmps[0]}
         if [[ ! -r ${My_Newton_D}/saved.reg && "${FLAG_simple:=false}" == "false" ]]; then
             # saved.regが存在しないなら、新たに作成する
@@ -406,7 +409,7 @@ function _Newton_4_regionFilter() {
 
     function __usage() {
         echo "Usage: ${FUNCNAME[1]} [-h,--help] " 1>&2
-        cat << EOF
+        cat <<EOF
 
 ${FUNCNAME[1]}
     filter region and extract spectrum
@@ -453,7 +456,7 @@ EOF
 
     declare -A spchmax=(["mos1"]=11999 ["mos2"]=11999 ["pn"]=20479)
 
-    if [[ x == x$(alias sas 2>/dev/null) ]]; then
+    if [[ x == "x$(alias sas 2>/dev/null)" ]]; then
         echo "Error: alias sas is not defined."
         kill -INT $$
     fi
@@ -465,39 +468,42 @@ EOF
         if [[ ! -r $My_Newton_Dir/fit ]]; then continue; fi
         cd $My_Newton_Dir/fit
 
-        all_cams_tmp=($(ls *_filt_time.fits |
-            sed -r -n "s/^.*(mos1|mos2|pn)_filt_time.fits$/\1/p"))
+        all_cams_tmp=($(find . -name "*_filt_time.fits" -printf "%f\n" |
+            sed -r -n "s/^(mos1|mos2|pn)_filt_time.fits$/\1/p"))
         for cam in ${all_cams_tmp[@]}; do
             # for source
             ds9 ${cam}_filt_time.fits -regions load ${cam}.reg -regions system physical \
-                -regions save tmp.reg -exit &&
-            coor_arg=$(cat tmp.reg | grep circle |
-                grep -v "# background" |
-                sed -r -n "s/^.*circle\((.*)\).*$/\1/p") &&
-            rm ${cam}__nongrp.fits -f &&
-            evselect table=${cam}_filt_time.fits energycolumn="PI" \
-                withfilteredset=yes filteredset=${cam}_filtered.fits \
-                keepfilteroutput=yes filtertype="expression" \
-                expression="((X,Y) in CIRCLE(${coor_arg}))" \
-                withspectrumset=yes spectrumset=${cam}__nongrp.fits \
-                spectralbinsize=5 withspecranges=yes \
-                specchannelmin=0 specchannelmax=${spchmax[$cam]}
+                -regions centroid -regions save tmp.reg -exit &&
+                coor_arg=$(cat tmp.reg | grep circle |
+                    grep -v "# background" |
+                    sed -r -n "s/^.*circle\((.*)\).*$/\1/p") &&
+                rm ${cam}__nongrp.fits ${cam}_filtered.fits  -f &&
+                evselect table=${cam}_filt_time.fits energycolumn="PI" \
+                    withfilteredset=yes filteredset=${cam}_filtered.fits \
+                    keepfilteroutput=yes filtertype="expression" \
+                    expression="(FLAG==0) && (PATTERN<=4) && ((X,Y) in CIRCLE(${coor_arg}))" \
+                    withspectrumset=yes spectrumset=${cam}__nongrp.fits \
+                    spectralbinsize=5 withspecranges=yes \
+                    specchannelmin=0 specchannelmax=${spchmax[$cam]}
 
             # for background
             ds9 ${cam}_filt_time.fits -regions load ${cam}.reg \
                 -regions system physical \
                 -regions save tmp.reg -exit &&
-            coor_arg=$(cat tmp.reg | grep circle |
-                grep "# background" |
-                sed -r -n "s/^.*circle\((.*)\).*$/\1/p") &&
-            rm ${cam}__bkg.fits -f &&
-            evselect table=${cam}_filt_time.fits energycolumn="PI" \
-                withfilteredset=yes filteredset=${cam}_bkg_filtered.fits \
-                keepfilteroutput=yes filtertype="expression" \
-                expression="((X,Y) in CIRCLE(${coor_arg}))" \
-                withspectrumset=yes spectrumset=${cam}__bkg.fits \
-                spectralbinsize=5 withspecranges=yes \
-                specchannelmin=0 specchannelmax=${spchmax[$cam]}
+                coor_arg=$(cat tmp.reg | grep circle |
+                    grep "# background" |
+                    sed -r -n "s/^.*circle\((.*)\).*$/\1/p") &&
+                rm ${cam}__bkg.fits ${cam}_bkg_filtered.fits  -f &&
+                evselect table=${cam}_filt_time.fits energycolumn="PI" \
+                    withfilteredset=yes filteredset=${cam}_bkg_filtered.fits \
+                    keepfilteroutput=yes filtertype="expression" \
+                    expression="(FLAG==0) && (PATTERN<=4) && ((X,Y) in CIRCLE(${coor_arg}))" \
+                    withspectrumset=yes spectrumset=${cam}__bkg.fits \
+                    spectralbinsize=5 withspecranges=yes \
+                    specchannelmin=0 specchannelmax=${spchmax[$cam]}
+
+            backscale spectrumset=${cam}__nongrp.fits badpixlocation=${cam}_filt_time.fits
+            backscale spectrumset=${cam}__bkg.fits badpixlocation=${cam}_filt_time.fits
         done
     done
     cd $My_Newton_D
@@ -515,7 +521,7 @@ function _Newton_5_lightCurve() {
 
     function __usage() {
         echo "Usage: ${FUNCNAME[1]} [-h,--help] [--filterLc FILTER_MOS1,MOS2,PN]" 1>&2
-        cat << EOF
+        cat <<EOF
 
 ${FUNCNAME[1]}
     make light curve
@@ -570,7 +576,7 @@ EOF
     declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
     cd $My_Newton_D
 
-    if [[ x == x$(alias sas 2>/dev/null) ]]; then
+    if [[ x == "x$(alias sas 2>/dev/null)" ]]; then
         echo "Error: alias sas is not defined."
         kill -INT $$
     fi
@@ -582,9 +588,9 @@ EOF
         My_Newton_Dir=$My_Newton_D/$My_Newton_ID/ODF
 
         cd $My_Newton_Dir/fit
-        all_cams_tmp=($(ls *_filt_time.fits |
-            sed -r -n "s/^.*(mos1|mos2|pn)_filt_time.fits$/\1/p"))
-        for cam in ${all_cams_tmp}; do
+        all_cams_tmp=($(find . -name "*_filt_time.fits" -printf "%f\n" |
+            sed -r -n "s/^(mos1|mos2|pn)_filt_time.fits$/\1/p"))
+        for cam in ${all_cams_tmp[@]}; do
             ds9 ${cam}_filt_time.fits -regions load ${cam}.reg \
                 -regions system physical -regions save tmp.reg -exit
             coor_arg=$(cat tmp.reg | grep circle |
@@ -592,7 +598,7 @@ EOF
                 sed -r -n "s/^.*circle\((.*)\).*$/\1/p")
 
             evselect table=${cam}_filt_time.fits withrateset=yes \
-                rateset=${My_Newton_D}/lc/newton_${cam}_lc_src_${My_Newton_ID}.fits \
+                rateset=${My_Newton_Dir}/fit/newton_${cam}_${My_Newton_ID}_lc_src.fits \
                 maketimecolumn=yes timecolumn=TIME \
                 timebinsize=100 makeratecolumn=yes \
                 expression="((X,Y) in CIRCLE(${coor_arg}))&&(${pis[$cam]})"
@@ -610,14 +616,13 @@ function _Newton_6_genRmfArf() {
     # args: FLAG_rmf=true
     # args: FLAG_arf=true
 
-
     # ---------------------
     ##     obtain options
     # ---------------------
 
     function __usage() {
         echo "Usage: ${FUNCNAME[1]} [-h,--help] [--rmf] [--arf]" 1>&2
-        cat << EOF
+        cat <<EOF
 
 ${FUNCNAME[1]}
     generate rmf and arf files
@@ -675,7 +680,7 @@ EOF
     declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
     cd $My_Newton_D
 
-    if [[ x == x$(alias sas 2>/dev/null) ]]; then
+    if [[ x == "x$(alias sas 2>/dev/null)" ]]; then
         echo "Error: alias sas is not defined."
         kill -INT $$
     fi
@@ -698,8 +703,8 @@ EOF
             if [[ "${FLAG_arf:=true}" == "true" ]]; then
                 rm ${cam}__arf.fits -f &&
                     arfgen arfset=${cam}__arf.fits spectrumset=${cam}__nongrp.fits \
-                    withrmfset=yes rmfset=${cam}__rmf.fits withbadpixcorr=yes \
-                    badpixlocation=${cam}_filt_time.fits
+                        withrmfset=yes rmfset=${cam}__rmf.fits withbadpixcorr=yes \
+                        badpixlocation=${cam}_filt_time.fits
             fi
         done
     done
@@ -719,7 +724,7 @@ function _Newton_7_addascaspec() {
 
     function __usage() {
         echo "Usage: ${FUNCNAME[1]} [-h,--help] " 1>&2
-        cat << EOF
+        cat <<EOF
 
 ${FUNCNAME[1]}
     combine files EMOS1 and EMOS2 with addascaspec
@@ -775,13 +780,13 @@ EOF
                 rename -f "s/^${cam}__/newton_${cam}_${My_Newton_ID}_/"
         done
 
-        if [[ " ${all_cams_now[@]} " =~ " mos1 " && " ${all_cams_now[@]} " =~  " mos2 " ]]; then
+        if [[ " ${all_cams_now[@]} " =~ " mos1 " && " ${all_cams_now[@]} " =~ " mos2 " ]]; then
             mos_cams=($(echo ${all_cams_now[@]//pn/} | sed -r -n "s/\s*(mos1|mos2)\s*/\1 /gp"))
-            : > tmp_fi.add
-            echo ${mos_cams[@]} | sed -r "s/\s*(mos1|mos2)\s*/newton_\1_${My_Newton_ID}_nongrp.fits /g" >> tmp_fi.add
-            echo ${mos_cams[@]} | sed -r "s/\s*(mos1|mos2)\s*/newton_\1_${My_Newton_ID}_bkg.fits /g" >> tmp_fi.add
-            echo ${mos_cams[@]} | sed -r "s/\s*(mos1|mos2)\s*/newton_\1_${My_Newton_ID}_rmf.fits /g" >> tmp_fi.add
-            echo ${mos_cams[@]} | sed -r "s/\s*(mos1|mos2)\s*/newton_\1_${My_Newton_ID}_arf.fits /g" >> tmp_fi.add
+            : >tmp_fi.add
+            echo ${mos_cams[@]} | sed -r "s/\s*(mos1|mos2)\s*/newton_\1_${My_Newton_ID}_nongrp.fits /g" >>tmp_fi.add
+            echo ${mos_cams[@]} | sed -r "s/\s*(mos1|mos2)\s*/newton_\1_${My_Newton_ID}_bkg.fits /g" >>tmp_fi.add
+            echo ${mos_cams[@]} | sed -r "s/\s*(mos1|mos2)\s*/newton_\1_${My_Newton_ID}_rmf.fits /g" >>tmp_fi.add
+            echo ${mos_cams[@]} | sed -r "s/\s*(mos1|mos2)\s*/newton_\1_${My_Newton_ID}_arf.fits /g" >>tmp_fi.add
 
             rm -f newton_mos12_${My_Newton_ID}_nongrp.fits \
                 newton_mos12_${My_Newton_ID}_rmf.fits newton_mos12_${My_Newton_ID}_bkg.fits
@@ -807,7 +812,7 @@ function _Newton_8_editHeader() {
 
     function __usage() {
         echo "Usage: ${FUNCNAME[1]} [-h,--help] [--minimum] [--strict] " 1>&2
-        cat << EOF
+        cat <<EOF
 
 ${FUNCNAME[1]}
     edit header in order to compensate for losing information with addascaspec
@@ -874,7 +879,7 @@ EOF
         if [[ ! -r $My_Newton_Dir/fit ]]; then continue; fi
         cd $My_Newton_Dir/fit
 
-        all_cams_tmp2=($(find . -name "newton_*_nongrp.fits"  -printf "%f\n" |
+        all_cams_tmp2=($(find . -name "newton_*_nongrp.fits" -printf "%f\n" |
             sed -r -n "s/^newton_(mos1|mos2|mos12|pn)_${My_Newton_ID}_nongrp.fits$/\1/p"))
         for cam in ${all_cams_tmp2[@]}; do
             nongrp_name=newton_${cam}_${My_Newton_ID}_nongrp.fits
@@ -904,7 +909,6 @@ EOF
                     cp_keys=()
                     cp_keys2=()
                 fi
-
 
                 for key in ${cp_keys[@]} ${cp_keys2[@]}; do
                     orig_val=$(fkeyprint infile="${oldName}+1" keynam="${key}" |
@@ -954,18 +958,18 @@ function _Newton_9_grppha() {
 
     function __usage() {
         echo "Usage: ${FUNCNAME[1]} [-h,--help] [--gnumAll GNUM_PN,GNUM_MOS12,GNUM_MOS1,GNUM_MOS2] ..." 1>&2
-        cat << EOF
+        cat <<EOF
 
 ${FUNCNAME[1]}
     do grouping with grppha
-    In default, this function uses `group min <gnum>` for grouping
-    If <gnum> for a camera is 0, then the grouping will be skipped.
+    In default, this function uses "group min GNUM" for grouping
+    If gnum for a camera is 0, then the grouping will be skipped.
 
 
 Options
 --gnumAll GNUM_PN,GNUM_MOS12,GNUM_MOS1,GNUM_MOS2
     change gnum for all cameras
-    The options `--gnum<Camera>` dominate this option.
+    The options "--gnum<Camera>" dominate this option.
 
 --gnumPn GNUM
 --gnumMos12 GNUM
@@ -1076,7 +1080,7 @@ function _Newton_10_fitDirectory() {
 
     function __usage() {
         echo "Usage: ${FUNCNAME[1]} [-h,--help] [--hardCopy] [--symbLink] ..." 1>&2
-        cat << EOF
+        cat <<EOF
 
 ${FUNCNAME[1]}
     move files to fit directory
@@ -1090,10 +1094,10 @@ Options
     show this message
 
 --hardCopy
-    hard copy instead of generating symbolic link to `../fit` (Step 2.)
+    hard copy instead of generating symbolic link to $(../fit) (Step 2.)
 
 --symbLink
-    generate symbolic link instead of copy to `./fit` (Step 1.)
+    generate symbolic link instead of copy to $(./fit) (Step 1.)
 
 --prefixName prefixName
     select the prefix of file names to move
@@ -1154,18 +1158,28 @@ EOF
 
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Newton_ID in ${obs_dirs[@]}; do
-        cp -f $My_Newton_D/$My_Newton_ID/ODF/fit/${tmp_prefix}* ${My_Newton_D}/fit/
+        if [[ ${FLAG_symbLink:=false} == "true" ]]; then
+            cp -f $My_Newton_D/$My_Newton_ID/ODF/fit/${tmp_prefix}* ${My_Newton_D}/fit/
+        else
+            find $My_Newton_D/$My_Newton_ID/ODF/fit/ -name "${tmp_prefix}*.*" \
+                -type f -printf "%f\n" |
+                xargs -n 1 -i rm -f $My_Newton_D/fit/{}
+            ln -s $My_Newton_D/$My_Newton_ID/ODF/fit/${tmp_prefix}* ${My_Newton_D}/fit/
+        fi
     done
-    ### remove the files with the same name as new files
-    find $My_Newton_D/fit/ -name "${tmp_prefix}*.*" \
-        -type f -printf "%f\n" |
-        xargs -n 1 -i rm -f $My_Newton_D/../fit/{}
-    ### remove broken symbolic links
+    if [[ ${FLAG_hardCopy:=false} == "true" ]]; then
+        # remove the files with the same name as new files
+        find $My_Newton_D/fit/ -name "${tmp_prefix}*.*" \
+            -type f -printf "%f\n" |
+            xargs -n 1 -i rm -f $My_Newton_D/../fit/{}
+        # generate symbolic links
+        ln -s $My_Newton_D/fit/${tmp_prefix}*.* $My_Newton_D/../fit/
+    else
+        cp -f $My_Newton_D/fit/${tmp_prefix}*.* $My_Newton_D/../fit/
+    fi
+    # remove broken symbolic links
     find -L $My_Newton_D/../fit/ -type l -delete
-    ### generate symbolic links
-    ln -s $My_Newton_D/fit/${tmp_prefix}*.* $My_Newton_D/../fit/
+
     cd $My_Newton_D
     if [[ x${FUNCNAME} != x ]]; then return 0; fi
 }
-
-

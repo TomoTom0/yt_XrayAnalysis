@@ -56,7 +56,11 @@ def combineScript():
                 tmp_dict={"name":funcName, "content":["# "+funcName]}
                 valid_funcs.append(tmp_dict)
                 status=1
-            elif status==1 and re.findall(r"^yt_", line)!=[]:
+                continue
+            elif status==1 and re.findall(r"^\s*declare -g My_\w+_D=\$\{My_\w+_D:=\$\(pwd\)\}", line)!=[]:
+                status=2
+                continue
+            elif status==2 and re.findall(r"^yt_", line)!=[]:
                 funcNameAlias=(re.findall(r"yt_\S+", line)+[""])[0]
                 if len(funcNameAlias)==0:
                     continue
@@ -67,7 +71,8 @@ def combineScript():
                 with open(func_path) as f:
                     conetnt_tmp=f.read()
                 valid_funcs[-1]["content"].append(conetnt_tmp)
-            elif status==1 and re.findall(r"return 0", line)!=[]:
+                continue
+            elif status==2 and re.findall(r"return 0", line)!=[]:
                 status=0
 
         for tmp_dict in valid_funcs:

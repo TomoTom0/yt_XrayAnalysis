@@ -1,6 +1,6 @@
 # _SuzakuXis_2_xselect
 ## extarct spec with xselect
-echo ${My_Suzaku_D:=$(pwd)}
+declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
