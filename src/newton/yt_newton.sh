@@ -205,11 +205,11 @@ EOF
             declare -A pis=(["mos1"]="${tmp_filter[0]}" ["mos2"]="${tmp_filter[1]}" ["pn"]="${tmp_filter[2]}")
         fi
         if [[ -n ${kwargs[filterHard__filters]} ]]; then
-            tmp_filter=(${kwargs[filter__filters]//,/ })
+            tmp_filter=(${kwargs[filterHard__filters]//,/ })
             declare -A pis_hard=(["mos1"]="${tmp_filter[0]}" ["mos2"]="${tmp_filter[1]}" ["pn"]="${tmp_filter[2]}")
         fi
         if [[ -n ${kwargs[filterRates__filters]} ]]; then
-            tmp_filter=(${kwargs[filter__filters]//,/ })
+            tmp_filter=(${kwargs[filterRates__filters]//,/ })
             declare -A rates=(["mos1"]="${tmp_filter[0]}" ["mos2"]="${tmp_filter[1]}" ["pn"]="${tmp_filter[2]}")
         fi
     fi
@@ -231,25 +231,29 @@ EOF
         if [[ ! -r $My_Newton_Dir/fit ]]; then continue; fi
         cd $My_Newton_Dir/fit
 
-        all_cams_tmp=($(ls *.fits | sed -r -n "s/^.*(mos1|mos2|pn).fits$/\1/p"))
+        all_cams_tmp=($(find . -name "*.fits" -printf "%f\n" | sed -r -n "s/^(mos1|mos2|pn).fits$/\1/p"))
         for cam in ${all_cams_tmp[@]}; do
-            evselect table=${cam}.fits withfilteredset=yes \
+            rm tmp_${cam}_filt.fits -f &&
+                evselect table=${cam}.fits withfilteredset=yes \
                 expression="(PATTERN <= 12)&&(${pis[$cam]})&&${xmms[$cam]}" \
                 filteredset=tmp_${cam}_filt.fits filtertype=expression \
                 keepfilteroutput=yes \
                 updateexposure=yes filterexposure=yes
 
-            evselect table=${cam}.fits withrateset=yes \
+            rm tmp_${cam}_lc_hard.fits -f &&
+                evselect table=${cam}.fits withrateset=yes \
                 rateset=tmp_${cam}_lc_hard.fits \
                 maketimecolumn=yes timecolumn=TIME timebinsize=100 makeratecolumn=yes \
                 expression="(PATTERN == 0)&&(${pis_hard[$cam]})&&${xmms[$cam]}"
 
-            tabgtigen table=tmp_${cam}_lc_hard.fits gtiset=gtiset.fits \
+            rm ${cam}_gti.fits -f &&
+                tabgtigen table=tmp_${cam}_lc_hard.fits gtiset=${cam}_gti.fits \
                 timecolumn=TIME \
                 expression="(RATE <= ${rates[$cam]})"
 
-            evselect table=tmp_${cam}_filt.fits withfilteredset=yes \
-                expression="GTI(gtiset.fits,TIME)" filteredset=${cam}_filt_time.fits \
+            rm ${cam}_filt_time.fits -f &&
+                evselect table=tmp_${cam}_filt.fits withfilteredset=yes \
+                expression="GTI(${cam}_gti.fits,TIME)" filteredset=${cam}_filt_time.fits \
                 filtertype=expression keepfilteroutput=yes \
                 updateexposure=yes filterexposure=yes
         done
@@ -366,7 +370,9 @@ EOF
         for cam in ${all_cams[@]}; do
             if [[ "${FLAG_simple:=false}" == "false" ]]; then
                 cp ${My_Newton_D}/saved.reg ${cam}.reg -f
+                echo ""
                 echo "----  save as ${cam}.reg with overwriting  ----"
+                echo ""
                 ds9 $My_Newton_Dir/fit/${cam}_filt_time.fits \
                     -scale log -cmap bb -mode region \
                     -bin factor 16 -regions load ${cam}.reg
@@ -374,7 +380,9 @@ EOF
                 cp ${cam}.reg ${My_Newton_D}/saved.reg -f
             else
                 # simple mode
+                echo ""
                 echo "----  save as ${cam}.reg  ----"
+                echo ""
                 ds9 $My_Newton_Dir/fit/${cam}_filt_time.fits \
                     -scale log -cmap bb -mode region \
                     -bin factor 16 -regions
@@ -462,12 +470,11 @@ EOF
         for cam in ${all_cams_tmp[@]}; do
             # for source
             ds9 ${cam}_filt_time.fits -regions load ${cam}.reg -regions system physical \
-                -regions save tmp.reg -exit
+                -regions save tmp.reg -exit &&
             coor_arg=$(cat tmp.reg | grep circle |
                 grep -v "# background" |
-                sed -r -n "s/^.*circle\((.*)\).*$/\1/p")
-
-            rm ${cam}__nongrp.fits -f
+                sed -r -n "s/^.*circle\((.*)\).*$/\1/p") &&
+            rm ${cam}__nongrp.fits -f &&
             evselect table=${cam}_filt_time.fits energycolumn="PI" \
                 withfilteredset=yes filteredset=${cam}_filtered.fits \
                 keepfilteroutput=yes filtertype="expression" \
@@ -479,13 +486,13 @@ EOF
             # for background
             ds9 ${cam}_filt_time.fits -regions load ${cam}.reg \
                 -regions system physical \
-                -regions save tmp.reg -exit
+                -regions save tmp.reg -exit &&
             coor_arg=$(cat tmp.reg | grep circle |
                 grep "# background" |
-                sed -r -n "s/^.*circle\((.*)\).*$/\1/p")
-            rm ${cam}__bkg.fits -f
+                sed -r -n "s/^.*circle\((.*)\).*$/\1/p") &&
+            rm ${cam}__bkg.fits -f &&
             evselect table=${cam}_filt_time.fits energycolumn="PI" \
-                withfilteredset=yes filteredset=bkg_filtered.fits \
+                withfilteredset=yes filteredset=${cam}_bkg_filtered.fits \
                 keepfilteroutput=yes filtertype="expression" \
                 expression="((X,Y) in CIRCLE(${coor_arg}))" \
                 withspectrumset=yes spectrumset=${cam}__bkg.fits \
@@ -597,7 +604,7 @@ EOF
 }
 
 alias yt_newton_6="_Newton_6_genRmfArf"
-alias yt_newton_rmfArfGen="_Newton_6_genRmfArf"
+alias yt_newton_genRmfArf="_Newton_6_genRmfArf"
 function _Newton_6_genRmfArf() {
     ## rmf, arf作成
     # args: FLAG_rmf=true
@@ -679,7 +686,7 @@ EOF
         if [[ ! -r $My_Newton_Dir/fit ]]; then continue; fi
         cd $My_Newton_Dir/fit
         all_cams_now=($(find . -name "*__nongrp.fits" -printf "%f\n" |
-            sed -r -n "s/^.*(mos1|mos2|pn)__nongrp.fits$/\1/p"))
+            sed -r -n "s/^(mos1|mos2|pn)__nongrp.fits$/\1/p"))
 
         for cam in ${all_cams_now[@]}; do
             rm ${cam}__rmf.fits ${cam}__arf.fits -f
@@ -768,14 +775,14 @@ EOF
                 rename -f "s/^${cam}__/newton_${cam}_${My_Newton_ID}_/"
         done
 
-        if [[ -n $(echo ${all_cams_now} | grep mos) ]]; then
+        if [[ " ${all_cams_now[@]} " =~ " mos1 " && " ${all_cams_now[@]} " =~  " mos2 " ]]; then
             mos_cams=($(echo ${all_cams_now[@]//pn/} | sed -r -n "s/\s*(mos1|mos2)\s*/\1 /gp"))
-            cat <<EOF >tmp_fi.add
-$(for mos_cam in ${mos_cams[@]}; do echo "newton_${mos_cam}_${My_Newton_ID}_nongrp.fits "; done)
-$(for mos_cam in ${mos_cams[@]}; do echo "newton_${mos_cam}_${My_Newton_ID}_bkg.fits "; done)
-$(for mos_cam in ${mos_cams[@]}; do echo "newton_${mos_cam}_${My_Newton_ID}_rmf.fits "; done)
-$(for mos_cam in ${mos_cams[@]}; do echo "newton_${mos_cam}_${My_Newton_ID}_arf.fits "; done)
-EOF
+            : > tmp_fi.add
+            echo ${mos_cams[@]} | sed -r "s/\s*(mos1|mos2)\s*/newton_\1_${My_Newton_ID}_nongrp.fits /g" >> tmp_fi.add
+            echo ${mos_cams[@]} | sed -r "s/\s*(mos1|mos2)\s*/newton_\1_${My_Newton_ID}_bkg.fits /g" >> tmp_fi.add
+            echo ${mos_cams[@]} | sed -r "s/\s*(mos1|mos2)\s*/newton_\1_${My_Newton_ID}_rmf.fits /g" >> tmp_fi.add
+            echo ${mos_cams[@]} | sed -r "s/\s*(mos1|mos2)\s*/newton_\1_${My_Newton_ID}_arf.fits /g" >> tmp_fi.add
+
             rm -f newton_mos12_${My_Newton_ID}_nongrp.fits \
                 newton_mos12_${My_Newton_ID}_rmf.fits newton_mos12_${My_Newton_ID}_bkg.fits
             addascaspec tmp_fi.add newton_mos12_${My_Newton_ID}_nongrp.fits \
@@ -793,7 +800,7 @@ function _Newton_8_editHeader() {
     ## edit header
     # args: FLAG_minimum=false
     # args: FLAG_strict=false
-    
+
     # ---------------------
     ##     obtain options
     # ---------------------
@@ -871,10 +878,7 @@ EOF
             sed -r -n "s/^newton_(mos1|mos2|mos12|pn)_${My_Newton_ID}_nongrp.fits$/\1/p"))
         for cam in ${all_cams_tmp2[@]}; do
             nongrp_name=newton_${cam}_${My_Newton_ID}_nongrp.fits
-            rm ${grp_name} -f
-
             if [[ $cam == "mos12" ]]; then
-
                 # edit header for nongrp
                 oldName=newton_mos1_${My_Newton_ID}_nongrp.fits
                 newName=$nongrp_name
@@ -903,7 +907,7 @@ EOF
 
 
                 for key in ${cp_keys[@]} ${cp_keys2[@]}; do
-                    orig_val=$(fkeyprint infile="${oldName}+0" keynam="${key}" |
+                    orig_val=$(fkeyprint infile="${oldName}+1" keynam="${key}" |
                         grep "${key}\s*=" |
                         sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
 
@@ -943,7 +947,7 @@ alias yt_newton_grppha="_Newton_9_grppha"
 function _Newton_9_grppha() {
     ## grppha
     # args: declare -A gnums=(["pn"]=50 ["mos12"]=50 ["mos1"]=30 ["mos2"]=30)
-    
+
     # ---------------------
     ##     obtain options
     # ---------------------
@@ -1014,7 +1018,7 @@ EOF
     ##         main
     # ---------------------
     declare -A gnums=(["pn"]=50 ["mos12"]=50 ["mos1"]=30 ["mos2"]=30)
-    if [[ x${FUNCNAME} == x ]]; then
+    if [[ x${FUNCNAME} != x ]]; then
         if [[ -n ${flagsIn[gnumZero]} ]]; then
             declare -A gnums=(["pn"]=0 ["mos12"]=0 ["mos1"]=0 ["mos2"]=0)
         fi
@@ -1150,7 +1154,7 @@ EOF
 
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Newton_ID in ${obs_dirs[@]}; do
-        cp $My_Newton_D/$My_Newton_ID/ODF/fit/${tmp_prefix}* ${My_Newton_D}/fit/ -f
+        cp -f $My_Newton_D/$My_Newton_ID/ODF/fit/${tmp_prefix}* ${My_Newton_D}/fit/
     done
     ### remove the files with the same name as new files
     find $My_Newton_D/fit/ -name "${tmp_prefix}*.*" \

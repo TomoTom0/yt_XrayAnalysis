@@ -31,11 +31,8 @@ EOF
     declare -A flagsAll=(
         ["h"]="help"
         ["--help"]="help"
-        ["--ignore"]="ignore"
-        ["--clean"]="clean"
     )
     declare -A flagsArgDict=(
-        ["ignore"]="cameras"
     )
 
     # arguments variables
@@ -94,11 +91,8 @@ EOF
     declare -A flagsAll=(
         ["h"]="help"
         ["--help"]="help"
-        ["--ignore"]="ignore"
-        ["--clean"]="clean"
     )
     declare -A flagsArgDict=(
-        ["ignore"]="cameras"
     )
 
     # arguments variables
@@ -156,11 +150,8 @@ EOF
     declare -A flagsAll=(
         ["h"]="help"
         ["--help"]="help"
-        ["--ignore"]="ignore"
-        ["--clean"]="clean"
     )
     declare -A flagsArgDict=(
-        ["ignore"]="cameras"
     )
 
     # arguments variables

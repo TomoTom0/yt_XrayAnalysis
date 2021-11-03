@@ -5,6 +5,10 @@ bash scripts for X-ray analysis with heasoft
 [TOC]
 ## Introduction
 
+Coming Soon
+
+This package is on the pre-alpha version.
+Please remember there may be many problems.
 
 ## Install
 

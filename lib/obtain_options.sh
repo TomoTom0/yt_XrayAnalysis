@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function usage() {
+function __usage() {
     echo "Usage: ${FUNCNAME[1]} allArgs flagsAll flagsArgDict argc kwargs flagsIn" 1>&2
     cat <<EOF
 -----
@@ -31,9 +31,9 @@ EOF
 function __obtain_options() {
 
     if (($# < 6)); then
-        echo "$0: the number of arguments is less than 6"
-        echo "$0: please add required arguments: "
-        echo "$0: allArgs flagsAll flagsArgDict argc kwargs flagsIn"
+        echo "${FUNCNAME[0]}: the number of arguments is less than 6"
+        echo "${FUNCNAME[0]}: please add required arguments: "
+        echo "${FUNCNAME[0]}: allArgs flagsAll flagsArgDict argc kwargs flagsIn"
         return 0
     fi
     # all arguments
@@ -63,13 +63,13 @@ function __obtain_options() {
                 # long flag -> complete match
                 if [[ "${#flag}" -gt 1 && "$arg" == "$flag" ]]; then
                     flag_id=${__flagsAll[$flag]}
-                    __flagsIn[$flag_id]=1
+                    __flagsIn[$flag_id]="$shift_count"
                     flagIsLong=true
                     ((tmp_flagCount++))
                 # short flag -> partial match
                 elif [[ "${#flag}" -eq 1 && ! "$arg" =~ "^--" && "$arg" =~ "$flag" ]]; then
                     flag_id=${flagsAll[$flag]}
-                    __flagsIn[$flag_id]=1
+                    __flagsIn[$flag_id]="$shift_count"
                     ((tmp_flagCount++))
                 fi
                 # check whether arguments are accompanied or not
@@ -94,4 +94,6 @@ function __obtain_options() {
             ;;
         esac
     done
+
+    return 0
 }

@@ -4,6 +4,66 @@ alias yt_suzakuXis_1="_SuzakuXis_1_ds9"
 alias yt_suzakuXis_ds9="_SuzakuXis_1_ds9"
 function _SuzakuXis_1_ds9() {
     ## ds9
+    # args: FLAG_simple=false
+
+    # ---------------------
+    ##     obtain options
+    # ---------------------
+
+    function __usage() {
+        echo "Usage: ${FUNCNAME[1]} [-h,--help] [--simple]" 1>&2
+        cat << EOF
+
+${FUNCNAME[1]}
+    make region files about source and background with ds9
+    In default, a region file with two circles are automatically loaded, 
+    so you have only to adjust the circle and overwrite the region file.
+
+
+Options
+--simple
+    In simple mode, you make two circles
+    which respectively points the source and background
+    and save it as the proper name.
+
+EOF
+        return 0
+    }
+
+    # arguments settings
+    declare -A flagsAll=(
+        ["h"]="help"
+        ["--help"]="help"
+        ["--simple"]="simple"
+    )
+    declare -A flagsArgDict=(
+    )
+
+    # arguments variables
+    declare -i argc=0
+    declare -A kwargs=()
+    declare -A flagsIn=()
+
+    declare -a allArgs=($@)
+
+    __obtain_options allArgs flagsAll flagsArgDict argc kwargs flagsIn
+
+    if [[ " ${!flagsIn[@]} " =~ " help " ]]; then
+        __usage
+        return 0
+    fi
+
+    # ----------------------------------------- #
+
+    # ---------------------
+    ##         main
+    # ---------------------
+    FLAG_simple=false
+    if [[ x${FUNCNAME} == x ]]; then
+        if [[ -n ${flagsIn[simple]} ]]; then
+            FLAG_simple=true
+        fi
+    fi
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
     cd $My_Suzaku_D
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
@@ -41,7 +101,9 @@ function _SuzakuXis_1_ds9() {
                 -regions save $My_Suzaku_D/saved.reg -exit
         fi
         cp ${My_Suzaku_D}/saved.reg xis.reg -f
+        echo ""
         echo "----  save as xis.reg with overwriting  ----"
+        echo ""
         ds9 $evt_file \
             -scale log -cmap bb -mode region \
             -regions load xis.reg
@@ -64,6 +126,53 @@ alias yt_suzakuXis_2="_SuzakuXis_2_xselect"
 alias yt_suzakuXis_xselect="_SuzakuXis_2_xselect"
 function _SuzakuXis_2_xselect() {
     ## extarct spec with xselect
+    # ---------------------
+    ##     obtain options
+    # ---------------------
+
+    function __usage() {
+        echo "Usage: ${FUNCNAME[1]} [-h,--help] " 1>&2
+        cat << EOF
+
+${FUNCNAME[1]}
+    filter region and extract spectrum
+
+
+Options
+-h,--help
+    show this message
+
+EOF
+        return 0
+    }
+
+    # arguments settings
+    declare -A flagsAll=(
+        ["h"]="help"
+        ["--help"]="help"
+    )
+    declare -A flagsArgDict=(
+    )
+
+    # arguments variables
+    declare -i argc=0
+    declare -A kwargs=()
+    declare -A flagsIn=()
+
+    declare -a allArgs=($@)
+
+    __obtain_options allArgs flagsAll flagsArgDict argc kwargs flagsIn
+
+    if [[ " ${!flagsIn[@]} " =~ " help " ]]; then
+        __usage
+        return 0
+    fi
+
+    # ----------------------------------------- #
+
+    # ---------------------
+    ##         main
+    # ---------------------
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
     cd $My_Suzaku_D
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
@@ -148,6 +257,70 @@ alias yt_suzakuXis_3="_SuzakuXis_3_genRmfArf"
 alias yt_suzakuXis_genRmfArf="_SuzakuXis_3_genRmfArf"
 function _SuzakuXis_3_genRmfArf() {
     ## rmfおよびarf作成
+    # args: FLAG_rmf=true
+    # args: FLAG_arf=true
+
+
+    # ---------------------
+    ##     obtain options
+    # ---------------------
+
+    function __usage() {
+        echo "Usage: ${FUNCNAME[1]} [-h,--help] [--rmf] [--arf]" 1>&2
+        cat << EOF
+
+${FUNCNAME[1]}
+    generate rmf and arf files
+
+
+Options
+--rmf
+    only generate rmf
+
+--arf
+    only generate arf
+
+EOF
+        return 0
+    }
+
+    # arguments settings
+    declare -A flagsAll=(
+        ["h"]="help"
+        ["--rmf"]="rmf"
+        ["--arf"]="arf"
+    )
+    declare -A flagsArgDict=(
+    )
+
+    # arguments variables
+    declare -i argc=0
+    declare -A kwargs=()
+    declare -A flagsIn=()
+
+    declare -a allArgs=($@)
+
+    __obtain_options allArgs flagsAll flagsArgDict argc kwargs flagsIn
+
+    if [[ " ${!flagsIn[@]} " =~ " help " ]]; then
+        __usage
+        return 0
+    fi
+
+    # ----------------------------------------- #
+
+    # ---------------------
+    ##         main
+    # ---------------------
+    FLAG_rmf=true
+    FLAG_arf=true
+    if [[ x${FUNCNAME} == x ]]; then
+        if [[ -n ${flagsIn[rmf]} && -z ${flagsIn[arf]} ]]; then
+            FLAG_arf=false
+        elif [[ -z ${flagsIn[rmf]} && -n ${flagsIn[arf]} ]]; then
+            FLAG_arf=false
+        fi
+    fi
     ### rmf
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
     cd $My_Suzaku_D
@@ -227,6 +400,53 @@ alias yt_suzakuXis_4="_SuzakuXis_4_addascaspec"
 alias yt_suzakuXis_ds9="_SuzakuXis_4_addascaspec"
 function _SuzakuXis_4_addascaspec() {
     ## addascaspec
+    # ---------------------
+    ##     obtain options
+    # ---------------------
+
+    function __usage() {
+        echo "Usage: ${FUNCNAME[1]} [-h,--help] " 1>&2
+        cat << EOF
+
+${FUNCNAME[1]}
+    combine files EMOS1 and EMOS2 with addascaspec
+
+
+Options
+-h,--help
+    show this message
+
+EOF
+        return 0
+    }
+
+    # arguments settings
+    declare -A flagsAll=(
+        ["h"]="help"
+        ["--help"]="help"
+    )
+    declare -A flagsArgDict=(
+    )
+
+    # arguments variables
+    declare -i argc=0
+    declare -A kwargs=()
+    declare -A flagsIn=()
+
+    declare -a allArgs=($@)
+
+    __obtain_options allArgs flagsAll flagsArgDict argc kwargs flagsIn
+
+    if [[ " ${!flagsIn[@]} " =~ " help " ]]; then
+        __usage
+        return 0
+    fi
+
+    # ----------------------------------------- #
+
+    # ---------------------
+    ##         main
+    # ---------------------
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
     cd $My_Suzaku_D
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
@@ -266,6 +486,96 @@ alias yt_suzakuXis_5="_SuzakuXis_5_editHeader"
 alias yt_suzakuXis_editHeader="_SuzakuXis_5_editHeader"
 function _SuzakuXis_5_editHeader() {
     ## edit header
+    # args: FLAG_minimum=false
+    # args: FLAG_strict=false
+    # args: origSrc=nu%OBSID%A01_sr.pha
+    # args: origBkg=nu%OBSID%A01_bk.pha
+
+    # ---------------------
+    ##     obtain options
+    # ---------------------
+
+    function __usage() {
+        echo "Usage: ${FUNCNAME[1]} [-h,--help] [--minimum] [--strict] ..." 1>&2
+        cat <<EOF
+
+${FUNCNAME[1]}
+    edit header in order to compensate for losing information with addascaspec
+    This function copy information from a original file header to combined one,
+    and, at the same time, add the file names of bkg, rmf and arf for Xspec.
+
+
+Options
+--origSrc FILENAME (%OBSID% will be replaced to the observation ID)
+    select the file which will be used in editting the source header information
+    DEFAULT: nu%OBSID%A01_sr.pha
+
+--origBkg FILENAME (%OBSID% will be replaced to the observation ID)
+    select the file which will be used in edtting the background header information
+    DEFAULT: nu%OBSID%A01_bk.pha
+
+--minimum
+    edit header with only adding the file names of bkg, rmf and arf for Xspec
+
+--strict
+    edit header with copy information wihch is the completely same values
+    as all the original files and adding the file names of bkg, rmf and arf for Xspec
+
+EOF
+        return 0
+    }
+
+    # arguments settings
+    declare -A flagsAll=(
+        ["h"]="help"
+        ["--help"]="help"
+        ["--minimun"]="minimum"
+        ["--strict"]="strict"
+        ["--origSrc"]="origSrc"
+        ["--origBkg"]="origBkg"
+    )
+    declare -A flagsArgDict=(
+        ["origSrc"]="name"
+        ["origBkg"]="name"
+    )
+
+    # arguments variables
+    declare -i argc=0
+    declare -A kwargs=()
+    declare -A flagsIn=()
+
+    declare -a allArgs=($@)
+
+    __obtain_options allArgs flagsAll flagsArgDict argc kwargs flagsIn
+
+    if [[ " ${!flagsIn[@]} " =~ " help " ]]; then
+        __usage
+        return 0
+    fi
+
+    # ----------------------------------------- #
+
+    # ---------------------
+    ##         main
+    # ---------------------
+    FLAG_minimum=false
+    FLAG_strict=false
+    origSrc=nu%OBSID%A01_sr.pha
+    origBkg=nu%OBSID%A01_bk.pha
+
+    if [[ x${FUNCNAME} != x ]]; then
+        if [[ -n ${flagsIn[minimum]} ]]; then
+            FLAG_minimum=true
+        elif [[ -n ${flagsIn[strict]} ]]; then
+            FLAG_strict=true
+        fi
+        if [[ -n ${kwargs[origSrc__name]} ]]; then
+            origSrc=${kwargs[origSrc__name]}
+        fi
+        if [[ -n ${kwargs[origBkg__name]} ]]; then
+            origBkg=${kwargs[origBkg__name]}
+        fi
+    fi
 
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
     cd $My_Suzaku_D
@@ -343,6 +653,86 @@ alias yt_suzakuXis_grppha="_SuzakuXis_6_grppha"
 function _SuzakuXis_6_grppha() {
     ## grppha
     # args: declare -A grp_nums=(["FI"]=25 ["BI"]=25)
+
+    # ---------------------
+    ##     obtain options
+    # ---------------------
+
+    function __usage() {
+        echo "Usage: ${FUNCNAME[1]} [-h,--help] [--gnumAll GNUM_FI,BI] ..." 1>&2
+        cat << EOF
+
+${FUNCNAME[1]}
+    do grouping with grppha
+    In default, this function uses `group min <gnum>` for grouping
+    If <gnum> for a camera is 0, then the grouping will be skipped.
+
+
+Options
+--gnumAll GNUM_FI,GNUM_BI
+    change gnum for all cameras
+    The options `--gnum<Camera>` dominate this option.
+
+--gnumFI GNUM
+--gnumBI GNUM
+    change gnum for the selected camera
+
+--gnumZero
+    gnums for all cameras are set to 0
+
+EOF
+        return 0
+    }
+
+    # arguments settings
+    declare -A flagsAll=(
+        ["h"]="help"
+        ["--gnumZero"]="gnumZero"
+        ["--gnumAll"]="gnumAll"
+        ["--gnumFI"]="gnumFI"
+        ["--gnumBI"]="gnumBI"
+    )
+    declare -A flagsArgDict=(
+        ["gnumAll"]="gnums"
+        ["gnumFI"]="gnum"
+        ["gnumBI"]="gnum"
+    )
+
+    # arguments variables
+    declare -i argc=0
+    declare -A kwargs=()
+    declare -A flagsIn=()
+
+    declare -a allArgs=($@)
+
+    __obtain_options allArgs flagsAll flagsArgDict argc kwargs flagsIn
+
+    if [[ " ${!flagsIn[@]} " =~ " help " ]]; then
+        __usage
+        return 0
+    fi
+
+    # ----------------------------------------- #
+
+    # ---------------------
+    ##         main
+    # ---------------------
+    declare -A grp_nums=(["FI"]=25 ["BI"]=25)
+    if [[ x${FUNCNAME} != x ]]; then
+        if [[ -n ${flagsIn[gnumZero]} ]]; then
+            declare -A gnums=(["pn"]=0 ["mos12"]=0 ["mos1"]=0 ["mos2"]=0)
+        fi
+        if [[ -n ${kwargs[gnumAll__gnums]} ]]; then
+            gnums_tmp=(${kwargs[gnumAll__gnums]//,/ })
+            declare -A gnums=(["pn"]=${gnums_tmp[0]:-50} ["mos12"]=${gnums_tmp[1]:-50} ["mos1"]=${gnums_tmp[2]:-30} ["mos2"]=${gnums_tmp[3]:-30})
+        fi
+        for cam in pn mos12 mos1 mos2; do
+            key_tmp=gnum${cam^}__gnum
+            if [[ -n ${kwargs[$key_tmp]} ]]; then
+                gnums[$cam]=${kwargs[$key_tmp]}
+            fi
+        done
+    fi
     if [[ x${FUNCNAME} != x ]]; then
         declare -A grp_nums=(["FI"]=${1:=25} ["BI"]=${1:=25})
     else

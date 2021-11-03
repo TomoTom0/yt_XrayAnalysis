@@ -179,7 +179,9 @@ EOF
         for cam in A B; do
             if [[ ${FLAG_simple:=false} == true ]]; then
                 cp ${My_Nustar_D}/saved.reg fpm${cam}.reg -f
+                echo ""
                 echo "----  save as fpm${cam}.reg with overwriting  ----"
+                echo ""
                 ds9 nu${My_Nustar_ID}${cam}01_cl.evt \
                     -scale log -cmap bb -mode region \
                     -regions load fpm${cam}.reg
@@ -189,7 +191,9 @@ EOF
                 cat fpm${cam}.reg | grep -v -E "^circle.*# background" >src${cam}.reg
                 cat fpm${cam}.reg | grep -v -E "^circle.*\)$" >bkg${cam}.reg
             else
+                echo ""
                 echo "----  save as fpm${cam}.reg  ----"
+                echo ""
                 ds9 nu${My_Nustar_ID}${cam}01_cl.evt \
                     -scale log -cmap bb -mode region
                 ### make fpmA.reg / fpmB.reg
@@ -368,7 +372,7 @@ function _Nustar_5_editHEader() {
     ## edit header
     # args: FLAG_minimum=false
     # args: FLAG_strict=false
-    # args: origSource=nu%OBSID%A01_sr.pha
+    # args: origSrc=nu%OBSID%A01_sr.pha
     # args: origBkg=nu%OBSID%A01_bk.pha
 
     # ---------------------
@@ -386,11 +390,11 @@ ${FUNCNAME[1]}
 
 
 Options
---originalSource FILENAME (%OBSID% will be replaced to the observation ID)
+--origSrc FILENAME (%OBSID% will be replaced to the observation ID)
     select the file which will be used in editting the source header information
     DEFAULT: nu%OBSID%A01_sr.pha
 
---originalBkg FILENAME (%OBSID% will be replaced to the observation ID)
+--origBkg FILENAME (%OBSID% will be replaced to the observation ID)
     select the file which will be used in edtting the background header information
     DEFAULT: nu%OBSID%A01_bk.pha
 
@@ -411,8 +415,12 @@ EOF
         ["--help"]="help"
         ["--minimun"]="minimum"
         ["--strict"]="strict"
+        ["--origSrc"]="origSrc"
+        ["--origBkg"]="origBkg"
     )
     declare -A flagsArgDict=(
+        ["origSrc"]="name"
+        ["origBkg"]="name"
     )
 
     # arguments variables
@@ -436,12 +444,20 @@ EOF
     # ---------------------
     FLAG_minimum=false
     FLAG_strict=false
+    origSrc=nu%OBSID%A01_sr.pha
+    origBkg=nu%OBSID%A01_bk.pha
 
     if [[ x${FUNCNAME} != x ]]; then
         if [[ -n ${flagsIn[minimum]} ]]; then
             FLAG_minimum=true
         elif [[ -n ${flagsIn[strict]} ]]; then
             FLAG_strict=true
+        fi
+        if [[ -n ${kwargs[origSrc__name]} ]]; then
+            origSrc=${kwargs[origSrc__name]}
+        fi
+        if [[ -n ${kwargs[origBkg__name]} ]]; then
+            origBkg=${kwargs[origBkg__name]}
         fi
     fi
     declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} # 未定義時に代入
@@ -545,7 +561,7 @@ EOF
         declare -A tr_keys=()
 
         for key in ${cp_keys[@]} ${cp_keys2[@]}; do
-            orig_val=$(fkeyprint infile="${oldName}+0" keynam="${key}" |
+            orig_val=$(fkeyprint infile="${oldName}+1" keynam="${key}" |
                 grep "${key}\s*=" |
                 sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
 
