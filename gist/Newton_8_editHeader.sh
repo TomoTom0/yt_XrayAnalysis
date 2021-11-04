@@ -11,7 +11,7 @@ for My_Newton_ID in ${obs_dirs[@]}; do
     if [[ ! -r $My_Newton_Dir/fit ]]; then continue; fi
     cd $My_Newton_Dir/fit
 
-    all_cams_tmp2=($(find . -name "newton_*_nongrp.fits"  -printf "%f\n" |
+    all_cams_tmp2=($(find . -name "newton_*_nongrp.fits" -printf "%f\n" |
         sed -r -n "s/^newton_(mos1|mos2|mos12|pn)_${My_Newton_ID}_nongrp.fits$/\1/p"))
     for cam in ${all_cams_tmp2[@]}; do
         nongrp_name=newton_${cam}_${My_Newton_ID}_nongrp.fits
@@ -41,7 +41,6 @@ for My_Newton_ID in ${obs_dirs[@]}; do
                 cp_keys=()
                 cp_keys2=()
             fi
-
 
             for key in ${cp_keys[@]} ${cp_keys2[@]}; do
                 orig_val=$(fkeyprint infile="${oldName}+1" keynam="${key}" |

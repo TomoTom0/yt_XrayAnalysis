@@ -5,7 +5,7 @@ FLAG_clean=false # arg
 declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
 cd $My_Newton_D
 
-if [[ x == x$(alias sas 2>/dev/null) ]]; then
+if [[ x == "x$(alias sas 2>/dev/null)" ]]; then
     echo "Error: alias sas is not defined."
     kill -INT $$
 fi

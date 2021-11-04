@@ -10,7 +10,7 @@ for My_Newton_ID in ${obs_dirs[@]}; do
     if [[ ! -r $My_Newton_Dir/fit ]]; then continue; fi
 
     cd $My_Newton_Dir/fit
-    _evt_tmps=($(find $My_Newton_Dir/fit/ -name "*_filt_time.fits"))
+    _evt_tmps=($(find $My_Newton_Dir/fit/ -name "*_filt_time.fits" -printf "%f\n"))
     evt_file=${_evt_tmps[0]}
     if [[ ! -r ${My_Newton_D}/saved.reg && "${FLAG_simple:=false}" == "false" ]]; then
         # saved.regが存在しないなら、新たに作成する

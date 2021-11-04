@@ -26,6 +26,9 @@ Options
     which respectively points the source and background
     and save it as the proper name.
 
+-h,--help
+    show this message
+
 EOF
         return 0
     }
@@ -52,8 +55,6 @@ EOF
         __usage
         return 0
     fi
-
-    # ----------------------------------------- #
 
     # ---------------------
     ##         main
@@ -168,8 +169,6 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
@@ -280,6 +279,9 @@ Options
 --arf
     only generate arf
 
+-h,--help
+    show this message
+
 EOF
         return 0
     }
@@ -287,6 +289,7 @@ EOF
     # arguments settings
     declare -A flagsAll=(
         ["h"]="help"
+        ["--help"]="help"
         ["--rmf"]="rmf"
         ["--arf"]="arf"
     )
@@ -306,8 +309,6 @@ EOF
         __usage
         return 0
     fi
-
-    # ----------------------------------------- #
 
     # ---------------------
     ##         main
@@ -442,8 +443,6 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
@@ -521,6 +520,9 @@ Options
     edit header with copy information wihch is the completely same values
     as all the original files and adding the file names of bkg, rmf and arf for Xspec
 
+-h,--help
+    show this message
+
 EOF
         return 0
     }
@@ -552,8 +554,6 @@ EOF
         __usage
         return 0
     fi
-
-    # ----------------------------------------- #
 
     # ---------------------
     ##         main
@@ -680,6 +680,9 @@ Options
 --gnumZero
     gnums for all cameras are set to 0
 
+-h,--help
+    show this message
+
 EOF
         return 0
     }
@@ -712,19 +715,17 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
     declare -A grp_nums=(["FI"]=25 ["BI"]=25)
     if [[ x${FUNCNAME} != x ]]; then
         if [[ -n ${flagsIn[gnumZero]} ]]; then
-            declare -A gnums=(["pn"]=0 ["mos12"]=0 ["mos1"]=0 ["mos2"]=0)
+            declare -A gnums=(["FI"]=0 ["BI"]=0)
         fi
         if [[ -n ${kwargs[gnumAll__gnums]} ]]; then
             gnums_tmp=(${kwargs[gnumAll__gnums]//,/ })
-            declare -A gnums=(["pn"]=${gnums_tmp[0]:-50} ["mos12"]=${gnums_tmp[1]:-50} ["mos1"]=${gnums_tmp[2]:-30} ["mos2"]=${gnums_tmp[3]:-30})
+            declare -A gnums=(["FI"]=${gnums_tmp[0]:-50} ["BI"]=${gnums_tmp[1]:-50})
         fi
         for cam in pn mos12 mos1 mos2; do
             key_tmp=gnum${cam^}__gnum
@@ -732,11 +733,6 @@ EOF
                 gnums[$cam]=${kwargs[$key_tmp]}
             fi
         done
-    fi
-    if [[ x${FUNCNAME} != x ]]; then
-        declare -A grp_nums=(["FI"]=${1:=25} ["BI"]=${1:=25})
-    else
-        declare -A grp_nums=(["FI"]=25 ["BI"]=25)
     fi
 
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
@@ -773,22 +769,113 @@ alias yt_suzakuXis_7="_SuzakuXis_7_fitDirectory"
 alias yt_suzakuXis_fitDirectory="_SuzakuXis_7_fitDirectory"
 function _SuzakuXis_7_fitDirectory() {
     ## fitディレクトリにまとめ
+    # args: FLAG_hardCopy=false
+    # args: FLAG_symbLink=false
+    # args: tmp_prefix="xis_"
+
+    # ---------------------
+    ##     obtain options
+    # ---------------------
+
+    function __usage() {
+        echo "Usage: ${FUNCNAME[1]} [-h,--help] [--hardCopy] [--symbLink] ..." 1>&2
+        cat <<EOF
+
+${FUNCNAME[1]}
+    move files to fit directory
+    This process has two steps:
+        1. copy files to ./fit
+        2. generate symbolic link to ../fit
+
+
+Options
+-h,--help
+    show this message
+
+--hardCopy
+    hard copy instead of generating symbolic link to $(../fit) (Step 2.)
+
+--symbLink
+    generate symbolic link instead of copy to $(./fit) (Step 1.)
+
+--prefixName prefixName
+    select the prefix of file names to move
+
+EOF
+        return 0
+    }
+
+    # arguments settings
+    declare -A flagsAll=(
+        ["h"]="help"
+        ["--help"]="help"
+        ["--hardCopy"]="hardCopy"
+        ["--symbLink"]="symbLink"
+        ["--prefixName"]="prefixName"
+    )
+    declare -A flagsArgDict=(
+        ["prefixName"]="name"
+    )
+
+    # arguments variables
+    declare -i argc=0
+    declare -A kwargs=()
+    declare -A flagsIn=()
+
+    declare -a allArgs=($@)
+
+    __obtain_options allArgs flagsAll flagsArgDict argc kwargs flagsIn
+
+    if [[ " ${!flagsIn[@]} " =~ " help " ]]; then
+        __usage
+        return 0
+    fi
+
+    # ---------------------
+    ##         main
+    # ---------------------
+    FLAG_hardCopy=false
+    FLAG_symbLink=false
+    tmp_prefix="xis_"
+
+    if [[ x${FUNCNAME} == x ]]; then
+        if [[ -n "${flagsIn[hardCopy]}" ]]; then
+            FLAG_hardCopy=true
+        fi
+        if [[ -n "${flagsIn[symbLink]}" ]]; then
+            FLAG_symbLink=true
+        fi
+        if [[ -n "${kwargs[prefixName__name]}" ]]; then
+            tmp_prefix=${kwargs[prefixName__name]}
+        fi
+    fi
+
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
     cd $My_Suzaku_D
-    tmp_prefix=xis_
-    obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     mkdir -p $My_Suzaku_D/fit $My_Suzaku_D/../fit
+    obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Suzaku_ID in ${obs_dirs[@]}; do
-        cp $My_Suzaku_D/$My_Suzaku_ID/xis/event_cl/fit/${tmp_prefix}*.* $My_Suzaku_D/fit/ -f
+        if [[ ${FLAG_symbLink:=false} == "true" ]]; then
+            find $My_Suzaku_D/$My_Suzaku_ID/xis/event_cl/fit/ -name "${tmp_prefix}*.*" \
+                -type f -printf "%f\n" |
+                xargs -n 1 -i rm -f $My_Suzaku_D/fit/{}
+            ln -s $My_Suzaku_D/$My_Suzaku_ID/xis/event_cl/fit/${tmp_prefix}* ${My_Suzaku_D}/fit/
+        else
+            cp -f $My_Suzaku_D/$My_Suzaku_ID/xis/event_cl/fit/${tmp_prefix}* ${My_Suzaku_D}/fit/
+        fi
     done
-    ### remove the files with the same name as new files
-    find $My_Suzaku_D/fit/ -name "${tmp_prefix}*.*" \
-        -type f -printf "%f\n" |
-        xargs -n 1 -i rm -f $My_Suzaku_D/../fit/{}
-    ### remove broken symbolic links
+    if [[ ${FLAG_hardCopy:=false} == "true" ]]; then
+        cp -f $My_Suzaku_D/fit/${tmp_prefix}*.* $My_Suzaku_D/../fit/
+    else
+            # remove the files with the same name as new files
+        find $My_Suzaku_D/fit/ -name "${tmp_prefix}*.*" \
+            -type f -printf "%f\n" |
+            xargs -n 1 -i rm -f $My_Suzaku_D/../fit/{}
+        # generate symbolic links
+        ln -s $My_Suzaku_D/fit/${tmp_prefix}*.* $My_Suzaku_D/../fit/
+    fi
+    # remove broken symbolic links
     find -L $My_Suzaku_D/../fit/ -type l -delete
-    ### generate symbolic links
-    ln -s $My_Suzaku_D/fit/${tmp_prefix}*.* $My_Suzaku_D/../fit/
 
     cd $My_Suzaku_D
     if [[ x${FUNCNAME} != x ]]; then return 0; fi

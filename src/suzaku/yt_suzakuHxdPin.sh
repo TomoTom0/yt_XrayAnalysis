@@ -4,6 +4,63 @@ alias yt_suzakuHxd_1="_SuzakuHxd_1_obtainNxb"
 alias yt_suzakuHxd_obtainNxb="_SuzakuHxd_1_obtainNxb"
 function _SuzakuHxd_1_obtainNxb() {
     ## download NXB (Non X-ray Background source)
+    # ---------------------
+    ##     obtain options
+    # ---------------------
+
+    function __usage() {
+        echo "Usage: ${FUNCNAME[1]} [-h,--help] ..." 1>&2
+        cat << EOF
+
+${FUNCNAME[1]}
+    download NXB event file from jaxa
+
+
+Options
+--canSkip
+    If the NXB event file exists, downloading will be skipped or not.
+    DEFAULT: no
+
+-h,--help
+    show this message
+
+
+EOF
+        return 0
+    }
+
+    # arguments settings
+    declare -A flagsAll=(
+        ["h"]="help"
+        ["--help"]="help"
+        ["--canSkip"]="canSkip"
+    )
+    declare -A flagsArgDict=(
+    )
+
+    # arguments variables
+    declare -i argc=0
+    declare -A kwargs=()
+    declare -A flagsIn=()
+
+    declare -a allArgs=($@)
+
+    __obtain_options allArgs flagsAll flagsArgDict argc kwargs flagsIn
+
+    if [[ " ${!flagsIn[@]} " =~ " help " ]]; then
+        __usage
+        return 0
+    fi
+
+    # ---------------------
+    ##         main
+    # ---------------------
+    FLAG_canSkip=false
+    if [[ x${FUNCNAME} == x ]]; then
+        if [[ -n "${flagsIn[canSkip]}" ]]; then
+            FLAG_canSkip=true
+        fi
+    fi
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
     cd $My_Suzaku_D
 
@@ -54,6 +111,7 @@ function _SuzakuHxd_1_obtainNxb() {
         if [[ ! -r $My_Suzaku_Dir ]]; then continue; fi
 
         cd $My_Suzaku_Dir
+        if [[ -r tmp_nxb.evt ]]; then continue; fi
 
         _pin_tmps=($(ls ae${My_Suzaku_ID}hxd_0_pinno_cl*.evt*))
         pin_file=${_pin_tmps[0]}
@@ -73,6 +131,63 @@ alias yt_suzakuHxd_2="_SuzakuHxd_2_obtainRspGti"
 alias yt_suzakuHxd_obtainRspGti="_SuzakuHxd_2_obtainRspGti"
 function _SuzakuHxd_2_obtainRspGti() {
     ## set rsp, gti
+    # ---------------------
+    ##     obtain options
+    # ---------------------
+
+    function __usage() {
+        echo "Usage: ${FUNCNAME[1]} [-h,--help] ..." 1>&2
+        cat << EOF
+
+${FUNCNAME[1]}
+    download NXB event file from jaxa
+
+
+Options
+--canSkip
+    If the NXB event file exists, downloading will be skipped or not.
+    DEFAULT: no
+
+-h,--help
+    show this message
+
+
+EOF
+        return 0
+    }
+
+    # arguments settings
+    declare -A flagsAll=(
+        ["h"]="help"
+        ["--help"]="help"
+        ["--canSkip"]="canSkip"
+    )
+    declare -A flagsArgDict=(
+    )
+
+    # arguments variables
+    declare -i argc=0
+    declare -A kwargs=()
+    declare -A flagsIn=()
+
+    declare -a allArgs=($@)
+
+    __obtain_options allArgs flagsAll flagsArgDict argc kwargs flagsIn
+
+    if [[ " ${!flagsIn[@]} " =~ " help " ]]; then
+        __usage
+        return 0
+    fi
+
+    # ---------------------
+    ##         main
+    # ---------------------
+    FLAG_canSkip=false
+    if [[ x${FUNCNAME} == x ]]; then
+        if [[ -n "${flagsIn[canSkip]}" ]]; then
+            FLAG_canSkip=true
+        fi
+    fi
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
     cd $My_Suzaku_D
 
@@ -113,7 +228,7 @@ function _SuzakuHxd_2_obtainRspGti() {
         ln -s ${rsp_file} hxd__src.rmf
         ln -s ${rsp_flat_file} hxd__flat.rmf
 
-        ## merge gti
+        ### merge gti
         gti_file=tmp_pin.gti
         rm $gti_file -f &&
             mgtime ingtis="${pin_file}+2,tmp_nxb.evt+2" \
@@ -127,6 +242,51 @@ alias yt_suzakuHxd_3="_SuzakuHxd_3_xselect"
 alias yt_suzakuHxd_xselect="_SuzakuHxd_3_xselect"
 function _SuzakuHxd_3_xselect() {
     ## extract spec
+    # ---------------------
+    ##     obtain options
+    # ---------------------
+
+    function __usage() {
+        echo "Usage: ${FUNCNAME[1]} [-h,--help] " 1>&2
+        cat << EOF
+
+${FUNCNAME[1]}
+    filter region and extract spectrum
+
+
+Options
+-h,--help
+    show this message
+
+EOF
+        return 0
+    }
+
+    # arguments settings
+    declare -A flagsAll=(
+        ["h"]="help"
+        ["--help"]="help"
+    )
+    declare -A flagsArgDict=(
+    )
+
+    # arguments variables
+    declare -i argc=0
+    declare -A kwargs=()
+    declare -A flagsIn=()
+
+    declare -a allArgs=($@)
+
+    __obtain_options allArgs flagsAll flagsArgDict argc kwargs flagsIn
+
+    if [[ " ${!flagsIn[@]} " =~ " help " ]]; then
+        __usage
+        return 0
+    fi
+
+    # ---------------------
+    ##         main
+    # ---------------------
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
     cd $My_Suzaku_D
     for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -165,6 +325,51 @@ alias yt_suzakuHxd_4="_SuzakuHxd_4_corrections"
 alias yt_suzakuHxd_corrections="_SuzakuHxd_4_corrections"
 function _SuzakuHxd_4_corrections() {
     ## dead time correction and BGD EXPOSURE correction
+    # ---------------------
+    ##     obtain options
+    # ---------------------
+
+    function __usage() {
+        echo "Usage: ${FUNCNAME[1]} [-h,--help] " 1>&2
+        cat << EOF
+
+${FUNCNAME[1]}
+    filter region and extract spectrum
+
+
+Options
+-h,--help
+    show this message
+
+EOF
+        return 0
+    }
+
+    # arguments settings
+    declare -A flagsAll=(
+        ["h"]="help"
+        ["--help"]="help"
+    )
+    declare -A flagsArgDict=(
+    )
+
+    # arguments variables
+    declare -i argc=0
+    declare -A kwargs=()
+    declare -A flagsIn=()
+
+    declare -a allArgs=($@)
+
+    __obtain_options allArgs flagsAll flagsArgDict argc kwargs flagsIn
+
+    if [[ " ${!flagsIn[@]} " =~ " help " ]]; then
+        __usage
+        return 0
+    fi
+
+    # ---------------------
+    ##         main
+    # ---------------------
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
     cd $My_Suzaku_D
     for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -205,6 +410,53 @@ alias yt_suzakuHxd_5="_SuzakuHxd_5_editHeader"
 alias yt_suzakuHxd_editHeader="_SuzakuHxd_5_editHeader"
 function _SuzakuHxd_5_editHeader() {
     ## edit header
+
+    # ---------------------
+    ##     obtain options
+    # ---------------------
+
+    function __usage() {
+        echo "Usage: ${FUNCNAME[1]} [-h,--help] [--minimum] [--strict] ..." 1>&2
+        cat <<EOF
+
+${FUNCNAME[1]}
+    add the file names of bkg, rmf and arf for Xspec to fits header.
+
+
+Options
+-h,--help
+    show this message
+
+EOF
+        return 0
+    }
+
+    # arguments settings
+    declare -A flagsAll=(
+        ["h"]="help"
+        ["--help"]="help"
+    )
+    declare -A flagsArgDict=(
+    )
+
+    # arguments variables
+    declare -i argc=0
+    declare -A kwargs=()
+    declare -A flagsIn=()
+
+    declare -a allArgs=($@)
+
+    __obtain_options allArgs flagsAll flagsArgDict argc kwargs flagsIn
+
+    if [[ " ${!flagsIn[@]} " =~ " help " ]]; then
+        __usage
+        return 0
+    fi
+
+    # ---------------------
+    ##         main
+    # ---------------------
+
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
     cd $My_Suzaku_D
     for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -238,16 +490,63 @@ alias yt_suzakuHxd_grppha="_SuzakuHxd_6_grppha"
 function _SuzakuHxd_6_grppha() {
     ## grppha
     # args: gnum=25
-    if [[ x${FUNCNAME} != x ]]; then
-        _gnum_tmp=${1:=25}
-        if [[ $_gnum_tmp =~ [0-9]+ ]]; then
-            gnum=$_gnum_tmp
-        else
-            gnum=25
-        fi
-    else
-        gnum=25
+
+    # ---------------------
+    ##     obtain options
+    # ---------------------
+
+    function __usage() {
+        echo "Usage: ${FUNCNAME[1]} [-h,--help] [--gnum GNUM] ..." 1>&2
+        cat <<EOF
+
+${FUNCNAME[1]}
+    do grouping with grppha
+    In default, this function uses "group min GNUM" for grouping
+    If gnum for a camera is less than or equal to 0, then the grouping will be skipped.
+
+
+Options
+--gnum GNUM
+    change gnum for HXD/PIN
+
+
+EOF
+        return 0
+    }
+
+    # arguments settings
+    declare -A flagsAll=(
+        ["h"]="help"
+        ["--gnum"]="gnum"
+    )
+    declare -A flagsArgDict=(
+        ["gnum"]="gnum"
+    )
+
+    # arguments variables
+    declare -i argc=0
+    declare -A kwargs=()
+    declare -A flagsIn=()
+
+    declare -a allArgs=($@)
+
+    __obtain_options allArgs flagsAll flagsArgDict argc kwargs flagsIn
+
+    if [[ " ${!flagsIn[@]} " =~ " help " ]]; then
+        __usage
+        return 0
     fi
+
+    # ---------------------
+    ##         main
+    # ---------------------
+    declare -A gnum=25
+    if [[ x${FUNCNAME} != x ]]; then
+        if [[ -n ${kwargs[gnum__gnum]} ]]; then
+            declare -i gnum=${kwargs[gnum__gnum]}
+        fi
+    fi
+
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
     cd $My_Suzaku_D
     for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -274,23 +573,115 @@ EOF
 alias yt_suzakuHxd_7="_SuzakuHxd_7_fitDirectory"
 alias yt_suzakuHxd_fitDirectory="_SuzakuHxd_7_fitDirectory"
 function _SuzakuHxd_7_fitDirectory() {
-    # to fit directory
+    ##    to fit directory
+    # args: FLAG_hardCopy=false
+    # args: FLAG_symbLink=false
+    # args: tmp_prefix="hxd_"
+
+    # ---------------------
+    ##     obtain options
+    # ---------------------
+
+    function __usage() {
+        echo "Usage: ${FUNCNAME[1]} [-h,--help] [--hardCopy] [--symbLink] ..." 1>&2
+        cat <<EOF
+
+${FUNCNAME[1]}
+    move files to fit directory
+    This process has two steps:
+        1. copy files to ./fit
+        2. generate symbolic link to ../fit
+
+
+Options
+-h,--help
+    show this message
+
+--hardCopy
+    hard copy instead of generating symbolic link to $(../fit) (Step 2.)
+
+--symbLink
+    generate symbolic link instead of copy to $(./fit) (Step 1.)
+
+--prefixName prefixName
+    select the prefix of file names to move
+
+EOF
+        return 0
+    }
+
+    # arguments settings
+    declare -A flagsAll=(
+        ["h"]="help"
+        ["--help"]="help"
+        ["--hardCopy"]="hardCopy"
+        ["--symbLink"]="symbLink"
+        ["--prefixName"]="prefixName"
+    )
+    declare -A flagsArgDict=(
+        ["prefixName"]="name"
+    )
+
+    # arguments variables
+    declare -i argc=0
+    declare -A kwargs=()
+    declare -A flagsIn=()
+
+    declare -a allArgs=($@)
+
+    __obtain_options allArgs flagsAll flagsArgDict argc kwargs flagsIn
+
+    if [[ " ${!flagsIn[@]} " =~ " help " ]]; then
+        __usage
+        return 0
+    fi
+
+    # ---------------------
+    ##         main
+    # ---------------------
+    FLAG_hardCopy=false
+    FLAG_symbLink=false
+    tmp_prefix="hxd_"
+    if [[ x${FUNCNAME} == x ]]; then
+        if [[ -n "${flagsIn[hardCopy]}" ]]; then
+            FLAG_hardCopy=true
+        fi
+        if [[ -n "${flagsIn[symbLink]}" ]]; then
+            FLAG_symbLink=true
+        fi
+        if [[ -n "${kwargs[prefixName__name]}" ]]; then
+            tmp_prefix=${kwargs[prefixName__name]}
+        fi
+    fi
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
     cd $My_Suzaku_D
 
-    mkdir -p fit $My_Suzaku_D/../fit
-    tmp_prefix="hxd_"
+    mkdir -p $My_Suzaku_D/fit $My_Suzaku_D/../fit
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Suzaku_ID in ${obs_dirs[@]}; do
-        My_Suzaku_Dir=$My_Suzaku_D/$My_Suzaku_ID/hxd/event_cl
-        mkdir $My_Suzaku_D/fit -p
-        cp $My_Suzaku_Dir/fit/${tmp_prefix}*.* $My_Suzaku_D/fit/ -f
+        if [[ ${FLAG_symbLink:=false} == "true" ]]; then
+            find $My_Suzaku_D/$My_Suzaku_ID/hxd/event_cl/fit/ -name "${tmp_prefix}*.*" \
+                -type f -printf "%f\n" |
+                xargs -n 1 -i rm -f $My_Suzaku_D/fit/{}
+            ln -s $My_Suzaku_D/$My_Suzaku_ID/hxd/event_cl/fit/${tmp_prefix}* ${My_Suzaku_D}/fit/
+        else
+            cp -f $My_Suzaku_D/$My_Suzaku_ID/hxd/event_cl/fit/${tmp_prefix}* ${My_Suzaku_D}/fit/
+        fi
     done
-    find $My_Suzaku_D/fit/ -name "${tmp_prefix}*.*" \
-        -type f -printf "%f\n" |
-        xargs -n 1 -i rm -f $My_Suzaku_D/../fit/{}
+    if [[ ${FLAG_hardCopy:=false} == "true" ]]; then
+        cp -f $My_Suzaku_D/fit/${tmp_prefix}*.* $My_Suzaku_D/../fit/
+    else
+            # remove the files with the same name as new files
+        find $My_Suzaku_D/fit/ -name "${tmp_prefix}*.*" \
+            -type f -printf "%f\n" |
+            xargs -n 1 -i rm -f $My_Suzaku_D/../fit/{}
+        # generate symbolic links
+        ln -s $My_Suzaku_D/fit/${tmp_prefix}*.* $My_Suzaku_D/../fit/
+    fi
+    # remove broken symbolic links
     find -L $My_Suzaku_D/../fit/ -type l -delete
-    ln -s $My_Suzaku_D/fit/${tmp_prefix}*.* $My_Suzaku_D/../fit/
+
     cd $My_Suzaku_D
+
     if [[ x${FUNCNAME} != x ]]; then return 0; fi
 }

@@ -5,7 +5,7 @@ FLAG_arf=true # arg
 declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
 cd $My_Newton_D
 
-if [[ x == x$(alias sas 2>/dev/null) ]]; then
+if [[ x == "x$(alias sas 2>/dev/null)" ]]; then
     echo "Error: alias sas is not defined."
     kill -INT $$
 fi
@@ -28,8 +28,8 @@ for My_Newton_ID in ${obs_dirs[@]}; do
         if [[ "${FLAG_arf:=true}" == "true" ]]; then
             rm ${cam}__arf.fits -f &&
                 arfgen arfset=${cam}__arf.fits spectrumset=${cam}__nongrp.fits \
-                withrmfset=yes rmfset=${cam}__rmf.fits withbadpixcorr=yes \
-                badpixlocation=${cam}_filt_time.fits
+                    withrmfset=yes rmfset=${cam}__rmf.fits withbadpixcorr=yes \
+                    badpixlocation=${cam}_filt_time.fits
         fi
     done
 done

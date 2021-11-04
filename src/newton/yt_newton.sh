@@ -61,8 +61,6 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
@@ -194,8 +192,6 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
@@ -204,15 +200,27 @@ EOF
     declare -A rates=(["mos1"]=0.35 ["mos2"]=0.35 ["pn"]=0.4)
     if [[ x${FUNCNAME} != x ]]; then
         if [[ -n ${kwargs[filter__filters]} ]]; then
-            tmp_filter=(${kwargs[filter__filters]//,/ })
+            if [[ "x${tmp_filter^^}" == "xNONE" ]]; then
+                tmp_filter=("PI > 0" "PI > 0" "PI > 0")
+            else
+                tmp_filter=(${kwargs[filter__filters]//,/ })
+            fi
             declare -A pis=(["mos1"]="${tmp_filter[0]}" ["mos2"]="${tmp_filter[1]}" ["pn"]="${tmp_filter[2]}")
         fi
         if [[ -n ${kwargs[filterHard__filters]} ]]; then
-            tmp_filter=(${kwargs[filterHard__filters]//,/ })
+            if [[ "x${tmp_filter^^}" == "xNONE" ]]; then
+                tmp_filter=("PI > 0" "PI > 0" "PI > 0")
+            else
+                tmp_filter=(${kwargs[filterHard__filters]//,/ })
+            fi
             declare -A pis_hard=(["mos1"]="${tmp_filter[0]}" ["mos2"]="${tmp_filter[1]}" ["pn"]="${tmp_filter[2]}")
         fi
         if [[ -n ${kwargs[filterRates__filters]} ]]; then
-            tmp_filter=(${kwargs[filterRates__filters]//,/ })
+            if [[ "x${tmp_filter^^}" == "xNONE" ]]; then
+                tmp_filter=("1e10" "1e10" "1e10")
+            else
+                tmp_filter=(${kwargs[filterRates__filters]//,/ })
+            fi
             declare -A rates=(["mos1"]="${tmp_filter[0]}" ["mos2"]="${tmp_filter[1]}" ["pn"]="${tmp_filter[2]}")
         fi
     fi
@@ -256,7 +264,7 @@ EOF
 
             rm ${cam}_filt_time.fits -f &&
                 evselect table=tmp_${cam}_filt.fits withfilteredset=yes \
-                    expression="gti(${cam}_gti.fits,TIME) && (PI>150) && ${xmms[$cam]}" filteredset=${cam}_filt_time.fits \
+                    expression="gti(${cam}_gti.fits,TIME)" filteredset=${cam}_filt_time.fits \
                     filtertype=expression keepfilteroutput=yes \
                     updateexposure=yes filterexposure=yes
         done
@@ -320,8 +328,6 @@ EOF
         __usage
         return 0
     fi
-
-    # ----------------------------------------- #
 
     # ---------------------
     ##         main
@@ -445,8 +451,6 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
@@ -481,7 +485,7 @@ EOF
                 evselect table=${cam}_filt_time.fits energycolumn="PI" \
                     withfilteredset=yes filteredset=${cam}_filtered.fits \
                     keepfilteroutput=yes filtertype="expression" \
-                    expression="(FLAG==0) && (PATTERN<=4) && ((X,Y) in CIRCLE(${coor_arg}))" \
+                    expression="((X,Y) in CIRCLE(${coor_arg}))" \
                     withspectrumset=yes spectrumset=${cam}__nongrp.fits \
                     spectralbinsize=5 withspecranges=yes \
                     specchannelmin=0 specchannelmax=${spchmax[$cam]}
@@ -497,13 +501,13 @@ EOF
                 evselect table=${cam}_filt_time.fits energycolumn="PI" \
                     withfilteredset=yes filteredset=${cam}_bkg_filtered.fits \
                     keepfilteroutput=yes filtertype="expression" \
-                    expression="(FLAG==0) && (PATTERN<=4) && ((X,Y) in CIRCLE(${coor_arg}))" \
+                    expression="((X,Y) in CIRCLE(${coor_arg}))" \ # FLAG==0 && -> rmfgenでsegmentation error
                     withspectrumset=yes spectrumset=${cam}__bkg.fits \
                     spectralbinsize=5 withspecranges=yes \
                     specchannelmin=0 specchannelmax=${spchmax[$cam]}
 
-            backscale spectrumset=${cam}__nongrp.fits badpixlocation=${cam}_filt_time.fits
-            backscale spectrumset=${cam}__bkg.fits badpixlocation=${cam}_filt_time.fits
+            #backscale spectrumset=${cam}__nongrp.fits badpixlocation=${cam}_filt_time.fits
+            #backscale spectrumset=${cam}__bkg.fits badpixlocation=${cam}_filt_time.fits
         done
     done
     cd $My_Newton_D
@@ -558,8 +562,6 @@ EOF
         __usage
         return 0
     fi
-
-    # ----------------------------------------- #
 
     # ---------------------
     ##         main
@@ -662,8 +664,6 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
@@ -690,20 +690,29 @@ EOF
         My_Newton_Dir=$My_Newton_D/$My_Newton_ID/ODF
         if [[ ! -r $My_Newton_Dir/fit ]]; then continue; fi
         cd $My_Newton_Dir/fit
-        all_cams_now=($(find . -name "*__nongrp.fits" -printf "%f\n" |
-            sed -r -n "s/^(mos1|mos2|pn)__nongrp.fits$/\1/p"))
+        all_cams_now=($(find . -name "*_nongrp.fits" -printf "%f\n" |
+            sed -r -n "s/^.*(mos1|mos2|pn).*_nongrp.fits$/\1/p"))
 
         for cam in ${all_cams_now[@]}; do
             rm ${cam}__rmf.fits ${cam}__arf.fits -f
             export SAS_CCF=$My_Newton_Dir/ccf.cif
+            if [[ ! -r "${SAS_CCF}" ]]; then continue ; fi
+            #_nongrp_tmps=($(find . -name "*${cam}*_nongrp.fits" -printf "%f\n"))
+            #if [[ ${_nongrp_tmps[@]} -eq 0 ]]; then continue; fi
+            #nongrp_name=${_nongrp_tmps[0]}
+            nongrp_name=${cam}__nongrp.fits
             if [[ "${FLAG_rmf:=true}" == "true" ]]; then
                 rm ${cam}__rmf.fits -f &&
-                    rmfgen rmfset=${cam}__rmf.fits spectrumset=${cam}__nongrp.fits
+                    rmfgen rmfset=${cam}__rmf.fits spectrumset=${nongrp_name}
             fi
             if [[ "${FLAG_arf:=true}" == "true" ]]; then
+                #_rmf_tmps=($(find . -name "*${cam}*_rmf.fits" -printf "%f\n"))
+                #if [[ ${_rmf_tmps[@]} -eq 0 ]]; then continue; fi
+                #rmf_name=${_rmf_tmps[0]}
+                rmf_name=${cam}__rmf.fits
                 rm ${cam}__arf.fits -f &&
-                    arfgen arfset=${cam}__arf.fits spectrumset=${cam}__nongrp.fits \
-                        withrmfset=yes rmfset=${cam}__rmf.fits withbadpixcorr=yes \
+                    arfgen arfset=${cam}__arf.fits spectrumset=${nongrp_name} \
+                        withrmfset=yes rmfset=${rmf_name} withbadpixcorr=yes \
                         badpixlocation=${cam}_filt_time.fits
             fi
         done
@@ -759,8 +768,6 @@ EOF
         __usage
         return 0
     fi
-
-    # ----------------------------------------- #
 
     # ---------------------
     ##         main
@@ -854,8 +861,6 @@ EOF
         __usage
         return 0
     fi
-
-    # ----------------------------------------- #
 
     # ---------------------
     ##         main
@@ -1016,8 +1021,6 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
@@ -1132,8 +1135,6 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
@@ -1142,40 +1143,39 @@ EOF
     tmp_prefix="newton_"
 
     if [[ x${FUNCNAME} == x ]]; then
-        if [[ -n ${flagsIn[hardCopy]} ]]; then
+        if [[ -n "${flagsIn[hardCopy]}" ]]; then
             FLAG_hardCopy=true
         fi
-        if [[ -n ${flagsIn[symbLink]} ]]; then
+        if [[ -n "${flagsIn[symbLink]}" ]]; then
             FLAG_symbLink=true
         fi
-        if [[ -n ${kwargs[prefixName__name]} ]]; then
+        if [[ -n "${kwargs[prefixName__name]}" ]]; then
             tmp_prefix=${kwargs[prefixName__name]}
         fi
     fi
     declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
     cd $My_Newton_D
     mkdir -p $My_Newton_D/fit $My_Newton_D/../fit/
-
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Newton_ID in ${obs_dirs[@]}; do
         if [[ ${FLAG_symbLink:=false} == "true" ]]; then
-            cp -f $My_Newton_D/$My_Newton_ID/ODF/fit/${tmp_prefix}* ${My_Newton_D}/fit/
-        else
             find $My_Newton_D/$My_Newton_ID/ODF/fit/ -name "${tmp_prefix}*.*" \
                 -type f -printf "%f\n" |
                 xargs -n 1 -i rm -f $My_Newton_D/fit/{}
             ln -s $My_Newton_D/$My_Newton_ID/ODF/fit/${tmp_prefix}* ${My_Newton_D}/fit/
+        else
+            cp -f $My_Newton_D/$My_Newton_ID/ODF/fit/${tmp_prefix}* ${My_Newton_D}/fit/
         fi
     done
     if [[ ${FLAG_hardCopy:=false} == "true" ]]; then
-        # remove the files with the same name as new files
+        cp -f $My_Newton_D/fit/${tmp_prefix}*.* $My_Newton_D/../fit/
+    else
+            # remove the files with the same name as new files
         find $My_Newton_D/fit/ -name "${tmp_prefix}*.*" \
             -type f -printf "%f\n" |
             xargs -n 1 -i rm -f $My_Newton_D/../fit/{}
         # generate symbolic links
         ln -s $My_Newton_D/fit/${tmp_prefix}*.* $My_Newton_D/../fit/
-    else
-        cp -f $My_Newton_D/fit/${tmp_prefix}*.* $My_Newton_D/../fit/
     fi
     # remove broken symbolic links
     find -L $My_Newton_D/../fit/ -type l -delete

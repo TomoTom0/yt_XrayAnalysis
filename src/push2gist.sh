@@ -45,7 +45,7 @@ fi
 # ---------------------
 
 # dry check
-if [[ -n ${flagsIn[force]} ]]; then
+if [[ -n ${flagsIn[dry]} ]]; then
     echo "  ---- This is dry mode ----  "
 fi
 
@@ -90,7 +90,7 @@ for file in ${generated_files[@]}; do
         fi
     else
         echo "hash not found for $file"
-        if [[ -z ${flagsIn[dry]} ]]; then
+        if [[ -z "${flagsIn[dry]}" ]]; then
             ### create gist
             tmp_url=$(gist --no-private "../tmp/$file" 2>/dev/null )
             valid_gist_dict[$file]=$tmp_url
@@ -98,7 +98,7 @@ for file in ${generated_files[@]}; do
     fi
 done
 
-if [[ -z ${flagsIn[dry]} ]]; then
+if [[ -z "${flagsIn[dry]}" ]]; then
     ## write to config.dat
     config_path=config.dat
     :>$config_path

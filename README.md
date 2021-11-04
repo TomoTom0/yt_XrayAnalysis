@@ -82,9 +82,12 @@ placed to the head of the block and appended with `# args` on the end of line.
 |Suzaku|XIS|`suzakuXis`||
 |Suzaku|HXD|`suzakuHxd`||
 |Swift|XRT|`swiftXrt`||
-|Swift|XRT(Online build)|`swiftXrtOnline`||
-|Swift|BAT|`swiftBat`||
-|Swift|BAT(n-Month Catalog)|`swiftBatMonth`||
+|Swift|XRT(Online build)|`swiftXrtOnline`|Coming soon|
+|Swift|BAT|`swiftBat`|Coming soon|
+|Swift|BAT(n-Month Catalog)|`swiftBatMonth`|Coming soon|
+|Swift|UVOT|`swiftUvot`|Coming soon|
+|Nicer|xis|`nicerXis`|Coming soon|
+
 
 
 

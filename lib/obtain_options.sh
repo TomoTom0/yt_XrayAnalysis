@@ -48,7 +48,6 @@ function __obtain_options() {
     declare -n __kwargs="$5"
     declare -n __flagsIn="$6"
 
-
     # obtain options and arguments
     declare -i shift_count=0
     while ((shift_count < ${#__allArgs[@]})); do
@@ -60,6 +59,7 @@ function __obtain_options() {
                 declare -i tmp_flagCount=0
                 flagArg=false
                 flagIsLong=false
+                flag_id=""
                 # long flag -> complete match
                 if [[ "${#flag}" -gt 1 && "$arg" == "$flag" ]]; then
                     flag_id=${__flagsAll[$flag]}
@@ -67,32 +67,40 @@ function __obtain_options() {
                     flagIsLong=true
                     ((tmp_flagCount++))
                 # short flag -> partial match
-                elif [[ "${#flag}" -eq 1 && ! "$arg" =~ "^--" && "$arg" =~ "$flag" ]]; then
+                elif [[ "${#flag}" -eq 1 && ! "x$arg" =~ "^x--" && "$arg" =~ "$flag" ]]; then
                     flag_id=${flagsAll[$flag]}
                     __flagsIn[$flag_id]="$shift_count"
                     ((tmp_flagCount++))
                 fi
                 # check whether arguments are accompanied or not
-                if [[ " ${!flagsArgDict[@]} " =~ " $flag_id " && $tmp_flagCount -eq 1 ]]; then
+                if [[ -n "$flag_id" && $tmp_flagCount -eq 1 && " ${!flagsArgDict[@]} " =~ " $flag_id " ]]; then
                     flagArg=true
                     for argName in ${__flagsArgDict[${flag_id}]}; do
                         ((shift_count++))
                         tmp_arg=${__allArgs[$shift_count]}
+                        # arguments OPTION can start with "-" or not
+                        if [[ "x${tmp_arg}" =~ "^x-" ]]; then
+                            ((shift_count--))
+                            break
+                        fi
                         __kwargs["${flag_id}__${argName}"]="$tmp_arg"
                     done
                 fi
-                if [[ "x$flagArg" == "xtrue" || "x$flagIsLong" == "xtrue" ]]; then
+                if [[ "x$flagIsLong" == "xtrue" ||"x$flagArg" == "xtrue" ]]; then
                     break
                 fi
             done
-            ((shift_count++))
+            # UNKNOWN OPTION
+            #if ((tmp_flagCount == 0)); then
+            #    __kwargs[UNKNOWN__FLAG]="${__kwargs[UNKNOWN__FLAG]} $arg"
+            #fi
             ;;
         *)
             __kwargs[$argc]="$arg"
             ((argc++))
-            ((shift_count++))
             ;;
         esac
+        ((shift_count++))
     done
 
     return 0
