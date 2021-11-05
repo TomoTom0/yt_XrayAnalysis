@@ -31,7 +31,7 @@ for My_Newton_ID in ${obs_dirs[@]}; do
             evselect table=${cam}_filt_time.fits energycolumn="PI" \
                 withfilteredset=yes filteredset=${cam}_filtered.fits \
                 keepfilteroutput=yes filtertype="expression" \
-                expression="(FLAG==0) && (PATTERN<=4) && ((X,Y) in CIRCLE(${coor_arg}))" \
+                expression="((X,Y) in CIRCLE(${coor_arg}))" \
                 withspectrumset=yes spectrumset=${cam}__nongrp.fits \
                 spectralbinsize=5 withspecranges=yes \
                 specchannelmin=0 specchannelmax=${spchmax[$cam]}
@@ -47,13 +47,13 @@ for My_Newton_ID in ${obs_dirs[@]}; do
             evselect table=${cam}_filt_time.fits energycolumn="PI" \
                 withfilteredset=yes filteredset=${cam}_bkg_filtered.fits \
                 keepfilteroutput=yes filtertype="expression" \
-                expression="(FLAG==0) && (PATTERN<=4) && ((X,Y) in CIRCLE(${coor_arg}))" \
+                expression="((X,Y) in CIRCLE(${coor_arg}))" \ # FLAG==0 && -> rmfgenでsegmentation error
                 withspectrumset=yes spectrumset=${cam}__bkg.fits \
                 spectralbinsize=5 withspecranges=yes \
                 specchannelmin=0 specchannelmax=${spchmax[$cam]}
 
-        backscale spectrumset=${cam}__nongrp.fits badpixlocation=${cam}_filt_time.fits
-        backscale spectrumset=${cam}__bkg.fits badpixlocation=${cam}_filt_time.fits
+        #backscale spectrumset=${cam}__nongrp.fits badpixlocation=${cam}_filt_time.fits
+        #backscale spectrumset=${cam}__bkg.fits badpixlocation=${cam}_filt_time.fits
     done
 done
 cd $My_Newton_D
@@ -110,20 +110,29 @@ for My_Newton_ID in ${obs_dirs[@]}; do
     My_Newton_Dir=$My_Newton_D/$My_Newton_ID/ODF
     if [[ ! -r $My_Newton_Dir/fit ]]; then continue; fi
     cd $My_Newton_Dir/fit
-    all_cams_now=($(find . -name "*__nongrp.fits" -printf "%f\n" |
-        sed -r -n "s/^(mos1|mos2|pn)__nongrp.fits$/\1/p"))
+    all_cams_now=($(find . -name "*_nongrp.fits" -printf "%f\n" |
+        sed -r -n "s/^.*(mos1|mos2|pn).*_nongrp.fits$/\1/p"))
 
     for cam in ${all_cams_now[@]}; do
         rm ${cam}__rmf.fits ${cam}__arf.fits -f
         export SAS_CCF=$My_Newton_Dir/ccf.cif
+        if [[ ! -r "${SAS_CCF}" ]]; then continue ; fi
+        #_nongrp_tmps=($(find . -name "*${cam}*_nongrp.fits" -printf "%f\n"))
+        #if [[ ${_nongrp_tmps[@]} -eq 0 ]]; then continue; fi
+        #nongrp_name=${_nongrp_tmps[0]}
+        nongrp_name=${cam}__nongrp.fits
         if [[ "${FLAG_rmf:=true}" == "true" ]]; then
             rm ${cam}__rmf.fits -f &&
-                rmfgen rmfset=${cam}__rmf.fits spectrumset=${cam}__nongrp.fits
+                rmfgen rmfset=${cam}__rmf.fits spectrumset=${nongrp_name}
         fi
         if [[ "${FLAG_arf:=true}" == "true" ]]; then
+            #_rmf_tmps=($(find . -name "*${cam}*_rmf.fits" -printf "%f\n"))
+            #if [[ ${_rmf_tmps[@]} -eq 0 ]]; then continue; fi
+            #rmf_name=${_rmf_tmps[0]}
+            rmf_name=${cam}__rmf.fits
             rm ${cam}__arf.fits -f &&
-                arfgen arfset=${cam}__arf.fits spectrumset=${cam}__nongrp.fits \
-                    withrmfset=yes rmfset=${cam}__rmf.fits withbadpixcorr=yes \
+                arfgen arfset=${cam}__arf.fits spectrumset=${nongrp_name} \
+                    withrmfset=yes rmfset=${rmf_name} withbadpixcorr=yes \
                     badpixlocation=${cam}_filt_time.fits
         fi
     done
@@ -277,27 +286,26 @@ tmp_prefix="newton_" # arg
 declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
 cd $My_Newton_D
 mkdir -p $My_Newton_D/fit $My_Newton_D/../fit/
-
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Newton_ID in ${obs_dirs[@]}; do
     if [[ ${FLAG_symbLink:=false} == "true" ]]; then
-        cp -f $My_Newton_D/$My_Newton_ID/ODF/fit/${tmp_prefix}* ${My_Newton_D}/fit/
-    else
         find $My_Newton_D/$My_Newton_ID/ODF/fit/ -name "${tmp_prefix}*.*" \
             -type f -printf "%f\n" |
             xargs -n 1 -i rm -f $My_Newton_D/fit/{}
         ln -s $My_Newton_D/$My_Newton_ID/ODF/fit/${tmp_prefix}* ${My_Newton_D}/fit/
+    else
+        cp -f $My_Newton_D/$My_Newton_ID/ODF/fit/${tmp_prefix}* ${My_Newton_D}/fit/
     fi
 done
 if [[ ${FLAG_hardCopy:=false} == "true" ]]; then
-    # remove the files with the same name as new files
+    cp -f $My_Newton_D/fit/${tmp_prefix}*.* $My_Newton_D/../fit/
+else
+        # remove the files with the same name as new files
     find $My_Newton_D/fit/ -name "${tmp_prefix}*.*" \
         -type f -printf "%f\n" |
         xargs -n 1 -i rm -f $My_Newton_D/../fit/{}
     # generate symbolic links
     ln -s $My_Newton_D/fit/${tmp_prefix}*.* $My_Newton_D/../fit/
-else
-    cp -f $My_Newton_D/fit/${tmp_prefix}*.* $My_Newton_D/../fit/
 fi
 # remove broken symbolic links
 find -L $My_Newton_D/../fit/ -type l -delete

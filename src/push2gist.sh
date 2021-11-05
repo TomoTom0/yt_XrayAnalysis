@@ -7,7 +7,9 @@
 ##     obtain options
 # ---------------------
 
-source ../lib/obtain_options.sh
+
+dir_path=$( cd $(dirname ${BASH_SOURCE:-$0}); pwd) # noqa
+source ${dir_path}/../lib/obtain_options.sh
 
 function __usage() {
     echo "Usage: $0 [-f,--force] [--dry] [-h,--help]" 1>&2
@@ -32,7 +34,7 @@ declare -A flagsIn=()
 declare -a allArgs=($@)
 
 __obtain_options allArgs flagsAll flagsArgDict argc kwargs flagsIn
-
+#flagsIn[force]=111
 if [[ " ${!flagsIn[@]} " =~ " help " ]]; then
     __usage
     exit 1

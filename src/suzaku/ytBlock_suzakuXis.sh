@@ -1,7 +1,10 @@
 #!/bin/bash
 
+dir_path=$( cd $(dirname ${BASH_SOURCE:-$0}); pwd) # noqa
+source ${dir_path}/../../lib/obtain_options.sh
+
 alias yt_suzakuXis__a="_SuzakuXis_a_ds9"
-function _SuzakuXis_a_beforeDs9() {
+function _SuzakuXis_a_ds9() {
     ## ds9
     # ---------------------
     ##     obtain options

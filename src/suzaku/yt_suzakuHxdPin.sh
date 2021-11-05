@@ -1,5 +1,9 @@
 #!/bin/bash
 
+dir_path=$( cd $(dirname ${BASH_SOURCE:-$0}); pwd) # noqa
+source ${dir_path}/../../lib/obtain_options.sh
+
+
 alias yt_suzakuHxd_1="_SuzakuHxd_1_obtainNxb"
 alias yt_suzakuHxd_obtainNxb="_SuzakuHxd_1_obtainNxb"
 function _SuzakuHxd_1_obtainNxb() {
@@ -555,12 +559,12 @@ EOF
 
         cd $My_Suzaku_Dir/fit
         for nongrp_name in $(find . -name "hxd_[0-9]*_nongrp.fits" -printf "%f\n"); do
-            grp_name=${nongrp_name/_nongrp.fits/_grp${grp_num}.fits}
+            grp_name=${nongrp_name/_nongrp.fits/_grp${gnum}.fits}
 
             rm $grp_name -f
             cat <<EOF | bash
 grppha infile=${nongrp_name} outfile=${grp_name}
-group min ${grp_num}
+group min ${gnum}
 exit !${grp_name}
 EOF
 

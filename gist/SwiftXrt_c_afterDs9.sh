@@ -1,27 +1,34 @@
 # _SwiftXrt_c_afterDs9
-# _SwiftXrt_3_products
-## xrtproducts
+# _SwiftXrt_3_fitDirectory
+## fitディレクトリにまとめ
+FLAG_hardCopy=false # arg
+FLAG_symbLink=false # arg
+tmp_prefix="xrtBuild" # arg
 declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
 cd $My_Swift_D
+mkdir -p $My_Swift_D/fit $My_Swift_D/../fit
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Swift_ID in ${obs_dirs[@]}; do
-
-    My_Swift_Dir=$My_Swift_D/$My_Swift_ID
-    if [[ ! -r $My_Swift_Dir/xrt/output ]]; then continue; fi
-
-    cd $My_Swift_Dir/xrt/output
-    _evt_tmps=($(ls -r sw${My_Swift_ID}xpcw*po_cl.evt))
-    evt_file=${_evt_tmps[-1]}
-
-    _exp_tmps=($(ls -r sw${My_Swift_ID}xpcw*po_ex.img))
-    exp_file=${_exp_tmps[0]}
-    xrtproducts infile=$evt_file stemout=DEFAULT regionfile=src.reg \
-        bkgregionfile=bkg.reg bkgextract=yes outdir=$My_Swift_Dir/xrt/output/fit binsize=-99 \
-        expofile=$exp_file clobber=yes correctlc=no \
-        phafile=xrt__nongrp.fits bkgphafile=xrt__bkg.fits arffile=xrt__arf.fits
-
+    if [[ ${FLAG_symbLink:=false} == "true" ]]; then
+        find $My_Swift_D/xrt/xrt_build_${prod_ID}/spec/fit/ -name "${tmp_prefix}*.*" \
+            -type f -printf "%f\n" |
+            xargs -n 1 -i rm -f $My_Swift_D/fit/{}
+        ln -s $My_Swift_D/xrt/xrt_build_${prod_ID}/spec/fit/${tmp_prefix}*.* $My_Swift_D/fit/
+    else
+        cp -f $My_Swift_D/xrt/xrt_build_${prod_ID}/spec/fit/${tmp_prefix}*.* $My_Swift_D/fit/
+    fi
 done
-cd $My_Swift_D
+if [[ ${FLAG_hardCopy:=false} == "true" ]]; then
+    cp -f $My_Swift_D/fit/${tmp_prefix}*.* $My_Swift_D/../fit/
+else
+    # remove the files with the same name as new files
+    find $My_Swift_D/fit/ -name "${tmp_prefix}*.*" -type f -printf "%f\n" |
+        xargs -n 1 -i rm -f $My_Swift_D/../fit/{}
+    # generate symbolic links
+    ln -s $My_Swift_D/fit/${tmp_prefix}*.* $My_Swift_D/../fit/
+fi
+# remove broken symbolic links
+find -L $My_Swift_D/../fit/ -type l -delete
 # _SwiftXrt_4_obtainRmf
 ## obtain rmf
 declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
@@ -69,7 +76,7 @@ for My_Swift_ID in ${obs_dirs[@]}; do
 
     rmf_version=$(_ObtainXrtRmfVersion $obs_MJD)
 
-    if [[ "x$rmf_version" == "xNone" ]]; then
+    if [[ "x${rmf_version:-None}" == "xNone" ]]; then
         echo "Error occured in rmf copy"
         kill -INT $$
     fi
@@ -136,26 +143,38 @@ for My_Swift_ID in ${obs_dirs[@]}; do
 grppha infile=$nongrp_name outfile=$grp_name
 group min ${gnum}
 exit !$grp_name
-
 EOF
 
 done
 cd $My_Swift_D
 # _SwiftXrt_7_fitDirectory
 ## fitディレクトリにまとめ
+FLAG_hardCopy=false # arg
+FLAG_symbLink=false # arg
+tmp_prefix="hxd_" # arg
 declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
 cd $My_Swift_D
-tmp_prefix="xrt_"
+mkdir -p $My_Swift_D/fit $My_Swift_D/../fit
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
-mkdir -p $My_Swift_D/fit $My_Swift_D/../fit/
 for My_Swift_ID in ${obs_dirs[@]}; do
-    cp $My_Swift_D/$My_Swift_ID/xrt/output/fit/${tmp_prefix}* $My_Swift_D/fit/ -f
+    if [[ ${FLAG_symbLink:=false} == "true" ]]; then
+        find $My_Swift_D/$My_Swift_ID/xrt/output/fit/ -name "${tmp_prefix}*.*" \
+            -type f -printf "%f\n" |
+            xargs -n 1 -i rm -f $My_Swift_D/fit/{}
+        ln -s $My_Swift_D/$My_Swift_ID/xrt/output/fit/${tmp_prefix}* ${My_Swift_D}/fit/
+    else
+        cp -f $My_Swift_D/$My_Swift_ID/xrt/output/fit/${tmp_prefix}* ${My_Swift_D}/fit/
+    fi
 done
-### remove the files with the same name as new files
-find $My_Swift_D/fit/ -name "${tmp_prefix}*.*" \
-    -type f -printf "%f\n" |
-    xargs -n 1 -i rm -f $My_Swift_D/../fit/{}
-### remove broken symbolic links
+if [[ ${FLAG_hardCopy:=false} == "true" ]]; then
+    cp -f $My_Swift_D/fit/${tmp_prefix}*.* $My_Swift_D/../fit/
+else
+        # remove the files with the same name as new files
+    find $My_Swift_D/fit/ -name "${tmp_prefix}*.*" \
+        -type f -printf "%f\n" |
+        xargs -n 1 -i rm -f $My_Swift_D/../fit/{}
+    # generate symbolic links
+    ln -s $My_Swift_D/fit/${tmp_prefix}*.* $My_Swift_D/../fit/
+fi
+# remove broken symbolic links
 find -L $My_Swift_D/../fit/ -type l -delete
-### generate symbolic links
-ln -s $My_Swift_D/fit/${tmp_prefix}*.* $My_Swift_D/../fit/

@@ -11,7 +11,9 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
     if [[ ! -r $My_Nustar_Dir/out ]]; then continue; fi
     cd $My_Nustar_Dir/out
 
-    if [[ ! -f ${My_Nustar_D}/saved.reg && ${FLAG_simple:=false} == true ]]; then
+    evt_file=nu${My_Nustar_ID}${cam}01_cl.evt
+
+    if [[ ! -f ${My_Nustar_D}/saved.reg && ${FLAG_simple:=false} == false ]]; then
         # saved.regが存在しないなら、新たに作成する
         declare -A tmp_dict=(["RA_OBJ"]="0" ["DEC_OBJ"]="0")
         for key in ${!tmp_dict[@]}; do
@@ -37,7 +39,7 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
             -regions save $My_Nustar_D/saved.reg -exit
     fi
     for cam in A B; do
-        if [[ ${FLAG_simple:=false} == true ]]; then
+        if [[ ${FLAG_simple:=false} == false ]]; then
             cp ${My_Nustar_D}/saved.reg fpm${cam}.reg -f
             echo ""
             echo "----  save as fpm${cam}.reg with overwriting  ----"

@@ -1,4 +1,4 @@
-# _Nustar_5_editHEader
+# _Nustar_5_editHeader
 ## edit header
 FLAG_minimum=false # arg
 FLAG_strict=false # arg
@@ -18,7 +18,7 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
     ### edit header for spectrum file
     _oldName_tmp=${origSrc/\%OBSID%/${My_Nustar_ID}}
     if [[ -r ${_oldName_tmp} ]]; then
-        oldName=_origSrc_tmp
+        oldName=${_oldName_tmp}
     else
         oldName=nu${My_Nustar_ID}A01_sr.pha
     fi
@@ -69,14 +69,14 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
 
     for key in ${!tr_keys[@]}; do
         fparkey value="${tr_keys[$key]}" \
-            fitsfile=${newName}+1 \
+            fitsfile="${newName}+1" \
             keyword="${key}" add=yes
     done
 
     ### edit header for bkg file
     _oldName_tmp=${origBkg/\%OBSID%/${My_Nustar_ID}}
     if [[ -r ${_oldName_tmp} ]]; then
-        oldName=_origSrc_tmp
+        oldName=${_oldName_tmp}
     else
         oldName=nu${My_Nustar_ID}A01_bk.pha
     fi
@@ -124,7 +124,7 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
 
     for key in ${!tr_keys[@]}; do
         fparkey value="${tr_keys[$key]}" \
-            fitsfile=${newName}+1 \
+            fitsfile="${newName}+1" \
             keyword="${key}" add=yes
     done
 done

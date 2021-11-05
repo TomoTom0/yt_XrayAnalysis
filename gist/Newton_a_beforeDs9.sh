@@ -98,7 +98,7 @@ for My_Newton_ID in ${obs_dirs[@]}; do
 
         rm ${cam}_filt_time.fits -f &&
             evselect table=tmp_${cam}_filt.fits withfilteredset=yes \
-                expression="gti(${cam}_gti.fits,TIME) && (PI>150) && ${xmms[$cam]}" filteredset=${cam}_filt_time.fits \
+                expression="gti(${cam}_gti.fits,TIME)" filteredset=${cam}_filt_time.fits \
                 filtertype=expression keepfilteroutput=yes \
                 updateexposure=yes filterexposure=yes
     done

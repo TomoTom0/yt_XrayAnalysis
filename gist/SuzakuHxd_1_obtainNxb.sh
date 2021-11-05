@@ -50,6 +50,7 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
     if [[ ! -r $My_Suzaku_Dir ]]; then continue; fi
 
     cd $My_Suzaku_Dir
+    if [[ -r tmp_nxb.evt ]]; then continue; fi
 
     _pin_tmps=($(ls ae${My_Suzaku_ID}hxd_0_pinno_cl*.evt*))
     pin_file=${_pin_tmps[0]}

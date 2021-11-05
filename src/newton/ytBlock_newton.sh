@@ -1,5 +1,9 @@
 #!/bin/bash
 
+dir_path=$( cd $(dirname ${BASH_SOURCE:-$0}); pwd) # noqa
+source ${dir_path}/../../lib/obtain_options.sh
+
+
 alias yt_newton__a="_Newton_a_beforeDs9"
 function _Newton_a_beforeDs9() {
     ## before ds9

@@ -9,12 +9,12 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
 
     cd $My_Suzaku_Dir/fit
     for nongrp_name in $(find . -name "hxd_[0-9]*_nongrp.fits" -printf "%f\n"); do
-        grp_name=${nongrp_name/_nongrp.fits/_grp${grp_num}.fits}
+        grp_name=${nongrp_name/_nongrp.fits/_grp${gnum}.fits}
 
         rm $grp_name -f
         cat <<EOF | bash
 grppha infile=${nongrp_name} outfile=${grp_name}
-group min ${grp_num}
+group min ${gnum}
 exit !${grp_name}
 EOF
 

@@ -4,7 +4,9 @@
 ##     obtain options
 # ---------------------
 
-source ../lib/obtain_options.sh
+
+dir_path=$( cd $(dirname ${BASH_SOURCE:-$0}); pwd) # noqa
+source ${dir_path}/../lib/obtain_options.sh
 
 function __usage() {
     echo "Usage: $0 [-f,--force] [--dry] [-h,--help]" 1>&2
@@ -40,15 +42,13 @@ if [[ " ${!flagsIn[@]} " =~ " help " ]]; then
     exit 1
 fi
 
-# ----------------------------------------- #
-
 # ---------------------
 ##         main
 # ---------------------
 
-if [[ -n ${flagsIn[dry]} ]]; then
-    python3 restruct.py
+if [[ -z ${flagsIn[dry]} ]]; then
+    python3 ${dir_path}/restruct.py
 fi
 
-bash push2gist.sh $@
+bash ${dir_path}/push2gist.sh $@
 

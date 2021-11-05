@@ -1,10 +1,8 @@
 #!/bin/bash
 
-dir_path=$(
-    cd $(dirname ${BASH_SOURCE:-$0})
-    pwd
-)
+dir_path=$( cd $(dirname ${BASH_SOURCE:-$0}); pwd) # noqa
 source ${dir_path}/../../lib/obtain_options.sh
+
 
 alias yt_nustar_1="_Nustar_1_pipeline"
 alias yt_nustar_pipeline="_Nustar_1_pipeline"
@@ -147,7 +145,9 @@ EOF
         if [[ ! -r $My_Nustar_Dir/out ]]; then continue; fi
         cd $My_Nustar_Dir/out
 
-        if [[ ! -f ${My_Nustar_D}/saved.reg && ${FLAG_simple:=false} == true ]]; then
+        evt_file=nu${My_Nustar_ID}${cam}01_cl.evt
+
+        if [[ ! -f ${My_Nustar_D}/saved.reg && ${FLAG_simple:=false} == false ]]; then
             # saved.regが存在しないなら、新たに作成する
             declare -A tmp_dict=(["RA_OBJ"]="0" ["DEC_OBJ"]="0")
             for key in ${!tmp_dict[@]}; do
@@ -173,7 +173,7 @@ EOF
                 -regions save $My_Nustar_D/saved.reg -exit
         fi
         for cam in A B; do
-            if [[ ${FLAG_simple:=false} == true ]]; then
+            if [[ ${FLAG_simple:=false} == false ]]; then
                 cp ${My_Nustar_D}/saved.reg fpm${cam}.reg -f
                 echo ""
                 echo "----  save as fpm${cam}.reg with overwriting  ----"
@@ -360,7 +360,7 @@ EOF
 
 alias yt_nustar_5="_Nustar_5_editHeader"
 alias yt_nustar_editHeader="_Nustar_5_editHeader"
-function _Nustar_5_editHEader() {
+function _Nustar_5_editHeader() {
     ## edit header
     # args: FLAG_minimum=false
     # args: FLAG_strict=false
@@ -464,7 +464,7 @@ EOF
         ### edit header for spectrum file
         _oldName_tmp=${origSrc/\%OBSID%/${My_Nustar_ID}}
         if [[ -r ${_oldName_tmp} ]]; then
-            oldName=_origSrc_tmp
+            oldName=${_oldName_tmp}
         else
             oldName=nu${My_Nustar_ID}A01_sr.pha
         fi
@@ -515,14 +515,14 @@ EOF
 
         for key in ${!tr_keys[@]}; do
             fparkey value="${tr_keys[$key]}" \
-                fitsfile=${newName}+1 \
+                fitsfile="${newName}+1" \
                 keyword="${key}" add=yes
         done
 
         ### edit header for bkg file
         _oldName_tmp=${origBkg/\%OBSID%/${My_Nustar_ID}}
         if [[ -r ${_oldName_tmp} ]]; then
-            oldName=_origSrc_tmp
+            oldName=${_oldName_tmp}
         else
             oldName=nu${My_Nustar_ID}A01_bk.pha
         fi
@@ -570,7 +570,7 @@ EOF
 
         for key in ${!tr_keys[@]}; do
             fparkey value="${tr_keys[$key]}" \
-                fitsfile=${newName}+1 \
+                fitsfile="${newName}+1" \
                 keyword="${key}" add=yes
         done
     done
@@ -646,8 +646,9 @@ EOF
 
         My_Nustar_Dir=$My_Nustar_D/$My_Nustar_ID
         if [[ ! -r $My_Nustar_Dir/fit ]]; then continue; fi
-
         cd $My_Nustar_Dir/fit/
+        if [[ ${gnum} -le 0 ]]; then continue; fi
+        grp_name=AB_${My_Nustar_ID}_grp${gnum}.fits
         rm ${grp_name} -f
         cat <<EOF | bash
 grppha infile=AB_${My_Nustar_ID}_nongrp.fits outfile=${grp_name} clobber=true

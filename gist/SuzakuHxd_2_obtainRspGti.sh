@@ -40,7 +40,7 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
     ln -s ${rsp_file} hxd__src.rmf
     ln -s ${rsp_flat_file} hxd__flat.rmf
 
-    ## merge gti
+    ### merge gti
     gti_file=tmp_pin.gti
     rm $gti_file -f &&
         mgtime ingtis="${pin_file}+2,tmp_nxb.evt+2" \

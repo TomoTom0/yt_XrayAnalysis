@@ -45,7 +45,7 @@ for My_Swift_ID in ${obs_dirs[@]}; do
 
     rmf_version=$(_ObtainXrtRmfVersion $obs_MJD)
 
-    if [[ "x$rmf_version" == "xNone" ]]; then
+    if [[ "x${rmf_version:-None}" == "xNone" ]]; then
         echo "Error occured in rmf copy"
         kill -INT $$
     fi

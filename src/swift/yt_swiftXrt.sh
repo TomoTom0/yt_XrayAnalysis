@@ -1,5 +1,9 @@
 #!/bin/bash
 
+dir_path=$( cd $(dirname ${BASH_SOURCE:-$0}); pwd) # noqa
+source ${dir_path}/../../lib/obtain_options.sh
+
+
 alias yt_swiftXrt_1="_SwiftXrt_1_pipeline"
 alias yt_swiftXrt_pipeline="_SwiftXrt_1_pipeline"
 function _SwiftXrt_1_pipeline() {
@@ -142,7 +146,7 @@ EOF
         evt_tmps=($(ls -r sw${My_Swift_ID}xpcw*po_cl.evt))
         evt_file=${evt_tmps[0]}
 
-        if [[ ! -f ${My_Swift_D}/saved.reg && ${FLAG_simple:=false} == true ]]; then
+        if [[ ! -f ${My_Swift_D}/saved.reg && ${FLAG_simple:=false} == false ]]; then
             # saved.regが存在しないなら、新たに作成する
             declare -A tmp_dict=(["RA_OBJ"]="0" ["DEC_OBJ"]="0")
             for key in ${!tmp_dict[@]}; do
@@ -187,7 +191,7 @@ EOF
             echo "----  save as $reg_file ----"
             echo ""
             ds9 $evt_file \
-                -scale log -cmap bb -mode region \
+                -scale log -cmap bb -mode region
         fi
     done
 

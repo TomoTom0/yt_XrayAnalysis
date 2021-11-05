@@ -350,7 +350,7 @@ EOF
         cd $My_Newton_Dir/fit
         _evt_tmps=($(find $My_Newton_Dir/fit/ -name "*_filt_time.fits" -printf "%f\n"))
         evt_file=${_evt_tmps[0]}
-        if [[ ! -r ${My_Newton_D}/saved.reg && "${FLAG_simple:=false}" == "false" ]]; then
+        if [[ ! -r ${My_Newton_D}/saved.reg && "${FLAG_simple:=false}" == false ]]; then
             # saved.regが存在しないなら、新たに作成する
             declare -A tmp_dict=(["RA_OBJ"]="0" ["DEC_OBJ"]="0")
             for key in ${!tmp_dict[@]}; do
@@ -377,7 +377,7 @@ EOF
         fi
 
         for cam in ${all_cams[@]}; do
-            if [[ "${FLAG_simple:=false}" == "false" ]]; then
+            if [[ "${FLAG_simple:=false}" == false ]]; then
                 cp ${My_Newton_D}/saved.reg ${cam}.reg -f
                 echo ""
                 echo "----  save as ${cam}.reg with overwriting  ----"

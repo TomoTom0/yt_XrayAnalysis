@@ -4,9 +4,9 @@ dir_path=$( cd $(dirname ${BASH_SOURCE:-$0}); pwd) # noqa
 source ${dir_path}/../../lib/obtain_options.sh
 
 
-alias yt_suzakuHxd__a="_SuzakuHxd_a_all"
-function _SuzakuHxd_a_all() {
-    ## all
+alias yt_swiftXrtBuild__a="_SwiftXrt_a_all"
+function _SwiftXrtBuild_a_all() {
+    ## all processes for swift xrt spectrum built online on 1SXPS
     # ---------------------
     ##     obtain options
     # ---------------------
@@ -16,8 +16,8 @@ function _SuzakuHxd_a_all() {
         cat << EOF
 
 ${FUNCNAME[1]}
-    execute all processes
-    Please check help of yt_suzakuHxd_1 ... yt_suzakuHxd_7
+    execute all processes for swift xrt spectrum built online on 1SXPS
+    Please check help of yt_swiftXrtBuild_1 ... yt_swiftXrtBuild_3
     Inputted options are succeeded to the functions properly.
 
 
@@ -52,18 +52,12 @@ EOF
         __usage
         return 0
     fi
-
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
-    yt_suzakuHxd_1 $@ &&
-        yt_suzakuHxd_2 $@ &&
-        yt_suzakuHxd_3 $@ &&
-        yt_suzakuHxd_4 $@ &&
-        yt_suzakuHxd_5 $@ &&
-        yt_suzakuHxd_6 $@ &&
-        yt_suzakuHxd_7 $@
-
+    declare -g My_Swift_D=${My_Swift_D:=$(pwd)}
+    yt_swiftXrtBuild_1 $@ &&
+    yt_swiftXrtBuild_1 $@ &&
+    yt_swiftXrtBuild_3 $@
     return 0
 }

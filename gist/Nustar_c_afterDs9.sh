@@ -55,7 +55,7 @@ EOF
         AB_${My_Nustar_ID}_bkg.fits
 done
 cd $My_Nustar_D
-# _Nustar_5_editHEader
+# _Nustar_5_editHeader
 ## edit header
 FLAG_minimum=false # arg
 FLAG_strict=false # arg
@@ -75,7 +75,7 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
     ### edit header for spectrum file
     _oldName_tmp=${origSrc/\%OBSID%/${My_Nustar_ID}}
     if [[ -r ${_oldName_tmp} ]]; then
-        oldName=_origSrc_tmp
+        oldName=${_oldName_tmp}
     else
         oldName=nu${My_Nustar_ID}A01_sr.pha
     fi
@@ -126,14 +126,14 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
 
     for key in ${!tr_keys[@]}; do
         fparkey value="${tr_keys[$key]}" \
-            fitsfile=${newName}+1 \
+            fitsfile="${newName}+1" \
             keyword="${key}" add=yes
     done
 
     ### edit header for bkg file
     _oldName_tmp=${origBkg/\%OBSID%/${My_Nustar_ID}}
     if [[ -r ${_oldName_tmp} ]]; then
-        oldName=_origSrc_tmp
+        oldName=${_oldName_tmp}
     else
         oldName=nu${My_Nustar_ID}A01_bk.pha
     fi
@@ -181,7 +181,7 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
 
     for key in ${!tr_keys[@]}; do
         fparkey value="${tr_keys[$key]}" \
-            fitsfile=${newName}+1 \
+            fitsfile="${newName}+1" \
             keyword="${key}" add=yes
     done
 done
@@ -189,7 +189,6 @@ cd $My_Nustar_D
 # _Nustar_6_grppha
 ## grppha
 gnum=50 # arg
-declare -A gnum=50 # arg
 declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} # 未定義時に代入
 cd $My_Nustar_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
@@ -197,8 +196,9 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
 
     My_Nustar_Dir=$My_Nustar_D/$My_Nustar_ID
     if [[ ! -r $My_Nustar_Dir/fit ]]; then continue; fi
-
     cd $My_Nustar_Dir/fit/
+    if [[ ${gnum} -le 0 ]]; then continue; fi
+    grp_name=AB_${My_Nustar_ID}_grp${gnum}.fits
     rm ${grp_name} -f
     cat <<EOF | bash
 grppha infile=AB_${My_Nustar_ID}_nongrp.fits outfile=${grp_name} clobber=true

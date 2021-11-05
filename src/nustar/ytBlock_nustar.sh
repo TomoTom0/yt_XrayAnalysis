@@ -1,5 +1,9 @@
 #!/bin/bash
 
+dir_path=$( cd $(dirname ${BASH_SOURCE:-$0}); pwd) # noqa
+source ${dir_path}/../../lib/obtain_options.sh
+
+
 alias yt_nustar__a="_Nustar_a_beforeDs9"
 function _Nustar_a_beforeDs9() {
     ## before ds9

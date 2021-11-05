@@ -17,7 +17,6 @@ for My_Swift_ID in ${obs_dirs[@]}; do
 grppha infile=$nongrp_name outfile=$grp_name
 group min ${gnum}
 exit !$grp_name
-
 EOF
 
 done
