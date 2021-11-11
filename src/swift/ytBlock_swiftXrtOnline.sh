@@ -4,7 +4,7 @@ dir_path=$( cd $(dirname ${BASH_SOURCE:-$0}); pwd) # noqa
 source ${dir_path}/../../lib/obtain_options.sh
 
 
-alias yt_swiftXrtBuild__a="_SwiftXrt_a_all"
+alias yt_swiftXrtBuild__a="_SwiftXrtBuild_a_all"
 function _SwiftXrtBuild_a_all() {
     ## all processes for swift xrt spectrum built online on 1SXPS
     # ---------------------

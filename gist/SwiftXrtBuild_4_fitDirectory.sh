@@ -1,4 +1,4 @@
-# _SwiftXrt_3_fitDirectory
+# _SwiftXrtBuild_4_fitDirectory
 ## fitディレクトリにまとめ
 FLAG_hardCopy=false # arg
 FLAG_symbLink=false # arg

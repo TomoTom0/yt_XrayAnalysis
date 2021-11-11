@@ -1,6 +1,8 @@
 # _SwiftXrtBuild_1_downloadData
 ## download Data
+url="" # arg
 declare -g My_Swift_D=${My_Swift_D:=$(pwd)}
+cd $My_Swift_D
 if [[ "x${url}" != "x" ]]; then
     prod_ID=$(echo $url | sed -r -n "s/^.*\/USERPROD_([0-9]+)\/.*$/\1/p")
     ext=${url##*.}
@@ -8,9 +10,10 @@ if [[ "x${url}" != "x" ]]; then
     mkdir $My_Swift_Dir -p
     if [[ ! -r $My_Swift_Dir ]]; then continue; fi
     cd $My_Swift_Dir
+    rm $My_Swift_Dir/* -rf
 
     tmp_file=tmp.${ext}
-    wget $url -O $tmp_file
+    wget $url --no-check-certificate -O $tmp_file
     tar xvf $tmp_file
 
     if [[ "x${ext}" == "xtar" ]]; then

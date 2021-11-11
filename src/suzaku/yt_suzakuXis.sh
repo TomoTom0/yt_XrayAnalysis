@@ -346,8 +346,8 @@ EOF
             sed -r -n "s/^.*(xi[0-3])__.*$/\1/p"))
         for xis_cam in ${xis_cams[@]}; do
             src_file=${xis_cam}__nongrp.fits
-            rm ${xis_cam}__src.rmf -f
-            xisrmfgen phafile=$src_file outfile=${xis_cam}__src.rmf
+            rm ${xis_cam}__rmf.fits -f
+            xisrmfgen phafile=$src_file outfile=${xis_cam}__rmf.fits
         done
     done
     cd $My_Suzaku_D
@@ -389,8 +389,8 @@ EOF
                 dec=$dec_tmp
             fi
 
-            arf_file=${xis_cam}__src.arf
-            rmf_file=${xis_cam}__src.rmf
+            arf_file=${xis_cam}__arf.fits
+            rmf_file=${xis_cam}__rmf.fits
 
             rm ${arf_file} -f
             xissimarfgen instrume=${xis_cam/xi/XIS} source_mode=J2000 pointing=AUTO source_ra=$ra source_dec=$dec \
@@ -409,7 +409,7 @@ EOF
 }
 
 alias yt_suzakuXis_4="_SuzakuXis_4_addascaspec"
-alias yt_suzakuXis_ds9="_SuzakuXis_4_addascaspec"
+alias yt_suzakuXis_addascaspec="_SuzakuXis_4_addascaspec"
 function _SuzakuXis_4_addascaspec() {
     ## addascaspec
     # ---------------------
@@ -471,14 +471,14 @@ EOF
             cat <<EOF >tmp.dat
 $(echo ${xis_cams_fi[@]} | sed -r "s/(xi[0-9])\s*/\1__nongrp.fits /g")
 $(echo ${xis_cams_fi[@]} | sed -r "s/(xi[0-9])\s*/\1__bkg.fits /g")
-$(echo ${xis_cams_fi[@]} | sed -r "s/(xi[0-9])\s*/\1__src.arf /g")
-$(echo ${xis_cams_fi[@]} | sed -r "s/(xi[0-9])\s*/\1__src.rmf /g")
+$(echo ${xis_cams_fi[@]} | sed -r "s/(xi[0-9])\s*/\1__arf.fits /g")
+$(echo ${xis_cams_fi[@]} | sed -r "s/(xi[0-9])\s*/\1__rmf.fits /g")
 EOF
 
             xis_cams_fi_sum=($(echo ${xis_cams_fi[@]} | sed -r -n "s/xi([0-9])\s*/\1/p"))
             fi_head=xis_FI$(echo ${xis_cams_fi_sum[@]} | sed -e "s/xi//g" -e "s/ //g")
-            rm ${fi_head}__nongrp.fits ${fi_head}__bkg.fits ${fi_head}__src.rmf -f
-            addascaspec tmp.dat ${fi_head}__nongrp.fits ${fi_head}__src.rmf ${fi_head}__bkg.fits
+            rm ${fi_head}__nongrp.fits ${fi_head}__bkg.fits ${fi_head}__rmf.fits -f
+            addascaspec tmp.dat ${fi_head}__nongrp.fits ${fi_head}__rmf.fits ${fi_head}__bkg.fits
         fi
 
         xis_cams_bi=($(echo ${xis_cams[@]} | grep xi1 -o))
@@ -590,28 +590,42 @@ EOF
 
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
     cd $My_Suzaku_D
+    
+    function _ObtainExtNum(){
+        tmp_fits="$1"
+        extName="${2:-SPECTRUM}"
+        if [[ -n "${tmp_fits}" ]]; then
+            _tmp_extNums=($(fkeyprint infile=$tmp_fits keynam=EXTNAME |
+                grep -B 1 $extName |
+                sed -r -n "s/^.*#\s*EXTENSION:\s*([0-9]+)\s*$/\1/p"))
+        else
+            _tmp_extNums=(0)
+        fi
+        echo ${_tmp_extNums[0]:-0}
+    }
+
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Suzaku_ID in ${obs_dirs[@]}; do
 
         My_Suzaku_Dir=$My_Suzaku_D/$My_Suzaku_ID/xis/event_cl
         if [[ ! -r $My_Suzaku_Dir/fit ]]; then continue; fi
         cd $My_Suzaku_Dir/fit
-        find . -regextype sed -regex "xis_[A-Z]+[0-9]+__*.*" |
+        find . -type f -regextype posix-egrep -regex "\.\/xis_[A-Z]+[0-9]+__.*\..*" -printf "%f\n" |
             rename -f "s/(xis_[A-Z]+[0-9]+)__/\$1_${My_Suzaku_ID}_/"
         nongrp_names=($(find . -name "xis_*_nongrp.fits" -printf "%f\n"))
         for nongrp_name in ${nongrp_names[@]}; do
             xis_cam_fb=$(echo $nongrp_name | sed -r -n "s/^.*(xis_[A-Z]+[0-9]+)_.*$/\1/p")
             xis_fb=$(echo $xis_cam_fb | sed -r -n "s/^xis_([A-Z]+)[0-9]+$/\1/p")
             if [[ "x${xis_fb}" == "xBI" ]]; then
-
+                nongrpExtNum=$(_ObtainExtNum $nongrp_name SPECTRUM)
                 declare -A tr_keys=(
                     ["BACKFILE"]=${xis_cam_fb}_${My_Suzaku_ID}_bkg.fits
-                    ["RESPFILE"]=${xis_cam_fb}_${My_Suzaku_ID}_src.rmf
-                    ["ANCRFILE"]=${xis_cam_fb}_${My_Suzaku_ID}_src.arf)
+                    ["RESPFILE"]=${xis_cam_fb}_${My_Suzaku_ID}_rmf.fits
+                    ["ANCRFILE"]=${xis_cam_fb}_${My_Suzaku_ID}_arf.fits)
 
                 for key in ${!tr_keys[@]}; do
                     fparkey value="${tr_keys[$key]}" \
-                        fitsfile=${nongrp_name}+1 \
+                        fitsfile="${nongrp_name}+${nongrpExtNum}" \
                         keyword="${key}" add=yes
                 done
 
@@ -624,6 +638,8 @@ EOF
 
                 oldName=xi${fi_num}__nongrp.fits
                 newName=${nongrp_name}
+                oldExtNum=$(_ObtainExtNum $oldName SPECTRUM)
+                newExtNum=$(_ObtainExtNum $newName SPECTRUM)
 
                 cp_keys=(TELESCOP OBS_MODE DATAMODE OBS_ID OBSERVER OBJECT NOM_PNT RA_OBJ DEC_OBJ
                     RA_NOM DEC_NOM PA_NOM MEAN_EA1 MEAN_EA2 MEAN_EA3 RADECSYS EQUINOX DATE-OBS
@@ -633,11 +649,11 @@ EOF
                 declare -A tr_keys=(
                     ["INSTRUME"]="XIS-FI"
                     ["BACKFILE"]=${xis_cam_fb}_${My_Suzaku_ID}_bkg.fits
-                    ["RESPFILE"]=${xis_cam_fb}_${My_Suzaku_ID}_src.rmf
+                    ["RESPFILE"]=${xis_cam_fb}_${My_Suzaku_ID}_rmf.fits
                 )
 
                 for key in ${cp_keys[@]}; do
-                    orig_val=$(fkeyprint infile="${oldName}+0" keynam="${key}" |
+                    orig_val=$(fkeyprint infile="${oldName}+${oldExtNum}" keynam="${key}" |
                         grep "${key}\s*=" |
                         sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
 
@@ -646,7 +662,7 @@ EOF
 
                 for key in ${!tr_keys[@]}; do
                     fparkey value="${tr_keys[$key]}" \
-                        fitsfile=${newName}+1 \
+                        fitsfile="${newName}+${newExtNum}" \
                         keyword="${key}" add=yes
                 done
 
@@ -663,7 +679,7 @@ alias yt_suzakuXis_6="_SuzakuXis_6_grppha"
 alias yt_suzakuXis_grppha="_SuzakuXis_6_grppha"
 function _SuzakuXis_6_grppha() {
     ## grppha
-    # args: declare -A grp_nums=(["FI"]=25 ["BI"]=25)
+    # args: declare -A gnums=(["FI"]=25 ["BI"]=25)
 
     # ---------------------
     ##     obtain options
@@ -729,7 +745,7 @@ EOF
     # ---------------------
     ##         main
     # ---------------------
-    declare -A grp_nums=(["FI"]=25 ["BI"]=25)
+    declare -A gnums=(["FI"]=25 ["BI"]=25)
     if [[ x${FUNCNAME} != x ]]; then
         if [[ -n ${flagsIn[gnumZero]} ]]; then
             declare -A gnums=(["FI"]=0 ["BI"]=0)
@@ -738,8 +754,8 @@ EOF
             gnums_tmp=(${kwargs[gnumAll__gnums]//,/ })
             declare -A gnums=(["FI"]=${gnums_tmp[0]:-50} ["BI"]=${gnums_tmp[1]:-50})
         fi
-        for cam in pn mos12 mos1 mos2; do
-            key_tmp=gnum${cam^}__gnum
+        for cam in FI BI; do
+            key_tmp=gnum${cam}__gnum
             if [[ -n ${kwargs[$key_tmp]} ]]; then
                 gnums[$cam]=${kwargs[$key_tmp]}
             fi
@@ -758,7 +774,7 @@ EOF
         for nongrp_name in ${nongrp_names[@]}; do
             xis_cam_fb=$(echo $nongrp_name | sed -r -n "s/^.*(xis_[A-Z]+[0-9]+)_.*$/\1/p")
             xis_fb=$(echo $xis_cam_fb | sed -r -n "s/^xis_([A-Z]+)[0-9]+$/\1/p")
-            gnum=${grp_nums[$xis_fb]}
+            gnum=${gnums[$xis_fb]}
             grp_name=${nongrp_name/_nongrp.fits/_grp${gnum}.fits}
 
             rm $grp_name -f
@@ -766,7 +782,7 @@ EOF
             cat <<EOF | bash
 grppha infile=$nongrp_name \
     outfile=$grp_name
-group min ${grp_nums[$xis_fb]}
+group min $gnum
 exit !$grp_name
 EOF
         done

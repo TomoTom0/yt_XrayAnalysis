@@ -179,6 +179,19 @@ FLAG_strict=false # arg
 declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
 cd $My_Newton_D
 
+function _ObtainExtNum(){
+    tmp_fits="$1"
+    extName="${2:-SPECTRUM}"
+    if [[ -n "${tmp_fits}" ]]; then
+        _tmp_extNums=($(fkeyprint infile=$tmp_fits keynam=EXTNAME |
+            grep -B 1 $extName |
+            sed -r -n "s/^.*#\s*EXTENSION:\s*([0-9]+)\s*$/\1/p"))
+    else
+        _tmp_extNums=(0)
+    fi
+    echo ${_tmp_extNums[0]:-0}
+}
+
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Newton_ID in ${obs_dirs[@]}; do
     My_Newton_Dir=$My_Newton_D/$My_Newton_ID/ODF
@@ -193,6 +206,9 @@ for My_Newton_ID in ${obs_dirs[@]}; do
             # edit header for nongrp
             oldName=newton_mos1_${My_Newton_ID}_nongrp.fits
             newName=$nongrp_name
+            oldExtNum=$(_ObtainExtNum $oldName SPECTRUM)
+            newExtNum=$(_ObtainExtNum $newName SPECTRUM)
+
 
             cp_keys=(LONGSTRN DATAMODE TELESCOP OBS_ID OBS_MODE REVOLUT
                 OBJECT OBSERVER RA_OBJ DEC_OBJ RA_NOM DEC_NOM FILTER ATT_SRC
@@ -217,7 +233,7 @@ for My_Newton_ID in ${obs_dirs[@]}; do
             fi
 
             for key in ${cp_keys[@]} ${cp_keys2[@]}; do
-                orig_val=$(fkeyprint infile="${oldName}+1" keynam="${key}" |
+                orig_val=$(fkeyprint infile="${oldName}+${oldExtName}" keynam="${key}" |
                     grep "${key}\s*=" |
                     sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
 
@@ -226,12 +242,13 @@ for My_Newton_ID in ${obs_dirs[@]}; do
 
             for key in ${!tr_keys[@]}; do
                 fparkey value="${tr_keys[$key]}" \
-                    fitsfile=${newName}+1 \
+                    fitsfile="${newName}+${newExtName}" \
                     keyword="${key}" add=yes
             done
 
         else
             # for pn, mos1, mos2
+            nongrpExtNum=$(_ObtainExtNum $nongrpName SPECTRUM)
             declare -A tr_keys=(
                 ["BACKFILE"]=newton_${cam}_${My_Newton_ID}_bkg.fits
                 ["RESPFILE"]=newton_${cam}_${My_Newton_ID}_rmf.fits
@@ -239,7 +256,7 @@ for My_Newton_ID in ${obs_dirs[@]}; do
 
             for key in ${!tr_keys[@]}; do
                 fparkey value="${tr_keys[$key]}" \
-                    fitsfile=${nongrp_name}+1 \
+                    fitsfile="${nongrp_name}+${nongrpExtName}" \
                     keyword="${key}" add=yes
             done
         fi

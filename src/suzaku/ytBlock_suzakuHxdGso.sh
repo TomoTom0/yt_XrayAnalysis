@@ -4,8 +4,8 @@ dir_path=$( cd $(dirname ${BASH_SOURCE:-$0}); pwd) # noqa
 source ${dir_path}/../../lib/obtain_options.sh
 
 
-alias yt_suzakuHxdPin__a="_SuzakuHxdPin_a_all"
-function _SuzakuHxdPin_a_all() {
+alias yt_suzakuHxdGso__a="_SuzakuHxdGso_a_all"
+function _SuzakuHxdGso_a_all() {
     ## all
     # ---------------------
     ##     obtain options
@@ -17,7 +17,7 @@ function _SuzakuHxdPin_a_all() {
 
 ${FUNCNAME[1]}
     execute all processes
-    Please check help of yt_suzakuHxdPin_1 ... yt_suzakuHxdPin_5
+    Please check help of yt_suzakuHxdGso_1 ... yt_suzakuHxdGso_5
     Inputted options are succeeded to the functions properly.
 
 
@@ -57,11 +57,11 @@ EOF
     ##         main
     # ---------------------
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
-    yt_suzakuHxdPin_1 $@ &&
-        yt_suzakuHxdPin_2 $@ &&
-        yt_suzakuHxdPin_3 $@ &&
-        yt_suzakuHxdPin_4 $@ &&
-        yt_suzakuHxdPin_5 $@ 
+    yt_suzakuHxdGso_1 $@ &&
+        yt_suzakuHxdGso_2 $@ &&
+        yt_suzakuHxdGso_3 $@ &&
+        yt_suzakuHxdGso_4 $@ &&
+        yt_suzakuHxdGso_5 $@ 
 
     return 0
 }

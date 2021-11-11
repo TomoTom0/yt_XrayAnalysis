@@ -1,7 +1,8 @@
-# _SuzakuHxd_1_obtainNxb
+# _SuzakuHxdPin_1_obtainNxb
 ## download NXB (Non X-ray Background source)
 declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
+nxb_evt=ae_hxdPin_nxb.evt
 
 function _mjd2date() {
     if (($# == 0)); then
@@ -29,19 +30,19 @@ function _mjd2date() {
     done
 }
 
-function _Obtain_SuzakuHxd_NxbPha() {
+function _Obtain_SuzakuHxdPin_NxbEvt() {
     mjd_str=$1
     date_str=$(_mjd2date $mjd_str)
     date_list=(${date_str//-/ })
     y=$(echo ${date_list[0]} | sed s/^.*([0-9]+).*$/\1/)
     m=$(echo ${date_list[1]} | sed s/^.*([0-9]+).*$/\1/ | printf "%02i" $(cat))
-    if [[ $mjd_str -ge 56139 ]]; then
+    if [[ $mjd_str -ge 56139 ]]; then # 2012-7-31
         version=2.2
     else
         version=2.0
     fi
     url="http://www.astro.isas.jaxa.jp/suzaku/analysis/hxd/pinnxb/pinnxb_ver${version}_tuned/${y}_${m}/ae${My_Suzaku_ID}_hxd_pinbgd.evt.gz"
-    wget $url -O tmp_nxb.evt
+    wget $url --no-check-certificate -O ${nxb_evt}
 }
 
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
@@ -50,7 +51,7 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
     if [[ ! -r $My_Suzaku_Dir ]]; then continue; fi
 
     cd $My_Suzaku_Dir
-    if [[ -r tmp_nxb.evt ]]; then continue; fi
+    if [[ -r ${nxb_evt} && ${FLAG_canSkip:=false} == true ]]; then continue; fi
 
     _pin_tmps=($(ls ae${My_Suzaku_ID}hxd_0_pinno_cl*.evt*))
     pin_file=${_pin_tmps[0]}
@@ -58,7 +59,7 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
         grep "MJD-OBS\s*=" |
         sed -r -n "s/^.*MJD-OBS\s*=\s*(.*)\s*\/.*$/\1/p"))
     obs_MJD=$(printf "%.0f" ${obs_MJD_tmp_float[0]})
-    _Obtain_SuzakuHxd_NxbPha $obs_MJD
-    # tmp_nxb.evt
+    _Obtain_SuzakuHxdPin_NxbEvt $obs_MJD
+    # ${nxb_evt}
 done
 cd $My_Suzaku_D

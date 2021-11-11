@@ -65,7 +65,7 @@ EOF
         rm $My_Swift_Dir/xrt/output -rf
         mkdir $My_Swift_Dir/xrt/output -p
         xrtpipeline indir=$My_Swift_Dir \
-            outdir="$My_Swift_Dir/xrt/output" \
+            outdir="$My_Swift_Dir//xrt/output" \ # <= // is required
             steminputs=sw${My_Swift_ID} \
             srcra=OBJECT srcdec=OBJECT clobber=yes
     done
@@ -388,7 +388,7 @@ EOF
 
 alias yt_swiftXrt_5="_SwiftXrt_5_editHeader"
 alias yt_swiftXrt_editHeader="_SwiftXrt_5_editHeader"
-function _SwiftXrt_5_editHEader() {
+function _SwiftXrt_5_editHeader() {
     ## edit header
     # ---------------------
     ##     obtain options
@@ -437,6 +437,18 @@ EOF
     # ---------------------
     declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
     cd $My_Swift_D
+    function _ObtainExtNum(){
+        tmp_fits="$1"
+        extName="${2:-SPECTRUM}"
+        if [[ -n "${tmp_fits}" ]]; then
+            _tmp_extNums=($(fkeyprint infile=$tmp_fits keynam=EXTNAME |
+                grep -B 1 $extName |
+                sed -r -n "s/^.*#\s*EXTENSION:\s*([0-9]+)\s*$/\1/p"))
+        else
+            _tmp_extNums=(0)
+        fi
+        echo ${_tmp_extNums[0]:-0}
+    }
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Swift_ID in ${obs_dirs[@]}; do
 
@@ -449,6 +461,7 @@ EOF
             rename -f "s/xrt__/xrt_${My_Swift_ID}_/"
 
         nongrp_name=xrt_${My_Swift_ID}_nongrp.fits
+        nongrpExtNum=$(_ObtainExtNum $nongrp_name SPECTRUM)
 
         declare -A tr_keys=(
             ["BACKFILE"]=xrt_${My_Swift_ID}_bkg.fits
@@ -457,7 +470,7 @@ EOF
 
         for key in ${!tr_keys[@]}; do
             fparkey value="${tr_keys[$key]}" \
-                fitsfile=${nongrp_name}+1 \
+                fitsfile="${nongrp_name}+${nongrpExtNum}" \
                 keyword="${key}" add=yes
         done
 

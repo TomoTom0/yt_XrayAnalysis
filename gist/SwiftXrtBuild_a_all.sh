@@ -1,7 +1,9 @@
 # _SwiftXrtBuild_a_all
 # _SwiftXrtBuild_1_downloadData
 ## download Data
+url="" # arg
 declare -g My_Swift_D=${My_Swift_D:=$(pwd)}
+cd $My_Swift_D
 if [[ "x${url}" != "x" ]]; then
     prod_ID=$(echo $url | sed -r -n "s/^.*\/USERPROD_([0-9]+)\/.*$/\1/p")
     ext=${url##*.}
@@ -9,9 +11,10 @@ if [[ "x${url}" != "x" ]]; then
     mkdir $My_Swift_Dir -p
     if [[ ! -r $My_Swift_Dir ]]; then continue; fi
     cd $My_Swift_Dir
+    rm $My_Swift_Dir/* -rf
 
     tmp_file=tmp.${ext}
-    wget $url -O $tmp_file
+    wget $url --no-check-certificate -O $tmp_file
     tar xvf $tmp_file
 
     if [[ "x${ext}" == "xtar" ]]; then
@@ -26,7 +29,9 @@ fi
 cd $My_Swift_D
 # _SwiftXrtBuild_1_downloadData
 ## download Data
+url="" # arg
 declare -g My_Swift_D=${My_Swift_D:=$(pwd)}
+cd $My_Swift_D
 if [[ "x${url}" != "x" ]]; then
     prod_ID=$(echo $url | sed -r -n "s/^.*\/USERPROD_([0-9]+)\/.*$/\1/p")
     ext=${url##*.}
@@ -34,9 +39,10 @@ if [[ "x${url}" != "x" ]]; then
     mkdir $My_Swift_Dir -p
     if [[ ! -r $My_Swift_Dir ]]; then continue; fi
     cd $My_Swift_Dir
+    rm $My_Swift_Dir/* -rf
 
     tmp_file=tmp.${ext}
-    wget $url -O $tmp_file
+    wget $url --no-check-certificate -O $tmp_file
     tar xvf $tmp_file
 
     if [[ "x${ext}" == "xtar" ]]; then
@@ -54,7 +60,18 @@ cd $My_Swift_D
 gnum=10 # arg
 declare -g My_Swift_D=${My_Swift_D:=$(pwd)}
 cd $My_Swift_D/xrt
-
+function _ObtainExtNum(){
+    tmp_fits="$1"
+    extName="${2:-SPECTRUM}"
+    if [[ -n "${tmp_fits}" ]]; then
+        _tmp_extNums=($(fkeyprint infile=$tmp_fits keynam=EXTNAME |
+            grep -B 1 $extName |
+            sed -r -n "s/^.*#\s*EXTENSION:\s*([0-9]+)\s*$/\1/p"))
+    else
+        _tmp_extNums=(0)
+    fi
+    echo ${_tmp_extNums[0]:-0}
+}
 prod_IDs=($(find . -maxdepth 1 -type d -printf "%P\n" |
     grep ^xrt_build_[0-9] |
     sed -r -n "s/^xrt_build_([0-9]+)$/\1/p"))
@@ -67,7 +84,9 @@ for prod_ID in ${prod_IDs[@]}; do
     for nongrp_name in ${nongrp_names[@]}; do
         tmp_head=${nongrp_name/_nongrp.fits/}
         grp_name=${tmp_head}_grp${gnum}.fits
-        grpauto_name=${tmp_head}_grpauto.fits
+        grpAuto_name=${tmp_head}_grpauto.fits
+        nongrpExtNum=$(_ObtainExtNum $nongrp_name SPECTRUM)
+        grpAutoExtNum=$(_ObtainExtNum $grpAuto_name SPECTRUM)
 
         declare -A tr_keys=(
             ["BACKFILE"]=${tmp_head}_bkg.fits
@@ -76,16 +95,16 @@ for prod_ID in ${prod_IDs[@]}; do
 
         for key in ${!tr_keys[@]}; do
             fparkey value="${tr_keys[$key]}" \
-                fitsfile=${nongrp_name}+1 \
+                fitsfile="${nongrp_name}+${nongrpExtNum}" \
                 keyword="${key}" add=yes
         done
 
         for key in ${!tr_keys[@]}; do
             fparkey value="${tr_keys[$key]}" \
-                fitsfile=${grpauto_name}+1 \
+                fitsfile="${grpAuto_name}+${grpAutoExtNum}" \
                 keyword="${key}" add=yes
         done
-
+        if [[ $gnum -le 0 ]]; then continue; fi
         cat <<EOF | bash
 grppha infile=$nongrp_name outfile=$grp_name
 group min $gnum

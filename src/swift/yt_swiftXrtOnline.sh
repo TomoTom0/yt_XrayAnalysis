@@ -7,6 +7,7 @@ alias yt_swiftXrtBuild_1="_SwiftXrtBuild_1_downloadData"
 alias yt_swiftXrtBuild_downloadData="_SwiftXrtBuild_1_downloadData"
 function _SwiftXrtBuild_1_downloadData() {
     ## download Data
+    # args: url=""
     # ---------------------
     ##     obtain options
     # ---------------------
@@ -15,11 +16,15 @@ function _SwiftXrtBuild_1_downloadData() {
         cat <<EOF
 Usage: ${FUNCNAME[1]} URL [-h,--help] 
 
-${FUNCNAME[1]}
+${FUNCNAME[1]} URL
     download built Swift XRT spectrum from 1SXPS
 
+URL: download url from 1SXPS (httpXXXX.tar or httpXXX.tar.gz)
 
 Options
+--forcePwd
+    force working directory to pwd
+
 -h,--help
     show this message
 
@@ -31,6 +36,7 @@ EOF
     declare -A flagsAll=(
         ["h"]="help"
         ["--help"]="help"
+        ["--forcePwd"]="forcePwd"
     )
     declare -A flagsArgDict=(
     )
@@ -57,8 +63,12 @@ EOF
         if [[ -n ${kwargs[0]} ]]; then
             url="${kwargs[0]}"
         fi
+        if [[ -n ${flagsIn[forcePwd]} ]]; then
+            My_Swift_D=$(pwd)
+        fi
     fi
     declare -g My_Swift_D=${My_Swift_D:=$(pwd)}
+    cd $My_Swift_D
     if [[ "x${url}" != "x" ]]; then
         prod_ID=$(echo $url | sed -r -n "s/^.*\/USERPROD_([0-9]+)\/.*$/\1/p")
         ext=${url##*.}
@@ -66,9 +76,10 @@ EOF
         mkdir $My_Swift_Dir -p
         if [[ ! -r $My_Swift_Dir ]]; then continue; fi
         cd $My_Swift_Dir
+        rm $My_Swift_Dir/* -rf
 
         tmp_file=tmp.${ext}
-        wget $url -O $tmp_file
+        wget $url --no-check-certificate -O $tmp_file
         tar xvf $tmp_file
 
         if [[ "x${ext}" == "xtar" ]]; then
@@ -84,10 +95,10 @@ EOF
     if [[ x${FUNCNAME} != x ]]; then return 0; fi
 }
 
-alias yt_swiftXrtBuild_2="_SwiftXrtBuild_2_editHeader"
-alias yt_swiftXrtBuild_editHeader="_SwiftXrtBuild_1_editHeader"
-function _SwiftXrtBuild_2_editHeader() {
-    ## edit header and make symbolic link
+alias yt_swiftXrtBuild_2="_SwiftXrtBuild_2_rename"
+alias yt_swiftXrtBuild_rename="_SwiftXrtBuild_1_rename"
+function _SwiftXrtBuild_2_rename() {
+    ## rename and make symbolic link
     # ---------------------
     ##     obtain options
     # ---------------------
@@ -97,7 +108,7 @@ function _SwiftXrtBuild_2_editHeader() {
 Usage: ${FUNCNAME[1]} [-h,--help] 
 
 ${FUNCNAME[1]}
-    edit header and make symbolic link
+    rename and make symbolic link
 
 
 Options
@@ -273,7 +284,18 @@ EOF
 
     declare -g My_Swift_D=${My_Swift_D:=$(pwd)}
     cd $My_Swift_D/xrt
-
+    function _ObtainExtNum(){
+        tmp_fits="$1"
+        extName="${2:-SPECTRUM}"
+        if [[ -n "${tmp_fits}" ]]; then
+            _tmp_extNums=($(fkeyprint infile=$tmp_fits keynam=EXTNAME |
+                grep -B 1 $extName |
+                sed -r -n "s/^.*#\s*EXTENSION:\s*([0-9]+)\s*$/\1/p"))
+        else
+            _tmp_extNums=(0)
+        fi
+        echo ${_tmp_extNums[0]:-0}
+    }
     prod_IDs=($(find . -maxdepth 1 -type d -printf "%P\n" |
         grep ^xrt_build_[0-9] |
         sed -r -n "s/^xrt_build_([0-9]+)$/\1/p"))
@@ -286,7 +308,9 @@ EOF
         for nongrp_name in ${nongrp_names[@]}; do
             tmp_head=${nongrp_name/_nongrp.fits/}
             grp_name=${tmp_head}_grp${gnum}.fits
-            grpauto_name=${tmp_head}_grpauto.fits
+            grpAuto_name=${tmp_head}_grpauto.fits
+            nongrpExtNum=$(_ObtainExtNum $nongrp_name SPECTRUM)
+            grpAutoExtNum=$(_ObtainExtNum $grpAuto_name SPECTRUM)
 
             declare -A tr_keys=(
                 ["BACKFILE"]=${tmp_head}_bkg.fits
@@ -295,16 +319,16 @@ EOF
 
             for key in ${!tr_keys[@]}; do
                 fparkey value="${tr_keys[$key]}" \
-                    fitsfile=${nongrp_name}+1 \
+                    fitsfile="${nongrp_name}+${nongrpExtNum}" \
                     keyword="${key}" add=yes
             done
 
             for key in ${!tr_keys[@]}; do
                 fparkey value="${tr_keys[$key]}" \
-                    fitsfile=${grpauto_name}+1 \
+                    fitsfile="${grpAuto_name}+${grpAutoExtNum}" \
                     keyword="${key}" add=yes
             done
-
+            if [[ $gnum -le 0 ]]; then continue; fi
             cat <<EOF | bash
 grppha infile=$nongrp_name outfile=$grp_name
 group min $gnum
@@ -317,9 +341,9 @@ EOF
     if [[ x${FUNCNAME} != x ]]; then return 0; fi
 }
 
-alias yt_swiftXrtBuild_3="_SwiftXrtBuild_3_fitDirectory"
-alias yt_swiftXrtBuild_fitDirectory="_SwiftXrtBuild_3_fitDirectory"
-function _SwiftXrt_3_fitDirectory() {
+alias yt_swiftXrtBuild_4="_SwiftXrtBuild_4_fitDirectory"
+alias yt_swiftXrtBuild_fitDirectory="_SwiftXrtBuild_4_fitDirectory"
+function _SwiftXrtBuild_4_fitDirectory() {
     ## fitディレクトリにまとめ
     # args: FLAG_hardCopy=false
     # args: FLAG_symbLink=false

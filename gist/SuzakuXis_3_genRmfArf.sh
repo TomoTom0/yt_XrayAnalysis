@@ -14,8 +14,8 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
         sed -r -n "s/^.*(xi[0-3])__.*$/\1/p"))
     for xis_cam in ${xis_cams[@]}; do
         src_file=${xis_cam}__nongrp.fits
-        rm ${xis_cam}__src.rmf -f
-        xisrmfgen phafile=$src_file outfile=${xis_cam}__src.rmf
+        rm ${xis_cam}__rmf.fits -f
+        xisrmfgen phafile=$src_file outfile=${xis_cam}__rmf.fits
     done
 done
 cd $My_Suzaku_D
@@ -57,8 +57,8 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
             dec=$dec_tmp
         fi
 
-        arf_file=${xis_cam}__src.arf
-        rmf_file=${xis_cam}__src.rmf
+        arf_file=${xis_cam}__arf.fits
+        rmf_file=${xis_cam}__rmf.fits
 
         rm ${arf_file} -f
         xissimarfgen instrume=${xis_cam/xi/XIS} source_mode=J2000 pointing=AUTO source_ra=$ra source_dec=$dec \

@@ -1,14 +1,15 @@
-# _SuzakuHxd_6_grppha
+# _SuzakuHxdGso_4_grppha
 ## grppha
 gnum=25 # arg
 declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
 cd $My_Suzaku_D
+obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
     My_Suzaku_Dir=$My_Suzaku_D/$My_Suzaku_ID/hxd/event_cl
-    if [[ ! -r $My_Suzaku_Dir/fit ]]; then continue; fi
+    if [[ ! -r $My_Suzaku_Dir/fitGso ]]; then continue; fi
 
-    cd $My_Suzaku_Dir/fit
-    for nongrp_name in $(find . -name "hxd_[0-9]*_nongrp.fits" -printf "%f\n"); do
+    cd $My_Suzaku_Dir/fitGso
+    for nongrp_name in $(find . -name "hxdGso_[0-9]*_nongrp.fits" -printf "%f\n"); do
         grp_name=${nongrp_name/_nongrp.fits/_grp${gnum}.fits}
 
         rm $grp_name -f

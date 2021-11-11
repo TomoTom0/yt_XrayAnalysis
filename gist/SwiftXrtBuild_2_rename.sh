@@ -1,5 +1,5 @@
-# _SwiftXrtBuild_2_editHeader
-## edit header and make symbolic link
+# _SwiftXrtBuild_2_rename
+## rename and make symbolic link
 declare -g My_Swift_D=${My_Swift_D:=$(pwd)}
 cd $My_Swift_D/xrt
 ## make symbolic link
