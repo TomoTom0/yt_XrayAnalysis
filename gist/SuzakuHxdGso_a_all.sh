@@ -143,13 +143,14 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
     fi
 
     hxdgsoxbpi input_fname=${gso_file} \
-    pse_event_fname=${pse_file} \
-    bkg_event_fname=${nxb_evt} \
-    outstem=tmp_ \
-    gsonom_rsp=CALDB \
-    groupspec=yes \
-    groupfile=${gsoDat_file}
-
+        pse_event_fname=${pse_file} \
+        bkg_event_fname=${nxb_evt} \
+        outstem=tmp_ \
+        gsonom_rsp=CALDB \
+        groupspec=yes \
+        groupfile=${gsoDat_file}
+    rsp_file=($(find . "ae_hxd_gsohxnom_*.rsp" -printf "%f\n"))
+    ln -s $rsp_file hxdGso__rmf.fits
     arf_file="${CALDB}/data/suzaku/hxd/cpf/ae_hxd_gsoxinom_crab_20100526.arf"
     ln -s $arf_file hxdGso__arf.fits
 

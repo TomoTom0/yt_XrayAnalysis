@@ -47,13 +47,15 @@ for My_Newton_ID in ${obs_dirs[@]}; do
             evselect table=${cam}_filt_time.fits energycolumn="PI" \
                 withfilteredset=yes filteredset=${cam}_bkg_filtered.fits \
                 keepfilteroutput=yes filtertype="expression" \
-                expression="((X,Y) in CIRCLE(${coor_arg}))" \ # FLAG==0 && -> rmfgenでsegmentation error
+                expression="((X,Y) in CIRCLE(${coor_arg}))" \
                 withspectrumset=yes spectrumset=${cam}__bkg.fits \
                 spectralbinsize=5 withspecranges=yes \
                 specchannelmin=0 specchannelmax=${spchmax[$cam]}
-
-        #backscale spectrumset=${cam}__nongrp.fits badpixlocation=${cam}_filt_time.fits
-        #backscale spectrumset=${cam}__bkg.fits badpixlocation=${cam}_filt_time.fits
+        # FLAG==0 && -> rmfgenでsegmentation error
+        export SAS_CCF=$My_Newton_Dir/ccf.cif
+        if [[ ! -r "${SAS_CCF}" ]]; then continue ; fi
+        backscale spectrumset=${cam}__nongrp.fits badpixlocation=${cam}_filt_time.fits
+        backscale spectrumset=${cam}__bkg.fits badpixlocation=${cam}_filt_time.fits
     done
 done
 cd $My_Newton_D

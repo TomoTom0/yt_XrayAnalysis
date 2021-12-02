@@ -31,11 +31,13 @@ for My_Newton_ID in ${obs_dirs[@]}; do
         ra_bkg=$(echo "$ra + 0.05 " | bc)
         dec_bkg=$(echo "$dec + 0.05 " | bc)
         # 半径はとりあえず0.026 deg = 100 arcsec
-        ds9 $evt_file \
-            -regions system fk5 \
-            -regions command "fk5; circle $ra $dec 0.026 # source" \
-            -regions command "fk5; circle $ra_bkg $dec_bkg 0.026 # background" \
-            -regions save $My_Newton_D/saved.reg -exit
+        cat <<EOF > ${My_Newton_D}/saved.reg
+# Region file format: DS9 version 4.1
+global color=green dashlist=8 3 width=1 font="helvetica 10 normal roman" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1
+fk5
+circle($ra,$dec,0.026)
+circle($ra_bkg,$dec_bkg,0.026) # background
+EOF
     fi
 
     for cam in ${all_cams[@]}; do

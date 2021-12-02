@@ -369,11 +369,13 @@ EOF
             ra_bkg=$(echo "$ra + 0.05 " | bc)
             dec_bkg=$(echo "$dec + 0.05 " | bc)
             # 半径はとりあえず0.026 deg = 100 arcsec
-            ds9 $evt_file \
-                -regions system fk5 \
-                -regions command "fk5; circle $ra $dec 0.026 # source" \
-                -regions command "fk5; circle $ra_bkg $dec_bkg 0.026 # background" \
-                -regions save $My_Newton_D/saved.reg -exit
+            cat <<EOF > ${My_Newton_D}/saved.reg
+# Region file format: DS9 version 4.1
+global color=green dashlist=8 3 width=1 font="helvetica 10 normal roman" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1
+fk5
+circle($ra,$dec,0.026)
+circle($ra_bkg,$dec_bkg,0.026) # background
+EOF
         fi
 
         for cam in ${all_cams[@]}; do
@@ -501,13 +503,15 @@ EOF
                 evselect table=${cam}_filt_time.fits energycolumn="PI" \
                     withfilteredset=yes filteredset=${cam}_bkg_filtered.fits \
                     keepfilteroutput=yes filtertype="expression" \
-                    expression="((X,Y) in CIRCLE(${coor_arg}))" \ # FLAG==0 && -> rmfgenでsegmentation error
+                    expression="((X,Y) in CIRCLE(${coor_arg}))" \
                     withspectrumset=yes spectrumset=${cam}__bkg.fits \
                     spectralbinsize=5 withspecranges=yes \
                     specchannelmin=0 specchannelmax=${spchmax[$cam]}
-
-            #backscale spectrumset=${cam}__nongrp.fits badpixlocation=${cam}_filt_time.fits
-            #backscale spectrumset=${cam}__bkg.fits badpixlocation=${cam}_filt_time.fits
+            # FLAG==0 && -> rmfgenでsegmentation error
+            export SAS_CCF=$My_Newton_Dir/ccf.cif
+            if [[ ! -r "${SAS_CCF}" ]]; then continue ; fi
+            backscale spectrumset=${cam}__nongrp.fits badpixlocation=${cam}_filt_time.fits
+            backscale spectrumset=${cam}__bkg.fits badpixlocation=${cam}_filt_time.fits
         done
     done
     cd $My_Newton_D
