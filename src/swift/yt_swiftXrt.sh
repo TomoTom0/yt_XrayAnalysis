@@ -55,7 +55,7 @@ EOF
     # ---------------------
     declare -g My_Swift_D=${My_Swift_D:=$(pwd)}
     cd $My_Swift_D
-    obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
+    obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9] | sort))
     for My_Swift_ID in ${obs_dirs[@]}; do
 
         My_Swift_Dir=$My_Swift_D/$My_Swift_ID
@@ -65,7 +65,7 @@ EOF
         rm $My_Swift_Dir/xrt/output -rf
         mkdir $My_Swift_Dir/xrt/output -p
         xrtpipeline indir=$My_Swift_Dir \
-            outdir="$My_Swift_Dir//xrt/output" \ 
+            outdir="$My_Swift_Dir//xrt/output" \
             steminputs=sw${My_Swift_ID} \
             srcra=OBJECT srcdec=OBJECT clobber=yes
     done
@@ -137,14 +137,14 @@ EOF
     fi
     declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
     cd $My_Swift_D
-    obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
+    obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9] | sort))
     for My_Swift_ID in ${obs_dirs[@]}; do
 
         My_Swift_Dir=$My_Swift_D/$My_Swift_ID
         if [[ ! -r $My_Swift_Dir/xrt/output ]]; then continue; fi
         cd $My_Swift_Dir/xrt/output
-        evt_tmps=($(ls -r sw${My_Swift_ID}xpcw*po_cl.evt))
-        evt_file=${evt_tmps[0]}
+        _evt_tmps=($(find . -name sw${My_Swift_ID}xpcw*po_cl.evt))
+        evt_file=${_evt_tmps[-1]}
 
         if [[ ! -f ${My_Swift_D}/saved.reg && ${FLAG_simple:=false} == false ]]; then
             # saved.regが存在しないなら、新たに作成する
@@ -174,10 +174,16 @@ circle($ra_bkg,$dec_bkg,0.026) # background
 EOF
         fi
         reg_file=xrt.reg
-        if [[ ${FLAG_simple:=false} == false  ]]; then
+        if [[ ! -f "${evt_file}"  ]]; then
+            echo ""
+            echo "----   event_file not found"
+            echo ""
+            continue
+        elif [[ ${FLAG_simple:=false} == false  ]]; then
             cp ${My_Swift_D}/saved.reg $reg_file -f
             echo ""
-            echo "----  save as $reg_file with overwriting  ----"
+            echo "----  opening $evt_file"
+            echo "----  save as $reg_file with overwriting"
             echo ""
             ds9 $evt_file \
                 -scale log -cmap bb -mode region \
@@ -190,7 +196,8 @@ EOF
             cat ${reg_file} | grep -v -E "^circle.*\)$" >bkg.reg
         else
             echo ""
-            echo "----  save as $reg_file ----"
+            echo "----  opening $evt_file"
+            echo "----  save as $reg_file"
             echo ""
             ds9 $evt_file \
                 -scale log -cmap bb -mode region
@@ -252,22 +259,53 @@ EOF
     # ---------------------
     declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
     cd $My_Swift_D
-    obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
+    obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9] | sort))
     for My_Swift_ID in ${obs_dirs[@]}; do
 
         My_Swift_Dir=$My_Swift_D/$My_Swift_ID
         if [[ ! -r $My_Swift_Dir/xrt/output ]]; then continue; fi
 
         cd $My_Swift_Dir/xrt/output
-        _evt_tmps=($(ls -r sw${My_Swift_ID}xpcw*po_cl.evt))
+        _evt_tmps=($(find . -name "sw${My_Swift_ID}xpcw*po_cl.evt" -printf "%f\n"))
         evt_file=${_evt_tmps[-1]}
 
-        _exp_tmps=($(ls -r sw${My_Swift_ID}xpcw*po_ex.img))
+        _exp_tmps=($(find . -name "sw${My_Swift_ID}xpcw*po_ex.img" -printf "%f\n"))
         exp_file=${_exp_tmps[0]}
-        xrtproducts infile=$evt_file stemout=DEFAULT regionfile=src.reg \
-            bkgregionfile=bkg.reg bkgextract=yes outdir=$My_Swift_Dir/xrt/output/fit binsize=-99 \
-            expofile=$exp_file clobber=yes correctlc=no \
-            phafile=xrt__nongrp.fits bkgphafile=xrt__bkg.fits arffile=xrt__arf.fits
+
+        if [[ ! -f "$evt_file" || ! -f "$evt_file" ]]; then continue; fi
+
+        # unable to open xrt__nongrp.fitsで動かない……とりあえずxselectで代用
+        #rm $My_Swift_Dir/xrt/output/fit/* -rf
+        #xrtproducts infile=$evt_file stemout=DEFAULT regionfile=src.reg \
+        #    bkgregionfile=bkg.reg bkgextract=yes outdir="$My_Swift_Dir/xrt/output/fit" binsize=-99 \
+        #    expofile=$exp_file clobber=yes correctlc=no \
+        #    phafile=xrt__nongrp.fits bkgphafile=xrt__bkg.fits arffile=xrt__arf.fits
+
+        cat <<EOF | bash
+xselect
+xsel
+read events $evt_file
+./
+y
+extract all
+filter region src.reg
+extract spectrum
+save spectrum xrt__nongrp.fits
+clear region
+filter region bkg.reg
+extract spectrum
+save spectrum xrt__bkg.fits
+exit
+n
+
+EOF
+
+        cat << EOF | bash
+xrtmkarf phafile=xrt__nongrp.fits srcx=-1 srcy=-1 outfile=xrt__arf.fits extended=no expofile=${exp_file}
+yes
+EOF
+        mkdir fit -p
+        mv xrt__nongrp.fits xrt__bkg.fits xrt__arf.fits fit/
 
     done
     cd $My_Swift_D
@@ -352,7 +390,7 @@ EOF
         fi
     }
 
-    obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
+    obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9] | sort))
     for My_Swift_ID in ${obs_dirs[@]}; do
 
         My_Swift_Dir=$My_Swift_D/$My_Swift_ID
@@ -451,7 +489,7 @@ EOF
         fi
         echo ${_tmp_extNums[0]:-0}
     }
-    obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
+    obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9] | sort))
     for My_Swift_ID in ${obs_dirs[@]}; do
 
         My_Swift_Dir=$My_Swift_D/$My_Swift_ID
@@ -545,7 +583,7 @@ EOF
 
     declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
     cd $My_Swift_D
-    obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
+    obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9] | sort))
     for My_Swift_ID in ${obs_dirs[@]}; do
 
         My_Swift_Dir=$My_Swift_D/$My_Swift_ID
@@ -572,7 +610,7 @@ function _SwiftXrt_7_fitDirectory() {
     ## fitディレクトリにまとめ
     # args: FLAG_hardCopy=false
     # args: FLAG_symbLink=false
-    # args: tmp_prefix="hxd_"
+    # args: tmp_prefix="xrt_"
 
     # ---------------------
     ##     obtain options
@@ -652,7 +690,7 @@ EOF
     declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
     cd $My_Swift_D
     mkdir -p $My_Swift_D/fit $My_Swift_D/../fit
-    obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
+    obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9] | sort))
     for My_Swift_ID in ${obs_dirs[@]}; do
         if [[ ${FLAG_symbLink:=false} == "true" ]]; then
             find $My_Swift_D/$My_Swift_ID/xrt/output/fit/ -name "${tmp_prefix}*.*" \
@@ -660,7 +698,9 @@ EOF
                 xargs -n 1 -i rm -f $My_Swift_D/fit/{}
             ln -s $My_Swift_D/$My_Swift_ID/xrt/output/fit/${tmp_prefix}* ${My_Swift_D}/fit/
         else
-            cp -f $My_Swift_D/$My_Swift_ID/xrt/output/fit/${tmp_prefix}* ${My_Swift_D}/fit/
+            if [[ ! -d "$My_Swift_D/$My_Swift_ID/xrt/output/fit/" ]]; then continue; fi
+            find $My_Swift_D/$My_Swift_ID/xrt/output/fit/ -name "${tmp_prefix}*" | xargs -i cp {} ${My_Swift_D}/fit/
+            #cp -f $My_Swift_D/$My_Swift_ID/xrt/output/fit/${tmp_prefix}* ${My_Swift_D}/fit/
         fi
     done
     if [[ ${FLAG_hardCopy:=false} == "true" ]]; then

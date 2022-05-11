@@ -2,7 +2,7 @@
 ## fitディレクトリにまとめ
 FLAG_hardCopy=false # arg
 FLAG_symbLink=false # arg
-tmp_prefix="hxd_" # arg
+tmp_prefix="xrt_" # arg
 declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
 cd $My_Swift_D
 mkdir -p $My_Swift_D/fit $My_Swift_D/../fit

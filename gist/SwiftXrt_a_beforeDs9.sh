@@ -13,7 +13,7 @@ for My_Swift_ID in ${obs_dirs[@]}; do
     rm $My_Swift_Dir/xrt/output -rf
     mkdir $My_Swift_Dir/xrt/output -p
     xrtpipeline indir=$My_Swift_Dir \
-        outdir="$My_Swift_Dir//xrt/output" \ 
+        outdir="$My_Swift_Dir//xrt/output" \
         steminputs=sw${My_Swift_ID} \
         srcra=OBJECT srcdec=OBJECT clobber=yes
 done
