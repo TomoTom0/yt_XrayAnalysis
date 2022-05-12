@@ -543,6 +543,8 @@ Options
 --gnum GNUM
     change gnum for Swift XRT
 
+-h,--help
+    show this message
 
 EOF
         return 0
@@ -580,7 +582,6 @@ EOF
             declare -i gnum=${kwargs[gnum__gnum]}
         fi
     fi
-
     declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
     cd $My_Swift_D
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9] | sort))

@@ -3,7 +3,7 @@
 gnum=50 # arg
 declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
 cd $My_Swift_D
-obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
+obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9] | sort))
 for My_Swift_ID in ${obs_dirs[@]}; do
 
     My_Swift_Dir=$My_Swift_D/$My_Swift_ID

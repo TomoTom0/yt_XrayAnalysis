@@ -6,7 +6,7 @@ tmp_prefix="xrt_" # arg
 declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
 cd $My_Swift_D
 mkdir -p $My_Swift_D/fit $My_Swift_D/../fit
-obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
+obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9] | sort))
 for My_Swift_ID in ${obs_dirs[@]}; do
     if [[ ${FLAG_symbLink:=false} == "true" ]]; then
         find $My_Swift_D/$My_Swift_ID/xrt/output/fit/ -name "${tmp_prefix}*.*" \
@@ -14,7 +14,9 @@ for My_Swift_ID in ${obs_dirs[@]}; do
             xargs -n 1 -i rm -f $My_Swift_D/fit/{}
         ln -s $My_Swift_D/$My_Swift_ID/xrt/output/fit/${tmp_prefix}* ${My_Swift_D}/fit/
     else
-        cp -f $My_Swift_D/$My_Swift_ID/xrt/output/fit/${tmp_prefix}* ${My_Swift_D}/fit/
+        if [[ ! -d "$My_Swift_D/$My_Swift_ID/xrt/output/fit/" ]]; then continue; fi
+        find $My_Swift_D/$My_Swift_ID/xrt/output/fit/ -name "${tmp_prefix}*" | xargs -i cp {} ${My_Swift_D}/fit/
+        #cp -f $My_Swift_D/$My_Swift_ID/xrt/output/fit/${tmp_prefix}* ${My_Swift_D}/fit/
     fi
 done
 if [[ ${FLAG_hardCopy:=false} == "true" ]]; then

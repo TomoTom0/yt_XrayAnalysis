@@ -3,14 +3,14 @@
 FLAG_simple=false # arg
 declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
 cd $My_Swift_D
-obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
+obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9] | sort))
 for My_Swift_ID in ${obs_dirs[@]}; do
 
     My_Swift_Dir=$My_Swift_D/$My_Swift_ID
     if [[ ! -r $My_Swift_Dir/xrt/output ]]; then continue; fi
     cd $My_Swift_Dir/xrt/output
-    evt_tmps=($(ls -r sw${My_Swift_ID}xpcw*po_cl.evt))
-    evt_file=${evt_tmps[0]}
+    _evt_tmps=($(find . -name sw${My_Swift_ID}xpcw*po_cl.evt))
+    evt_file=${_evt_tmps[-1]}
 
     if [[ ! -f ${My_Swift_D}/saved.reg && ${FLAG_simple:=false} == false ]]; then
         # saved.regが存在しないなら、新たに作成する
@@ -40,10 +40,16 @@ circle($ra_bkg,$dec_bkg,0.026) # background
 EOF
     fi
     reg_file=xrt.reg
-    if [[ ${FLAG_simple:=false} == false  ]]; then
+    if [[ ! -f "${evt_file}"  ]]; then
+        echo ""
+        echo "----   event_file not found"
+        echo ""
+        continue
+    elif [[ ${FLAG_simple:=false} == false  ]]; then
         cp ${My_Swift_D}/saved.reg $reg_file -f
         echo ""
-        echo "----  save as $reg_file with overwriting  ----"
+        echo "----  opening $evt_file"
+        echo "----  save as $reg_file with overwriting"
         echo ""
         ds9 $evt_file \
             -scale log -cmap bb -mode region \
@@ -56,7 +62,8 @@ EOF
         cat ${reg_file} | grep -v -E "^circle.*\)$" >bkg.reg
     else
         echo ""
-        echo "----  save as $reg_file ----"
+        echo "----  opening $evt_file"
+        echo "----  save as $reg_file"
         echo ""
         ds9 $evt_file \
             -scale log -cmap bb -mode region

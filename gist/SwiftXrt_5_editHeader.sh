@@ -14,7 +14,7 @@ function _ObtainExtNum(){
     fi
     echo ${_tmp_extNums[0]:-0}
 }
-obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
+obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9] | sort))
 for My_Swift_ID in ${obs_dirs[@]}; do
 
     My_Swift_Dir=$My_Swift_D/$My_Swift_ID

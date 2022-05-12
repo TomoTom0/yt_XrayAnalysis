@@ -83,7 +83,7 @@ EOF
         tar xvf $tmp_file
 
         if [[ "x${ext}" == "xtar" ]]; then
-            ## par ObsID
+            ## per ObsID
             cd $My_Swift_Dir/USERPROD_${prod_ID}/spec
             find . -name "*.gz" | xargs -n 1 tar xvf
         elif [[ "x${ext}" == "xgz" ]]; then
@@ -161,7 +161,7 @@ EOF
         if [[ -d "USERPROD_${prod_ID}" ]]; then
             rm $spec_path -f &&
                 ln -s $build_path/USERPROD_${prod_ID}/spec $spec_path
-        elif [[ x$(find ./ -name "*pc.pi" -printf "1") != x ]]; then
+        elif [[ x$(find ./ -regex ".*\(pc\|wt\)\.pi" -printf "1") != x ]]; then
             rm $spec_path -f &&
                 ln -s $build_path $spec_path
         fi
@@ -182,42 +182,48 @@ EOF
         mkdir $spec_path/fit -p
 
         # for per Obs
-        obs_IDs=($(find . -name "Obs_*pc.pi" -printf "%f\n" |
-            sed -r -n "s/^\S*Obs_([0-9]+)pc\S*$/\1/p"))
+        obs_IDs=($(find . -name "Obs_*[pw][ct].pi" -printf "%f\n" |
+            sed -r -n "s/^\S*Obs_([0-9]+)(pc|wt)\S*$/\1/p"))
         for obs_ID in ${obs_IDs[@]}; do
             tmp_head=Obs_${obs_ID}
-            declare -A tmp_orig_names=(
-                ["nongrp"]=${tmp_head}pcsource.pi
-                ["grpauto"]=${tmp_head}pc.pi
-                ["bkg"]=${tmp_head}pcback.pi
-                ["rmf"]=${tmp_head}pc.rmf
-                ["arf"]=${tmp_head}pc.arf)
+            for cam in "pc" "wt"; do
+                declare -A tmp_orig_names=(
+                    ["${cam}_nongrp"]=${tmp_head}${cam}source.pi
+                    ["${cam}_grpauto"]=${tmp_head}${cam}.pi
+                    ["${cam}_bkg"]=${tmp_head}${cam}back.pi
+                    ["${cam}_rmf"]=${tmp_head}${cam}.rmf
+                    ["${cam}_arf"]=${tmp_head}${cam}.arf)
 
-            for key in ${!tmp_orig_names[@]}; do
-                orig_name=${tmp_orig_names[$key]}
-                new_name=xrtBuild${prod_ID}_Obs${obs_ID}_${key}.fits
-                new_names[$key]=$new_name
-                cp -f $orig_name $spec_path/fit/$new_name
+                for key in ${!tmp_orig_names[@]}; do
+                    orig_name=${tmp_orig_names[$key]}
+                    if [[ ! -f "$orig_name" ]]; then continue; fi
+                    new_name=xrtBuild${prod_ID}_Obs${obs_ID}_${key}.fits
+                    new_names[$key]=$new_name
+                    cp -f $orig_name $spec_path/fit/$new_name
+                done
             done
         done
 
         # for per project
-        proj_IDs=($(find . -name "[0-9]*pc.pi" -printf "%f\n" |
-            sed -r -n "s/^([0-9]+)pc\S*$/\1/p"))
+        proj_IDs=($(find . -name "[0-9]*[pw][ct].pi" -printf "%f\n" |
+            sed -r -n "s/^([0-9]+)(pc|wt)\S*$/\1/p"))
         for proj_ID in ${proj_IDs[@]}; do
             tmp_head=${proj_ID}
-            declare -A tmp_orig_names=(
-                ["nongrp"]=${tmp_head}pcsource.pi
-                ["grpauto"]=${tmp_head}pc.pi
-                ["bkg"]=${tmp_head}pcback.pi
-                ["rmf"]=${tmp_head}pc.rmf
-                ["arf"]=${tmp_head}pc.arf)
+            for cam in "pc" "wt"; do
+                declare -A tmp_orig_names=(
+                    ["${cam}_nongrp"]=${tmp_head}${cam}source.pi
+                    ["${cam}_grpauto"]=${tmp_head}${cam}.pi
+                    ["${cam}_bkg"]=${tmp_head}${cam}back.pi
+                    ["${cam}_rmf"]=${tmp_head}${cam}.rmf
+                    ["${cam}_arf"]=${tmp_head}${cam}.arf)
 
-            for key in ${!tmp_orig_names[@]}; do
-                orig_name=${tmp_orig_names[$key]}
-                new_name=xrtBuild${prod_ID}_Proj${proj_ID}_${key}.fits
-                new_names[$key]=$new_name
-                cp -f $orig_name $spec_path/fit/$new_name
+                for key in ${!tmp_orig_names[@]}; do
+                    orig_name=${tmp_orig_names[$key]}
+                    if [[ ! -f "$orig_name" ]]; then continue; fi
+                    new_name=xrtBuild${prod_ID}_Proj${proj_ID}_${key}.fits
+                    new_names[$key]=$new_name
+                    cp -f $orig_name $spec_path/fit/$new_name
+                done
             done
         done
     done
@@ -236,13 +242,16 @@ function _SwiftXrtBuild_3_grppha() {
 
     function __usage() {
         cat <<EOF
-Usage: ${FUNCNAME[1]} URL [-h,--help] 
+Usage: ${FUNCNAME[1]} [--gnum GNUM] [-h,--help] 
 
 ${FUNCNAME[1]}
     grouping with grppha
 
 
 Options
+--gnum GNUM
+    change gnum for Swift XRT
+
 -h,--help
     show this message
 
@@ -254,8 +263,10 @@ EOF
     declare -A flagsAll=(
         ["h"]="help"
         ["--help"]="help"
+        ["--gnum"]="gnum"
     )
     declare -A flagsArgDict=(
+        ["gnum"]="gnum"
     )
 
     # arguments variables
@@ -429,14 +440,21 @@ EOF
     mkdir -p $My_Swift_D/fit $My_Swift_D/../fit
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Swift_ID in ${obs_dirs[@]}; do
-        if [[ ${FLAG_symbLink:=false} == "true" ]]; then
-            find $My_Swift_D/xrt/xrt_build_${prod_ID}/spec/fit/ -name "${tmp_prefix}*.*" \
-                -type f -printf "%f\n" |
-                xargs -n 1 -i rm -f $My_Swift_D/fit/{}
-            ln -s $My_Swift_D/xrt/xrt_build_${prod_ID}/spec/fit/${tmp_prefix}*.* $My_Swift_D/fit/
-        else
-            cp -f $My_Swift_D/xrt/xrt_build_${prod_ID}/spec/fit/${tmp_prefix}*.* $My_Swift_D/fit/
-        fi
+        prod_IDs=($(find . -maxdepth 1 -type d -printf "%P\n" |
+            grep ^xrt_build_[0-9] |
+            sed -r -n "s/^xrt_build_([0-9]+)$/\1/p"))
+        for prod_ID in ${prod_IDs[@]}; do
+            if [[ ${FLAG_symbLink:=false} == "true" ]]; then
+                find "$My_Swift_D/xrt//xrt_build_${prod_ID}/spec/fit/" -name "${tmp_prefix}*.*" \
+                    -type f -printf "%f\n" |
+                    xargs -n 1 -i rm -f $My_Swift_D/fit/{}
+                find "$My_Swift_D/xrt//xrt_build_${prod_ID}/spec/fit/" -name "${tmp_prefix}*.*" -type f -printf "%p\n" |
+                    xargs -i ln -s {} $My_Swift_D/fit/
+            else
+                find "$My_Swift_D/xrt//xrt_build_${prod_ID}/spec/fit/" -name "${tmp_prefix}*.*" -type f -printf "%p\n" |
+                    xargs -i cp {} $My_Swift_D/fit/
+            fi
+        done
     done
     if [[ ${FLAG_hardCopy:=false} == "true" ]]; then
         cp -f $My_Swift_D/fit/${tmp_prefix}*.* $My_Swift_D/../fit/
