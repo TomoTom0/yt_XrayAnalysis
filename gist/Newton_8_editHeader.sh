@@ -60,7 +60,7 @@ for My_Newton_ID in ${obs_dirs[@]}; do
             fi
 
             for key in ${cp_keys[@]} ${cp_keys2[@]}; do
-                orig_val=$(fkeyprint infile="${oldName}+${oldExtName}" keynam="${key}" |
+                orig_val=$(fkeyprint infile="${oldName}+${oldExtNum}" keynam="${key}" |
                     grep "${key}\s*=" |
                     sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
 
@@ -69,7 +69,7 @@ for My_Newton_ID in ${obs_dirs[@]}; do
 
             for key in ${!tr_keys[@]}; do
                 fparkey value="${tr_keys[$key]}" \
-                    fitsfile="${newName}+${newExtName}" \
+                    fitsfile="${newName}+${newExtNum}" \
                     keyword="${key}" add=yes
             done
 
@@ -83,7 +83,7 @@ for My_Newton_ID in ${obs_dirs[@]}; do
 
             for key in ${!tr_keys[@]}; do
                 fparkey value="${tr_keys[$key]}" \
-                    fitsfile="${nongrp_name}+${nongrpExtName}" \
+                    fitsfile="${nongrp_name}+${nongrpExtNum}" \
                     keyword="${key}" add=yes
             done
         fi

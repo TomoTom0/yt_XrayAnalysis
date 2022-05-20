@@ -978,7 +978,7 @@ EOF
 
                 for key in ${!tr_keys[@]}; do
                     fparkey value="${tr_keys[$key]}" \
-                        fitsfile="${newName}+${newExtName}" \
+                        fitsfile="${newName}+${newExtNum}" \
                         keyword="${key}" add=yes
                 done
 
