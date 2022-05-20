@@ -3,7 +3,8 @@
 FLAG_hardCopy=false # arg
 FLAG_symbLink=false # arg
 tmp_prefix="hxdGso_" # arg
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 
 mkdir -p $My_Suzaku_D/fit $My_Suzaku_D/../fit

@@ -1,7 +1,8 @@
 # _SwiftXrtBuild_3_grppha
 ## grppha
 gnum=10 # arg
-declare -g My_Swift_D=${My_Swift_D:=$(pwd)}
+    declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
+fi
 cd $My_Swift_D/xrt
 function _ObtainExtNum(){
     tmp_fits="$1"

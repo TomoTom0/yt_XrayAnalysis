@@ -1,7 +1,8 @@
 # _Nustar_c_afterDs9
 # _Nustar_3_products
 ## nuproducts
-declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} # 未定義時に代入
+    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+fi # 未定義時に代入
 cd $My_Nustar_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Nustar_ID in ${obs_dirs[@]}; do
@@ -29,7 +30,8 @@ done
 cd $My_Nustar_D
 # _Nustar_4_addascaspec
 ## addascaspec
-declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} # 未定義時に代入
+    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+fi # 未定義時に代入
 cd $My_Nustar_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Nustar_ID in ${obs_dirs[@]}; do
@@ -61,7 +63,8 @@ FLAG_minimum=false # arg
 FLAG_strict=false # arg
 origSrc=nu%OBSID%A01_sr.pha # arg
 origBkg=nu%OBSID%A01_bk.pha # arg
-declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} # 未定義時に代入
+    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+fi # 未定義時に代入
 cd $My_Nustar_D
 function _ObtainExtNum(){
     tmp_fits="$1"
@@ -205,7 +208,8 @@ cd $My_Nustar_D
 # _Nustar_6_grppha
 ## grppha
 gnum=50 # arg
-declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} # 未定義時に代入
+    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+fi # 未定義時に代入
 cd $My_Nustar_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Nustar_ID in ${obs_dirs[@]}; do
@@ -228,7 +232,8 @@ cd $My_Nustar_D
 FLAG_hardCopy=false # arg
 FLAG_symbLink=false # arg
 tmp_prefix="AB_" # arg
-declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} # 未定義時に代入
+    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+fi # 未定義時に代入
 cd $My_Nustar_D
 
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))

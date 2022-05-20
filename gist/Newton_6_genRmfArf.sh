@@ -2,7 +2,8 @@
 ## rmf, arf作成
 FLAG_rmf=true # arg
 FLAG_arf=true # arg
-declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+fi
 cd $My_Newton_D
 
 if [[ x == "x$(alias sas 2>/dev/null)" ]]; then

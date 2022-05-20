@@ -1,6 +1,7 @@
 # _SuzakuHxdGso_2_products
 ## obtain spectrum, rmf and arf, and do corrections
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 nxb_evt=ae_hxdGso_nxb.evt
 

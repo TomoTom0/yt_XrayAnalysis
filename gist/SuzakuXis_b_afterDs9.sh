@@ -1,7 +1,8 @@
 # _SuzakuXis_b_afterDs9
 # _SuzakuXis_2_xselect
 ## extarct spec with xselect
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -82,7 +83,8 @@ cd $My_Suzaku_D
 ## rmfおよびarf作成
 FLAG_rmf=true # arg
 FLAG_arf=true # arg
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -101,7 +103,11 @@ done
 cd $My_Suzaku_D
 
 ### arf
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -155,7 +161,8 @@ done
 cd $My_Suzaku_D
 # _SuzakuXis_4_addascaspec
 ## addascaspec
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -193,7 +200,8 @@ FLAG_minimum=false # arg
 FLAG_strict=false # arg
 origSrc=nu%OBSID%A01_sr.pha # arg
 origBkg=nu%OBSID%A01_bk.pha # arg
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 
 function _ObtainExtNum(){
@@ -280,7 +288,8 @@ cd $My_Suzaku_D
 # _SuzakuXis_6_grppha
 ## grppha
 declare -A gnums=(["FI"]=25 ["BI"]=25) # arg
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -312,7 +321,8 @@ cd $My_Suzaku_D
 FLAG_hardCopy=false # arg
 FLAG_symbLink=false # arg
 tmp_prefix="xis_" # arg
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 mkdir -p $My_Suzaku_D/fit $My_Suzaku_D/../fit
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))

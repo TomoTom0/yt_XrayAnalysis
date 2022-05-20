@@ -1,6 +1,7 @@
 # _SuzakuHxdGso_1_download
 ## download NXB (Non X-ray Background source) and other files for Suzaku HXD GSO
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 nxb_evt=ae_hxdGso_nxb.evt
 

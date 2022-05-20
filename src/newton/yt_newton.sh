@@ -969,7 +969,7 @@ EOF
                 fi
 
                 for key in ${cp_keys[@]} ${cp_keys2[@]}; do
-                    orig_val=$(fkeyprint infile="${oldName}+${oldExtName}" keynam="${key}" |
+                    orig_val=$(fkeyprint infile="${oldName}+${oldExtNum}" keynam="${key}" |
                         grep "${key}\s*=" |
                         sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
 
@@ -992,7 +992,7 @@ EOF
 
                 for key in ${!tr_keys[@]}; do
                     fparkey value="${tr_keys[$key]}" \
-                        fitsfile="${nongrp_name}+${nongrpExtName}" \
+                        fitsfile="${nongrp_name}+${nongrpExtNum}" \
                         keyword="${key}" add=yes
                 done
             fi

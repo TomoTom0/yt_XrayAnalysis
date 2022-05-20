@@ -2,7 +2,8 @@
 # _SwiftXrtBuild_1_downloadData
 ## download Data
 url="" # arg
-declare -g My_Swift_D=${My_Swift_D:=$(pwd)}
+    declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
+fi
 cd $My_Swift_D
 if [[ "x${url}" != "x" ]]; then
     prod_ID=$(echo $url | sed -r -n "s/^.*\/USERPROD_([0-9]+)\/.*$/\1/p")
@@ -30,7 +31,8 @@ cd $My_Swift_D
 # _SwiftXrtBuild_1_downloadData
 ## download Data
 url="" # arg
-declare -g My_Swift_D=${My_Swift_D:=$(pwd)}
+    declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
+fi
 cd $My_Swift_D
 if [[ "x${url}" != "x" ]]; then
     prod_ID=$(echo $url | sed -r -n "s/^.*\/USERPROD_([0-9]+)\/.*$/\1/p")
@@ -58,7 +60,8 @@ cd $My_Swift_D
 # _SwiftXrtBuild_3_grppha
 ## grppha
 gnum=10 # arg
-declare -g My_Swift_D=${My_Swift_D:=$(pwd)}
+    declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
+fi
 cd $My_Swift_D/xrt
 function _ObtainExtNum(){
     tmp_fits="$1"

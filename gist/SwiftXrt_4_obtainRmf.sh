@@ -1,6 +1,7 @@
 # _SwiftXrt_4_obtainRmf
 ## obtain rmf
-declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
+    declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
+fi # 未定義時に代入
 cd $My_Swift_D
 function _ObtainXrtRmfVersion() {
     mjd_in=$1

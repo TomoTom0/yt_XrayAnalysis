@@ -4,7 +4,8 @@ FLAG_minimum=false # arg
 FLAG_strict=false # arg
 origSrc=nu%OBSID%A01_sr.pha # arg
 origBkg=nu%OBSID%A01_bk.pha # arg
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 
 function _ObtainExtNum(){

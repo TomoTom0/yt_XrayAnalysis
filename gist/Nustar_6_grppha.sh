@@ -1,7 +1,8 @@
 # _Nustar_6_grppha
 ## grppha
 gnum=50 # arg
-declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} # 未定義時に代入
+    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+fi # 未定義時に代入
 cd $My_Nustar_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Nustar_ID in ${obs_dirs[@]}; do

@@ -1,6 +1,7 @@
 # _Newton_7_addascaspec
 ## addascaspec
-declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+fi
 cd $My_Newton_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Newton_ID in ${obs_dirs[@]}; do

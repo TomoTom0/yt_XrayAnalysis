@@ -2,7 +2,8 @@
 ## rmfおよびarf作成
 FLAG_rmf=true # arg
 FLAG_arf=true # arg
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -21,7 +22,11 @@ done
 cd $My_Suzaku_D
 
 ### arf
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do

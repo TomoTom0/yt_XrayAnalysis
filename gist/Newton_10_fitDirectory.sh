@@ -3,7 +3,8 @@
 FLAG_hardCopy=false # arg
 FLAG_symbLink=false # arg
 tmp_prefix="newton_" # arg
-declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+fi
 cd $My_Newton_D
 mkdir -p $My_Newton_D/fit $My_Newton_D/../fit/
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))

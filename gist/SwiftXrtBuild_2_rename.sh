@@ -1,6 +1,7 @@
 # _SwiftXrtBuild_2_rename
 ## rename and make symbolic link
-declare -g My_Swift_D=${My_Swift_D:=$(pwd)}
+    declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
+fi
 cd $My_Swift_D/xrt
 ## make symbolic link
 prod_IDs=($(find . -maxdepth 1 -type d -printf "%P\n" |

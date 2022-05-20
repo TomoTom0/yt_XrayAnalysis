@@ -1,6 +1,7 @@
 # _SuzakuHxdPin_3_editHeader
 ## edit header
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 function _ObtainExtNum(){
     tmp_fits="$1"

@@ -4,7 +4,8 @@ FLAG_minimum=false # arg
 FLAG_strict=false # arg
 origSrc=nu%OBSID%A01_sr.pha # arg
 origBkg=nu%OBSID%A01_bk.pha # arg
-declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} # 未定義時に代入
+    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+fi # 未定義時に代入
 cd $My_Nustar_D
 function _ObtainExtNum(){
     tmp_fits="$1"

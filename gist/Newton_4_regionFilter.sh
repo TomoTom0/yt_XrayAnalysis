@@ -1,6 +1,7 @@
 # _Newton_4_regionFilter
 ## region filter
-declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+fi
 cd $My_Newton_D
 
 declare -A spchmax=(["mos1"]=11999 ["mos2"]=11999 ["pn"]=20479)

@@ -1,7 +1,8 @@
 # _Newton_9_grppha
 ## grppha
 declare -A gnums=(["pn"]=50 ["mos12"]=50 ["mos1"]=30 ["mos2"]=30) # arg
-declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+fi
 cd $My_Newton_D
 
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))

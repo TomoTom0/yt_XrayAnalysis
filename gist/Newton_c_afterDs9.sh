@@ -1,7 +1,8 @@
 # _Newton_c_afterDs9
 # _Newton_4_regionFilter
 ## region filter
-declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+fi
 cd $My_Newton_D
 
 declare -A spchmax=(["mos1"]=11999 ["mos2"]=11999 ["pn"]=20479)
@@ -62,7 +63,8 @@ cd $My_Newton_D
 # _Newton_5_lightCurve
 ## light curve
 declare -A pis=(["mos1"]="PI in [200:12000]" ["mos2"]="PI in [200:12000]" ["pn"]="PI in [200:15000]") # arg
-declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+fi
 cd $My_Newton_D
 
 if [[ x == "x$(alias sas 2>/dev/null)" ]]; then
@@ -99,7 +101,8 @@ cd $My_Newton_D
 ## rmf, arf作成
 FLAG_rmf=true # arg
 FLAG_arf=true # arg
-declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+fi
 cd $My_Newton_D
 
 if [[ x == "x$(alias sas 2>/dev/null)" ]]; then
@@ -143,7 +146,8 @@ cd $My_Newton_D
 
 # _Newton_7_addascaspec
 ## addascaspec
-declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+fi
 cd $My_Newton_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Newton_ID in ${obs_dirs[@]}; do
@@ -178,7 +182,8 @@ cd $My_Newton_D
 ## edit header
 FLAG_minimum=false # arg
 FLAG_strict=false # arg
-declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+fi
 cd $My_Newton_D
 
 function _ObtainExtNum(){
@@ -271,7 +276,8 @@ cd $My_Newton_D
 # _Newton_9_grppha
 ## grppha
 declare -A gnums=(["pn"]=50 ["mos12"]=50 ["mos1"]=30 ["mos2"]=30) # arg
-declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+fi
 cd $My_Newton_D
 
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
@@ -302,7 +308,8 @@ cd $My_Newton_D
 FLAG_hardCopy=false # arg
 FLAG_symbLink=false # arg
 tmp_prefix="newton_" # arg
-declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+fi
 cd $My_Newton_D
 mkdir -p $My_Newton_D/fit $My_Newton_D/../fit/
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))

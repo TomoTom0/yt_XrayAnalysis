@@ -1,7 +1,8 @@
 # _SuzakuHxdPin_a_all
 # _SuzakuHxdPin_1_obtainNxb
 ## download NXB (Non X-ray Background source)
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 nxb_evt=ae_hxdPin_nxb.evt
 
@@ -66,7 +67,8 @@ done
 cd $My_Suzaku_D
 # _SuzakuHxdPin_2_products
 ## hxdpinxbpi
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 nxb_evt=ae_hxdPin_nxb.evt
 
@@ -142,7 +144,8 @@ done
 cd $My_Suzaku_D
 # _SuzakuHxdPin_3_editHeader
 ## edit header
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 function _ObtainExtNum(){
     tmp_fits="$1"
@@ -183,7 +186,8 @@ cd $My_Suzaku_D
 # _SuzakuHxdPin_4_grppha
 ## grppha
 gnum=25 # arg
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -209,7 +213,8 @@ cd $My_Suzaku_D
 FLAG_hardCopy=false # arg
 FLAG_symbLink=false # arg
 tmp_prefix="hxdPin_" # arg
-declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 
 mkdir -p $My_Suzaku_D/fit $My_Suzaku_D/../fit

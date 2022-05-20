@@ -2,7 +2,8 @@
 ## edit header
 FLAG_minimum=false # arg
 FLAG_strict=false # arg
-declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+fi
 cd $My_Newton_D
 
 function _ObtainExtNum(){
