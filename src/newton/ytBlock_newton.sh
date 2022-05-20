@@ -56,7 +56,11 @@ EOF
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Newton_D=${My_Newton_D:=$(pwd)} 
+    else 
+        declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+    fi
     yt_newton_1 $@ &&
         yt_newton_2 $@
     return 0
@@ -114,7 +118,11 @@ EOF
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Newton_D=${My_Newton_D:=$(pwd)} 
+    else 
+        declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+    fi
     yt_newton_3 $@
     return 0
 }
@@ -171,7 +179,11 @@ EOF
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Newton_D=${My_Newton_D:=$(pwd)} 
+    else 
+        declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+    fi
 
     yt_newton_4 $@ &&
         yt_newton_5 $@ &&

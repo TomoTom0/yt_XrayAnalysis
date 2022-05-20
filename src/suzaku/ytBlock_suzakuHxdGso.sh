@@ -56,7 +56,11 @@ EOF
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+    else 
+        declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+    fi
     yt_suzakuHxdGso_1 $@ &&
         yt_suzakuHxdGso_2 $@ &&
         yt_suzakuHxdGso_3 $@ &&

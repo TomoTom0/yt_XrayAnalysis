@@ -53,7 +53,11 @@ EOF
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Swift_D=${My_Swift_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Swift_D=${My_Swift_D:=$(pwd)} 
+    else 
+        declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
+    fi
     cd $My_Swift_D
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9] | sort))
     for My_Swift_ID in ${obs_dirs[@]}; do
@@ -135,7 +139,11 @@ EOF
             FLAG_simple=true
         fi
     fi
-    declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Swift_D=${My_Swift_D:=$(pwd)} 
+    else 
+        declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
+    fi # 未定義時に代入
     cd $My_Swift_D
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9] | sort))
     for My_Swift_ID in ${obs_dirs[@]}; do
@@ -257,7 +265,11 @@ EOF
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Swift_D=${My_Swift_D:=$(pwd)} 
+    else 
+        declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
+    fi # 未定義時に代入
     cd $My_Swift_D
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9] | sort))
     for My_Swift_ID in ${obs_dirs[@]}; do
@@ -361,7 +373,11 @@ EOF
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Swift_D=${My_Swift_D:=$(pwd)} 
+    else 
+        declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
+    fi # 未定義時に代入
     cd $My_Swift_D
     function _ObtainXrtRmfVersion() {
         mjd_in=$1
@@ -475,7 +491,11 @@ EOF
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Swift_D=${My_Swift_D:=$(pwd)} 
+    else 
+        declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
+    fi # 未定義時に代入
     cd $My_Swift_D
     function _ObtainExtNum(){
         tmp_fits="$1"
@@ -582,7 +602,11 @@ EOF
             declare -i gnum=${kwargs[gnum__gnum]}
         fi
     fi
-    declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Swift_D=${My_Swift_D:=$(pwd)} 
+    else 
+        declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
+    fi # 未定義時に代入
     cd $My_Swift_D
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9] | sort))
     for My_Swift_ID in ${obs_dirs[@]}; do
@@ -688,7 +712,11 @@ EOF
             tmp_prefix=${kwargs[prefixName__name]}
         fi
     fi
-    declare -g My_Swift_D=${My_Swift_D:=$(pwd)} # 未定義時に代入
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Swift_D=${My_Swift_D:=$(pwd)} 
+    else 
+        declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
+    fi # 未定義時に代入
     cd $My_Swift_D
     mkdir -p $My_Swift_D/fit $My_Swift_D/../fit
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9] | sort))

@@ -75,7 +75,11 @@ EOF
         fi
     fi
 
-    declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Newton_D=${My_Newton_D:=$(pwd)} 
+    else 
+        declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+    fi
     cd $My_Newton_D
 
     if [[ x == "x$(alias sas 2>/dev/null)" ]]; then
@@ -225,7 +229,11 @@ EOF
         fi
     fi
 
-    declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Newton_D=${My_Newton_D:=$(pwd)} 
+    else 
+        declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+    fi
     cd $My_Newton_D
     declare -A xmms=(["mos1"]="#XMMEA_EM" ["mos2"]="#XMMEA_EM" ["pn"]="#XMMEA_EP")
 
@@ -339,7 +347,11 @@ EOF
         fi
     fi
 
-    declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Newton_D=${My_Newton_D:=$(pwd)} 
+    else 
+        declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+    fi
     cd $My_Newton_D
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Newton_ID in ${obs_dirs[@]}; do
@@ -457,7 +469,11 @@ EOF
     ##         main
     # ---------------------
 
-    declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Newton_D=${My_Newton_D:=$(pwd)} 
+    else 
+        declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+    fi
     cd $My_Newton_D
 
     declare -A spchmax=(["mos1"]=11999 ["mos2"]=11999 ["pn"]=20479)
@@ -579,7 +595,11 @@ EOF
         fi
     fi
 
-    declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Newton_D=${My_Newton_D:=$(pwd)} 
+    else 
+        declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+    fi
     cd $My_Newton_D
 
     if [[ x == "x$(alias sas 2>/dev/null)" ]]; then
@@ -681,7 +701,11 @@ EOF
         fi
     fi
 
-    declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Newton_D=${My_Newton_D:=$(pwd)} 
+    else 
+        declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+    fi
     cd $My_Newton_D
 
     if [[ x == "x$(alias sas 2>/dev/null)" ]]; then
@@ -776,7 +800,11 @@ EOF
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Newton_D=${My_Newton_D:=$(pwd)} 
+    else 
+        declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+    fi
     cd $My_Newton_D
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Newton_ID in ${obs_dirs[@]}; do
@@ -880,7 +908,11 @@ EOF
         fi
     fi
 
-    declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Newton_D=${My_Newton_D:=$(pwd)} 
+    else 
+        declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+    fi
     cd $My_Newton_D
 
     function _ObtainExtNum(){
@@ -1062,7 +1094,11 @@ EOF
             fi
         done
     fi
-    declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Newton_D=${My_Newton_D:=$(pwd)} 
+    else 
+        declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+    fi
     cd $My_Newton_D
 
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
@@ -1175,7 +1211,11 @@ EOF
             tmp_prefix=${kwargs[prefixName__name]}
         fi
     fi
-    declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Newton_D=${My_Newton_D:=$(pwd)} 
+    else 
+        declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+    fi
     cd $My_Newton_D
     mkdir -p $My_Newton_D/fit $My_Newton_D/../fit/
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))

@@ -55,7 +55,11 @@ EOF
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    else 
+        declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    fi
     yt_nustar_1 $@
     return 0
 }
@@ -111,7 +115,11 @@ EOF
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    else 
+        declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    fi
     yt_nustar_2 $@
     return 0
 }
@@ -167,7 +175,11 @@ EOF
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    else 
+        declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    fi
     yt_nustar_3 $@ &&
         yt_nustar_4 $@ &&
         yt_nustar_5 $@ &&

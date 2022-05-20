@@ -55,7 +55,11 @@ EOF
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+    else 
+        declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+    fi
     yt_suzakuXis_1 $@
     return 0
 }
@@ -112,7 +116,11 @@ EOF
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+    else 
+        declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+    fi
     yt_suzakuXis_2 $@ &&
         yt_suzakuXis_3 $@ &&
         yt_suzakuXis_4 $@ &&

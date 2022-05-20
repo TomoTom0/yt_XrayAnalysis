@@ -55,7 +55,11 @@ EOF
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Swift_D=${My_Swift_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Swift_D=${My_Swift_D:=$(pwd)} 
+    else 
+        declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
+    fi
     yt_swiftXrtBuild_1 $@ &&
     yt_swiftXrtBuild_1 $@ &&
     yt_swiftXrtBuild_3 $@

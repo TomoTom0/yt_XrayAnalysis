@@ -65,7 +65,11 @@ EOF
             FLAG_canSkip=true
         fi
     fi
-    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+    else 
+        declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+    fi
     cd $My_Suzaku_D
     nxb_evt=ae_hxdPin_nxb.evt
 
@@ -184,7 +188,11 @@ EOF
     ##         main
     # ---------------------
 
-    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+    else 
+        declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+    fi
     cd $My_Suzaku_D
     nxb_evt=ae_hxdPin_nxb.evt
 
@@ -313,7 +321,11 @@ EOF
     ##         main
     # ---------------------
 
-    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+    else 
+        declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+    fi
     cd $My_Suzaku_D
     function _ObtainExtNum(){
         tmp_fits="$1"
@@ -416,7 +428,11 @@ EOF
         fi
     fi
 
-    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+    else 
+        declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+    fi
     cd $My_Suzaku_D
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -523,7 +539,11 @@ EOF
             tmp_prefix=${kwargs[prefixName__name]}
         fi
     fi
-    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+    else 
+        declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+    fi
     cd $My_Suzaku_D
 
     mkdir -p $My_Suzaku_D/fit $My_Suzaku_D/../fit

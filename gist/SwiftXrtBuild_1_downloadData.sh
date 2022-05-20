@@ -17,7 +17,7 @@ if [[ "x${url}" != "x" ]]; then
     tar xvf $tmp_file
 
     if [[ "x${ext}" == "xtar" ]]; then
-        ## par ObsID
+        ## per ObsID
         cd $My_Swift_Dir/USERPROD_${prod_ID}/spec
         find . -name "*.gz" | xargs -n 1 tar xvf
     elif [[ "x${ext}" == "xgz" ]]; then
