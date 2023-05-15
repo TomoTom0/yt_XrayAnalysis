@@ -2,6 +2,9 @@
 # _SuzakuXis_1_ds9
 ## ds9
 FLAG_simple=false # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
 fi
 cd $My_Suzaku_D

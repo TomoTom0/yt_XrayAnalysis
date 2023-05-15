@@ -1,6 +1,9 @@
 # _SuzakuHxdGso_a_all
 # _SuzakuHxdGso_1_download
 ## download NXB (Non X-ray Background source) and other files for Suzaku HXD GSO
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
 fi
 cd $My_Suzaku_D
@@ -78,6 +81,9 @@ done
 cd $My_Suzaku_D
 # _SuzakuHxdGso_2_products
 ## obtain spectrum, rmf and arf, and do corrections
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
 fi
 cd $My_Suzaku_D
@@ -172,6 +178,9 @@ done
 cd $My_Suzaku_D
 # _SuzakuHxdGso_3_editHeader
 ## edit header
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
 fi
 cd $My_Suzaku_D
@@ -215,6 +224,9 @@ cd $My_Suzaku_D
 # _SuzakuHxdGso_4_grppha
 ## grppha
 gnum=25 # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
 fi
 cd $My_Suzaku_D
@@ -242,6 +254,9 @@ cd $My_Suzaku_D
 FLAG_hardCopy=false # arg
 FLAG_symbLink=false # arg
 tmp_prefix="hxdGso_" # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
 fi
 cd $My_Suzaku_D

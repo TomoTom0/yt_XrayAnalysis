@@ -1,7 +1,7 @@
 #!/bin/bash
 
-alias __obtain_options=__obtain_options_simple
-function __obtain_options_simple() {
+#alias __obtain_options=__obtain_options_simple
+function __obtain_options() {
     ## obtain options simple
     # ---------------------
     ##     obtain options

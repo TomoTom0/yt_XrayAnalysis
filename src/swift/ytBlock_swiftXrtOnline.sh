@@ -61,7 +61,8 @@ EOF
         declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
     fi
     yt_swiftXrtBuild_1 $@ &&
-    yt_swiftXrtBuild_1 $@ &&
-    yt_swiftXrtBuild_3 $@
+    yt_swiftXrtBuild_2 $@ &&
+    yt_swiftXrtBuild_3 $@ &&
+    yt_swiftXrtBuild_4 $@
     return 0
 }

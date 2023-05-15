@@ -1,5 +1,8 @@
 # _SuzakuHxdPin_1_obtainNxb
 ## download NXB (Non X-ray Background source)
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
 fi
 cd $My_Suzaku_D
@@ -42,7 +45,8 @@ function _Obtain_SuzakuHxdPin_NxbEvt() {
     else
         version=2.0
     fi
-    url="http://www.astro.isas.jaxa.jp/suzaku/analysis/hxd/pinnxb/pinnxb_ver${version}_tuned/${y}_${m}/ae${My_Suzaku_ID}_hxd_pinbgd.evt.gz"
+    #url="http://www.astro.isas.jaxa.jp/suzaku/analysis/hxd/pinnxb/pinnxb_ver${version}_tuned/${y}_${m}/ae${My_Suzaku_ID}_hxd_pinbgd.evt.gz"
+    url="https://data.darts.isas.jaxa.jp/pub/suzaku/background/hxd/pinnxb/pinnxb_ver${version}_tuned/${y}_${m}/ae${My_Suzaku_ID}_hxd_pinbgd.evt.gz"
     wget $url --no-check-certificate -O ${nxb_evt}
 }
 

@@ -1,6 +1,9 @@
 # _SwiftXrt_c_afterDs9
 # _SwiftXrt_3_products
 ## xrtproducts
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Swift_D=${My_Swift_D:=$(pwd)} 
+else 
     declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
 fi # 未定義時に代入
 cd $My_Swift_D
@@ -56,6 +59,9 @@ done
 cd $My_Swift_D
 # _SwiftXrt_4_obtainRmf
 ## obtain rmf
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Swift_D=${My_Swift_D:=$(pwd)} 
+else 
     declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
 fi # 未定義時に代入
 cd $My_Swift_D
@@ -121,6 +127,9 @@ done
 cd $My_Swift_D
 # _SwiftXrt_5_editHeader
 ## edit header
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Swift_D=${My_Swift_D:=$(pwd)} 
+else 
     declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
 fi # 未定義時に代入
 cd $My_Swift_D
@@ -167,6 +176,9 @@ cd $My_Swift_D
 # _SwiftXrt_6_grppha
 ## grppha
 gnum=50 # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Swift_D=${My_Swift_D:=$(pwd)} 
+else 
     declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
 fi # 未定義時に代入
 cd $My_Swift_D
@@ -193,6 +205,9 @@ cd $My_Swift_D
 FLAG_hardCopy=false # arg
 FLAG_symbLink=false # arg
 tmp_prefix="xrt_" # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Swift_D=${My_Swift_D:=$(pwd)} 
+else 
     declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
 fi # 未定義時に代入
 cd $My_Swift_D

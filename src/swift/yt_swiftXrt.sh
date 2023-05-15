@@ -198,10 +198,13 @@ EOF
                 -regions load $reg_file
             ### adjust xrt.reg
 
-            cp $reg_file ${My_Swift_D}/saved.reg -f
+            tmp_reg="tmp.reg"
+            ds9 $evt_file -regions load $reg_file -regions system fk5 \
+                -regions centroid -regions save $tmp_reg -exit &&
+            cp $tmp_reg ${My_Swift_D}/saved.reg -f
 
-            cat ${reg_file} | grep -v -E "^circle.*# background" >src.reg
-            cat ${reg_file} | grep -v -E "^circle.*\)$" >bkg.reg
+            cat $tmp_reg | grep -v -E "^circle.*# background" > src.reg
+            cat $tmp_reg | grep -v -E "^circle.*\)$" > bkg.reg
         else
             echo ""
             echo "----  opening $evt_file"
@@ -600,6 +603,7 @@ EOF
     if [[ x${FUNCNAME} != x ]]; then
         if [[ -n ${kwargs[gnum__gnum]} ]]; then
             declare -i gnum=${kwargs[gnum__gnum]}
+            echo $gnum
         fi
     fi
     if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 

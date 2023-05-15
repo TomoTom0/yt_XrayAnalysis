@@ -1,6 +1,9 @@
 # _Nustar_c_afterDs9
 # _Nustar_3_products
 ## nuproducts
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+else 
     declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
 fi # 未定義時に代入
 cd $My_Nustar_D
@@ -30,6 +33,9 @@ done
 cd $My_Nustar_D
 # _Nustar_4_addascaspec
 ## addascaspec
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+else 
     declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
 fi # 未定義時に代入
 cd $My_Nustar_D
@@ -63,6 +69,9 @@ FLAG_minimum=false # arg
 FLAG_strict=false # arg
 origSrc=nu%OBSID%A01_sr.pha # arg
 origBkg=nu%OBSID%A01_bk.pha # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+else 
     declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
 fi # 未定義時に代入
 cd $My_Nustar_D
@@ -208,6 +217,9 @@ cd $My_Nustar_D
 # _Nustar_6_grppha
 ## grppha
 gnum=50 # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+else 
     declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
 fi # 未定義時に代入
 cd $My_Nustar_D
@@ -232,6 +244,9 @@ cd $My_Nustar_D
 FLAG_hardCopy=false # arg
 FLAG_symbLink=false # arg
 tmp_prefix="AB_" # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+else 
     declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
 fi # 未定義時に代入
 cd $My_Nustar_D

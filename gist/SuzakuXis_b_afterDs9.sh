@@ -1,6 +1,9 @@
 # _SuzakuXis_b_afterDs9
 # _SuzakuXis_2_xselect
 ## extarct spec with xselect
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
 fi
 cd $My_Suzaku_D
@@ -83,6 +86,9 @@ cd $My_Suzaku_D
 ## rmfおよびarf作成
 FLAG_rmf=true # arg
 FLAG_arf=true # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
 fi
 cd $My_Suzaku_D
@@ -161,6 +167,9 @@ done
 cd $My_Suzaku_D
 # _SuzakuXis_4_addascaspec
 ## addascaspec
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
 fi
 cd $My_Suzaku_D
@@ -200,6 +209,9 @@ FLAG_minimum=false # arg
 FLAG_strict=false # arg
 origSrc=nu%OBSID%A01_sr.pha # arg
 origBkg=nu%OBSID%A01_bk.pha # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
 fi
 cd $My_Suzaku_D
@@ -288,6 +300,9 @@ cd $My_Suzaku_D
 # _SuzakuXis_6_grppha
 ## grppha
 declare -A gnums=(["FI"]=25 ["BI"]=25) # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
 fi
 cd $My_Suzaku_D
@@ -321,6 +336,9 @@ cd $My_Suzaku_D
 FLAG_hardCopy=false # arg
 FLAG_symbLink=false # arg
 tmp_prefix="xis_" # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
     declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
 fi
 cd $My_Suzaku_D

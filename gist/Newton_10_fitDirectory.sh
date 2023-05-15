@@ -3,6 +3,9 @@
 FLAG_hardCopy=false # arg
 FLAG_symbLink=false # arg
 tmp_prefix="newton_" # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Newton_D=${My_Newton_D:=$(pwd)} 
+else 
     declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
 fi
 cd $My_Newton_D

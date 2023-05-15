@@ -2,6 +2,9 @@
 # _Nustar_2_ds9
 ## ds9で領域指定
 FLAG_simple=false # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+else 
     declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
 fi # 未定義時に代入
 cd $My_Nustar_D

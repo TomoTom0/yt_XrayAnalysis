@@ -1,6 +1,9 @@
 # _Newton_c_afterDs9
 # _Newton_4_regionFilter
 ## region filter
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Newton_D=${My_Newton_D:=$(pwd)} 
+else 
     declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
 fi
 cd $My_Newton_D
@@ -63,6 +66,9 @@ cd $My_Newton_D
 # _Newton_5_lightCurve
 ## light curve
 declare -A pis=(["mos1"]="PI in [200:12000]" ["mos2"]="PI in [200:12000]" ["pn"]="PI in [200:15000]") # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Newton_D=${My_Newton_D:=$(pwd)} 
+else 
     declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
 fi
 cd $My_Newton_D
@@ -101,6 +107,9 @@ cd $My_Newton_D
 ## rmf, arf作成
 FLAG_rmf=true # arg
 FLAG_arf=true # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Newton_D=${My_Newton_D:=$(pwd)} 
+else 
     declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
 fi
 cd $My_Newton_D
@@ -146,6 +155,9 @@ cd $My_Newton_D
 
 # _Newton_7_addascaspec
 ## addascaspec
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Newton_D=${My_Newton_D:=$(pwd)} 
+else 
     declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
 fi
 cd $My_Newton_D
@@ -182,6 +194,9 @@ cd $My_Newton_D
 ## edit header
 FLAG_minimum=false # arg
 FLAG_strict=false # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Newton_D=${My_Newton_D:=$(pwd)} 
+else 
     declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
 fi
 cd $My_Newton_D
@@ -276,6 +291,9 @@ cd $My_Newton_D
 # _Newton_9_grppha
 ## grppha
 declare -A gnums=(["pn"]=50 ["mos12"]=50 ["mos1"]=30 ["mos2"]=30) # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Newton_D=${My_Newton_D:=$(pwd)} 
+else 
     declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
 fi
 cd $My_Newton_D
@@ -308,6 +326,9 @@ cd $My_Newton_D
 FLAG_hardCopy=false # arg
 FLAG_symbLink=false # arg
 tmp_prefix="newton_" # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Newton_D=${My_Newton_D:=$(pwd)} 
+else 
     declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
 fi
 cd $My_Newton_D

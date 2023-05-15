@@ -3,6 +3,9 @@
 declare -A pis=(["mos1"]="PI in [200:12000]" ["mos2"]="PI in [200:12000]" ["pn"]="PI in [200:15000]") # arg
 declare -A pis_hard=(["mos1"]="PI > 10000" ["mos2"]="PI > 10000" ["pn"]="PI in [10000:12000]") # arg
 declare -A rates=(["mos1"]=0.35 ["mos2"]=0.35 ["pn"]=0.4) # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Newton_D=${My_Newton_D:=$(pwd)} 
+else 
     declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
 fi
 cd $My_Newton_D

@@ -2,6 +2,9 @@
 # _SwiftXrt_2_ds9
 ## ds9で領域指定
 FLAG_simple=false # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Swift_D=${My_Swift_D:=$(pwd)} 
+else 
     declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
 fi # 未定義時に代入
 cd $My_Swift_D

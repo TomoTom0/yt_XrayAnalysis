@@ -1,5 +1,8 @@
 # _SwiftXrtBuild_2_rename
 ## rename and make symbolic link
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Swift_D=${My_Swift_D:=$(pwd)} 
+else 
     declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
 fi
 cd $My_Swift_D/xrt

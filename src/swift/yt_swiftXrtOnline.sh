@@ -100,7 +100,7 @@ EOF
 }
 
 alias yt_swiftXrtBuild_2="_SwiftXrtBuild_2_rename"
-alias yt_swiftXrtBuild_rename="_SwiftXrtBuild_1_rename"
+alias yt_swiftXrtBuild_rename="_SwiftXrtBuild_2_rename"
 function _SwiftXrtBuild_2_rename() {
     ## rename and make symbolic link
     # ---------------------
@@ -463,7 +463,7 @@ EOF
             if [[ ${FLAG_symbLink:=false} == "true" ]]; then
                 find "$My_Swift_D/xrt//xrt_build_${prod_ID}/spec/fit/" -name "${tmp_prefix}*.*" \
                     -type f -printf "%f\n" |
-                    xargs -n 1 -i rm -f $My_Swift_D/fit/{}
+                    xargs -i rm -f $My_Swift_D/fit/{} #xargs -n 1 -i rm -f $My_Swift_D/fit/{}
                 find "$My_Swift_D/xrt//xrt_build_${prod_ID}/spec/fit/" -name "${tmp_prefix}*.*" -type f -printf "%p\n" |
                     xargs -i ln -s {} $My_Swift_D/fit/
             else

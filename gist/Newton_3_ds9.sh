@@ -1,6 +1,9 @@
 # _Newton_3_ds9
 ## ds9で領域指定
 FLAG_simple=false # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Newton_D=${My_Newton_D:=$(pwd)} 
+else 
     declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
 fi
 cd $My_Newton_D

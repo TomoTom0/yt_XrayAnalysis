@@ -1,6 +1,9 @@
 # _Newton_9_grppha
 ## grppha
 declare -A gnums=(["pn"]=50 ["mos12"]=50 ["mos1"]=30 ["mos2"]=30) # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Newton_D=${My_Newton_D:=$(pwd)} 
+else 
     declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
 fi
 cd $My_Newton_D

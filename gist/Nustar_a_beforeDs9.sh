@@ -1,6 +1,9 @@
 # _Nustar_a_beforeDs9
 # _Nustar_1_pipeline
 ## pipeline
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+else 
     declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
 fi
 cd $My_Nustar_D
