@@ -1,7 +1,12 @@
 # _Newton_b_ds9
 # _Newton_3_ds9
 ## ds9で領域指定
-echo ${My_Newton_D:=$(pwd)}
+FLAG_simple=false # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Newton_D=${My_Newton_D:=$(pwd)} 
+else 
+    declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+fi
 cd $My_Newton_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Newton_ID in ${obs_dirs[@]}; do
@@ -10,9 +15,9 @@ for My_Newton_ID in ${obs_dirs[@]}; do
     if [[ ! -r $My_Newton_Dir/fit ]]; then continue; fi
 
     cd $My_Newton_Dir/fit
-    _evt_tmps=($(find $My_Newton_Dir/fit/ -name "*_filt_time.fits"))
+    _evt_tmps=($(find $My_Newton_Dir/fit/ -name "*_filt_time.fits" -printf "%f\n"))
     evt_file=${_evt_tmps[0]}
-    if [[ ! -r ${My_Newton_D}/saved.reg ]]; then
+    if [[ ! -r ${My_Newton_D}/saved.reg && "${FLAG_simple:=false}" == false ]]; then
         # saved.regが存在しないなら、新たに作成する
         declare -A tmp_dict=(["RA_OBJ"]="0" ["DEC_OBJ"]="0")
         for key in ${!tmp_dict[@]}; do
@@ -31,21 +36,37 @@ for My_Newton_ID in ${obs_dirs[@]}; do
         ra_bkg=$(echo "$ra + 0.05 " | bc)
         dec_bkg=$(echo "$dec + 0.05 " | bc)
         # 半径はとりあえず0.026 deg = 100 arcsec
-        ds9 $evt_file \
-            -regions system fk5 \
-            -regions command "fk5; circle $ra $dec 0.026 # source" \
-            -regions command "fk5; circle $ra_bkg $dec_bkg 0.026 # background" \
-            -regions save $My_Newton_D/saved.reg -exit
+        cat <<EOF > ${My_Newton_D}/saved.reg
+# Region file format: DS9 version 4.1
+global color=green dashlist=8 3 width=1 font="helvetica 10 normal roman" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1
+fk5
+circle($ra,$dec,0.026)
+circle($ra_bkg,$dec_bkg,0.026) # background
+EOF
     fi
 
     for cam in ${all_cams[@]}; do
-        cp ${My_Newton_D}/saved.reg ${cam}.reg -f
-        echo "----  save as ${cam}.reg with overwriting  ----"
-        ds9 $My_Newton_Dir/fit/${cam}_filt_time.fits \
-            -scale log -cmap bb -mode region \
-            -bin factor 16 -regions load ${cam}.reg
-        ### adjust mos1.reg, mos2.reg, pn.reg
-        cp ${cam}.reg ${My_Newton_D}/saved.reg -f
+        if [[ "${FLAG_simple:=false}" == false ]]; then
+            cp ${My_Newton_D}/saved.reg ${cam}.reg -f
+            echo ""
+            echo "----  save as ${cam}.reg with overwriting  ----"
+            echo ""
+            ds9 $My_Newton_Dir/fit/${cam}_filt_time.fits \
+                -scale log -cmap bb -mode region \
+                -bin factor 16 -regions load ${cam}.reg
+            ### adjust mos1.reg, mos2.reg, pn.reg
+            cp ${cam}.reg ${My_Newton_D}/saved.reg -f
+        else
+            # simple mode
+            echo ""
+            echo "----  save as ${cam}.reg  ----"
+            echo ""
+            ds9 $My_Newton_Dir/fit/${cam}_filt_time.fits \
+                -scale log -cmap bb -mode region \
+                -bin factor 16 -regions
+            ### make mos1.reg, mos2.reg, pn.reg
+
+        fi
     done
 done
 cd $My_Newton_D

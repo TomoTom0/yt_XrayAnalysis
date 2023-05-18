@@ -1,7 +1,11 @@
 # _Nustar_c_afterDs9
 # _Nustar_3_products
 ## nuproducts
-echo ${My_Nustar_D:=$(pwd)} # 未定義時に代入
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+else 
+    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+fi # 未定義時に代入
 cd $My_Nustar_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Nustar_ID in ${obs_dirs[@]}; do
@@ -11,32 +15,29 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
 
     cd $My_Nustar_Dir
 
-    rm $My_Nustar_Dir/fit/* -f
-    nuproducts \
-        srcregionfile=$My_Nustar_Dir/out/srcA.reg \
-        bkgregionfile=$My_Nustar_Dir/out/bkgA.reg \
-        indir=$My_Nustar_Dir/out \
-        outdir=$My_Nustar_Dir/fit \
-        instrument=FPMA \
-        steminputs=nu${My_Nustar_ID} \
-        bkgextract=yes \
-        clobber=yes
-
-    nuproducts \
-        srcregionfile=$My_Nustar_Dir/out/srcB.reg \
-        bkgregionfile=$My_Nustar_Dir/out/bkgB.reg \
-        indir=$My_Nustar_Dir/out \
-        outdir=$My_Nustar_Dir/fit \
-        instrument=FPMB \
-        steminputs=nu${My_Nustar_ID} \
-        bkgextract=yes \
-        clobber=yes
+    rm $My_Nustar_Dir/fit/* -rf &&
+        mkdir $My_Nustar_Dir/fit -p
+    for cam in A B; do
+        nuproducts \
+            srcregionfile=$My_Nustar_Dir/out/src${cam}.reg \
+            bkgregionfile=$My_Nustar_Dir/out/bkg${cam}.reg \
+            indir=$My_Nustar_Dir/out \
+            outdir=$My_Nustar_Dir/fit \
+            instrument=FPM${cam} \
+            steminputs=nu${My_Nustar_ID} \
+            bkgextract=yes \
+            clobber=yes
+    done
 
 done
 cd $My_Nustar_D
 # _Nustar_4_addascaspec
 ## addascaspec
-echo ${My_Nustar_D:=$(pwd)} # 未定義時に代入
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+else 
+    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+fi # 未定義時に代入
 cd $My_Nustar_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Nustar_ID in ${obs_dirs[@]}; do
@@ -62,10 +63,30 @@ EOF
         AB_${My_Nustar_ID}_bkg.fits
 done
 cd $My_Nustar_D
-# _Nustar_5_editHEader
+# _Nustar_5_editHeader
 ## edit header
-echo ${My_Nustar_D:=$(pwd)} # 未定義時に代入
+FLAG_minimum=false # arg
+FLAG_strict=false # arg
+origSrc=nu%OBSID%A01_sr.pha # arg
+origBkg=nu%OBSID%A01_bk.pha # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+else 
+    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+fi # 未定義時に代入
 cd $My_Nustar_D
+function _ObtainExtNum(){
+    tmp_fits="$1"
+    extName="${2:-SPECTRUM}"
+    if [[ -n "${tmp_fits}" ]]; then
+        _tmp_extNums=($(fkeyprint infile=$tmp_fits keynam=EXTNAME |
+            grep -B 1 $extName |
+            sed -r -n "s/^.*#\s*EXTENSION:\s*([0-9]+)\s*$/\1/p"))
+    else
+        _tmp_extNums=(0)
+    fi
+    echo ${_tmp_extNums[0]:-0}
+}
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Nustar_ID in ${obs_dirs[@]}; do
 
@@ -76,10 +97,17 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
     nongrp_name=AB_${My_Nustar_ID}_nongrp.fits
 
     ### edit header for spectrum file
-    oldName=nu${My_Nustar_ID}A01_sr.pha
+    _oldName_tmp=${origSrc/\%OBSID%/${My_Nustar_ID}}
+    if [[ -r ${_oldName_tmp} ]]; then
+        oldName=${_oldName_tmp}
+    else
+        oldName=nu${My_Nustar_ID}A01_sr.pha
+    fi
     newName=$nongrp_name
+    oldExtNum=$(_ObtainExtNum $oldName SPECTRUM)
+    newExtNum=$(_ObtainExtNum $newName SPECTRUM)
 
-    ### same values
+    #### same values
     cp_keys=(TELESCOP OBS_ID TARG_ID OBJECT RA_OBJ
         DEC_OBJ RA_NOM DEC_NOM RA_PNT DEC_PNT PA_PNT
         EQUINOX RADECSYS TASSIGN TIMESYS MJDREFI MJDREFF
@@ -95,11 +123,19 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
         OPTIC1 OPTIC2 HBBOX1 HBBOX2 REFXCTYP REFXCRPX
         REFXCRVL REFXCDLT REFYCTYP REFYCRPX REFYCRVL REFYCDLT)
 
-    ### near values
+    #### near values
     cp_keys2=(INSTRUME TSTART TELAPSE ONTIME LIVETIME
         MJD-OBS FILIN001 DEADC NPIXSOU CRPIX1 CRPIX2 LTV1
         CRVAL1P LTV2 CRVAL2P BBOX1 BBOX2 X-OFFSET
         Y-OFFSET TOTCTS)
+
+    if [[ ${FLAG_strict:=false} == "true" ]]; then
+        cp_keys2=()
+    fi
+    if [[ ${FLAG_minimum:=false} == "true" ]]; then
+        cp_keys=()
+        cp_keys2=()
+    fi
 
     declare -A tr_keys=(
         ["BACKFILE"]="AB_${My_Nustar_ID}_bkg.fits"
@@ -107,7 +143,7 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
     )
 
     for key in ${cp_keys[@]} ${cp_keys2[@]}; do
-        orig_val=$(fkeyprint infile="${oldName}+0" keynam="${key}" |
+        orig_val=$(fkeyprint infile="${oldName}+${oldExtNum}" keynam="${key}" |
             grep "${key}\s*=" |
             sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
 
@@ -116,15 +152,22 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
 
     for key in ${!tr_keys[@]}; do
         fparkey value="${tr_keys[$key]}" \
-            fitsfile=${newName}+1 \
+            fitsfile="${newName}+${newExtNum}" \
             keyword="${key}" add=yes
     done
 
     ### edit header for bkg file
-    oldName=nu${My_Nustar_ID}A01_bk.pha
+    _oldName_tmp=${origBkg/\%OBSID%/${My_Nustar_ID}}
+    if [[ -r ${_oldName_tmp} ]]; then
+        oldName=${_oldName_tmp}
+    else
+        oldName=nu${My_Nustar_ID}A01_bk.pha
+    fi
     newName=AB_${My_Nustar_ID}_bkg.fits
+    oldExtNum=$(_ObtainExtNum $oldName SPECTRUM)
+    newExtNum=$(_ObtainExtNum $newName SPECTRUM)
 
-    ### same values
+    #### same values
     cp_keys=(TELESCOP OBS_ID TARG_ID OBJECT RA_OBJ
         DEC_OBJ RA_NOM DEC_NOM RA_PNT DEC_PNT PA_PNT
         EQUINOX RADECSYS TASSIGN TIMESYS MJDREFI MJDREFF
@@ -143,13 +186,21 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
         REFXCTYP REFXCRPX REFXCRVL REFXCDLT REFYCTYP
         REFYCRPX REFYCRVL REFYCDLT)
 
-    ### near values
+    #### near values
     cp_keys2=(INSTRUME DATE ONTIME LIVETIME DEADC)
+
+    if [[ ${FLAG_strict:=false} == "true" ]]; then
+        cp_keys2=()
+    fi
+    if [[ ${FLAG_minimum:=false} == "true" ]]; then
+        cp_keys=()
+        cp_keys2=()
+    fi
 
     declare -A tr_keys=()
 
     for key in ${cp_keys[@]} ${cp_keys2[@]}; do
-        orig_val=$(fkeyprint infile="${oldName}+0" keynam="${key}" |
+        orig_val=$(fkeyprint infile="${oldName}+${oldExtNum}" keynam="${key}" |
             grep "${key}\s*=" |
             sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
 
@@ -158,7 +209,7 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
 
     for key in ${!tr_keys[@]}; do
         fparkey value="${tr_keys[$key]}" \
-            fitsfile=${newName}+1 \
+            fitsfile="${newName}+${newExtNum}" \
             keyword="${key}" add=yes
     done
 done
@@ -166,15 +217,20 @@ cd $My_Nustar_D
 # _Nustar_6_grppha
 ## grppha
 gnum=50 # arg
-echo ${My_Nustar_D:=$(pwd)} # 未定義時に代入
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+else 
+    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+fi # 未定義時に代入
 cd $My_Nustar_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Nustar_ID in ${obs_dirs[@]}; do
 
     My_Nustar_Dir=$My_Nustar_D/$My_Nustar_ID
     if [[ ! -r $My_Nustar_Dir/fit ]]; then continue; fi
-
     cd $My_Nustar_Dir/fit/
+    if [[ ${gnum} -le 0 ]]; then continue; fi
+    grp_name=AB_${My_Nustar_ID}_grp${gnum}.fits
     rm ${grp_name} -f
     cat <<EOF | bash
 grppha infile=AB_${My_Nustar_ID}_nongrp.fits outfile=${grp_name} clobber=true
@@ -185,9 +241,16 @@ done
 cd $My_Nustar_D
 # _Nustar_7_fitDirectory
 ## fitディレクトリにまとめ
-echo ${My_Nustar_D:=$(pwd)} # 未定義時に代入
+FLAG_hardCopy=false # arg
+FLAG_symbLink=false # arg
+tmp_prefix="AB_" # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+else 
+    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+fi # 未定義時に代入
 cd $My_Nustar_D
-tmp_prefix="AB_"
+
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 mkdir -p $My_Nustar_D/fit $My_Nustar_D/../fit/
 for My_Nustar_ID in ${obs_dirs[@]}; do

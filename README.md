@@ -24,7 +24,7 @@ or add the following content to `~/.bashrc` or `~/.bash_profile`
 ## ~/.bashrc
 
 # yt_XrayAnalysis
-if [[ -r ${dir_path}/bin/setup.sh ]]; then
+if [[ -r Path_Of_ytXrayAnalysis_Directory/bin/setup.sh ]]; then
     source Path_Of_ytXrayAnalysis_Directory/bin/setup.sh
 fi
 
@@ -82,9 +82,12 @@ placed to the head of the block and appended with `# args` on the end of line.
 |Suzaku|XIS|`suzakuXis`||
 |Suzaku|HXD|`suzakuHxd`||
 |Swift|XRT|`swiftXrt`||
-|Swift|XRT(Online build)|`swiftXrtOnline`||
-|Swift|BAT|`swiftBat`||
-|Swift|BAT(n-Month Catalog)|`swiftBatMonth`||
+|Swift|XRT(Online build)|`swiftXrtOnline`|Coming soon|
+|Swift|BAT|`swiftBat`|Coming soon|
+|Swift|BAT(n-Month Catalog)|`swiftBatMonth`|Coming soon|
+|Swift|UVOT|`swiftUvot`|Coming soon|
+|NICER|XTI|`nicerXti`|Coming soon|
+
 
 
 

@@ -1,6 +1,10 @@
 # _SuzakuXis_4_addascaspec
 ## addascaspec
-echo ${My_Suzaku_D:=$(pwd)}
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -14,14 +18,14 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
         cat <<EOF >tmp.dat
 $(echo ${xis_cams_fi[@]} | sed -r "s/(xi[0-9])\s*/\1__nongrp.fits /g")
 $(echo ${xis_cams_fi[@]} | sed -r "s/(xi[0-9])\s*/\1__bkg.fits /g")
-$(echo ${xis_cams_fi[@]} | sed -r "s/(xi[0-9])\s*/\1__src.arf /g")
-$(echo ${xis_cams_fi[@]} | sed -r "s/(xi[0-9])\s*/\1__src.rmf /g")
+$(echo ${xis_cams_fi[@]} | sed -r "s/(xi[0-9])\s*/\1__arf.fits /g")
+$(echo ${xis_cams_fi[@]} | sed -r "s/(xi[0-9])\s*/\1__rmf.fits /g")
 EOF
 
         xis_cams_fi_sum=($(echo ${xis_cams_fi[@]} | sed -r -n "s/xi([0-9])\s*/\1/p"))
         fi_head=xis_FI$(echo ${xis_cams_fi_sum[@]} | sed -e "s/xi//g" -e "s/ //g")
-        rm ${fi_head}__nongrp.fits ${fi_head}__bkg.fits ${fi_head}__src.rmf -f
-        addascaspec tmp.dat ${fi_head}__nongrp.fits ${fi_head}__src.rmf ${fi_head}__bkg.fits
+        rm ${fi_head}__nongrp.fits ${fi_head}__bkg.fits ${fi_head}__rmf.fits -f
+        addascaspec tmp.dat ${fi_head}__nongrp.fits ${fi_head}__rmf.fits ${fi_head}__bkg.fits
     fi
 
     xis_cams_bi=($(echo ${xis_cams[@]} | grep xi1 -o))

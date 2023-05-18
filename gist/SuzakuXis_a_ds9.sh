@@ -1,7 +1,12 @@
-# _SuzakuXis_a_beforeDs9
+# _SuzakuXis_a_ds9
 # _SuzakuXis_1_ds9
 ## ds9
-echo ${My_Suzaku_D:=$(pwd)}
+FLAG_simple=false # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -12,7 +17,7 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
     evt_lists=($(ls ae*xi1*3x3*.evt*))
     evt_file=${evt_lists[0]}
 
-    if [[ ! -f ${My_Suzaku_D}/saved.reg ]]; then
+    if [[ ! -f ${My_Suzaku_D}/saved.reg && ${FLAG_simple:=false} == false ]]; then
         # saved.regが存在しないなら、新たに作成する
         declare -A tmp_dict=(["RA_OBJ"]="0" ["DEC_OBJ"]="0")
         for key in ${!tmp_dict[@]}; do
@@ -31,20 +36,32 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
         ra_bkg=$(echo "$ra + 0.05 " | bc)
         dec_bkg=$(echo "$dec + 0.05 " | bc)
         # 半径はとりあえず0.026 deg = 100 arcsec
-        ds9 $evt_file \
-            -regions system fk5 \
-            -regions command "fk5; circle $ra $dec 0.026 # source" \
-            -regions command "fk5; circle $ra_bkg $dec_bkg 0.026 # background" \
-            -regions save $My_Suzaku_D/saved.reg -exit
+        cat <<EOF > ${My_Suzaku_D}/saved.reg
+# Region file format: DS9 version 4.1
+global color=green dashlist=8 3 width=1 font="helvetica 10 normal roman" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1
+fk5
+circle($ra,$dec,0.026)
+circle($ra_bkg,$dec_bkg,0.026) # background
+EOF
     fi
-    cp ${My_Suzaku_D}/saved.reg xis.reg -f
-    echo "----  save as xis.reg with overwriting  ----"
-    ds9 $evt_file \
-        -scale log -cmap bb -mode region \
-        -regions load xis.reg
-    ### adjust xis.reg
+    if [[ ${FLAG_simple:=false} == false ]]; then
+        cp ${My_Suzaku_D}/saved.reg xis.reg -f
+        echo ""
+        echo "----  save as xis.reg with overwriting  ----"
+        echo ""
+        ds9 $evt_file \
+            -scale log -cmap bb -mode region \
+            -regions load xis.reg
+        ### adjust xis.reg
 
-    cp xis.reg ${My_Suzaku_D}/saved.reg -f
+        cp xis.reg ${My_Suzaku_D}/saved.reg -f
+    else
+        echo ""
+        echo "----  save as xis.reg  ----"
+        echo ""
+        ds9 $evt_file \
+            -scale log -cmap bb -mode region
+    fi
 
     reg_file=xis.reg
     cat ${reg_file} | grep -v -E "^circle.*# background" >src.reg

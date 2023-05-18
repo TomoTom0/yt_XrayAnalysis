@@ -1,7 +1,11 @@
 # _SuzakuXis_b_afterDs9
 # _SuzakuXis_2_xselect
 ## extarct spec with xselect
-echo ${My_Suzaku_D:=$(pwd)}
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -80,7 +84,13 @@ done
 cd $My_Suzaku_D
 # _SuzakuXis_3_genRmfArf
 ## rmfおよびarf作成
-echo ${My_Suzaku_D:=$(pwd)}
+FLAG_rmf=true # arg
+FLAG_arf=true # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -92,14 +102,18 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
         sed -r -n "s/^.*(xi[0-3])__.*$/\1/p"))
     for xis_cam in ${xis_cams[@]}; do
         src_file=${xis_cam}__nongrp.fits
-        rm ${xis_cam}__src.rmf -f
-        xisrmfgen phafile=$src_file outfile=${xis_cam}__src.rmf
+        rm ${xis_cam}__rmf.fits -f
+        xisrmfgen phafile=$src_file outfile=${xis_cam}__rmf.fits
     done
 done
 cd $My_Suzaku_D
 
 ### arf
-echo ${My_Suzaku_D:=$(pwd)}
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -135,8 +149,8 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
             dec=$dec_tmp
         fi
 
-        arf_file=${xis_cam}__src.arf
-        rmf_file=${xis_cam}__src.rmf
+        arf_file=${xis_cam}__arf.fits
+        rmf_file=${xis_cam}__rmf.fits
 
         rm ${arf_file} -f
         xissimarfgen instrume=${xis_cam/xi/XIS} source_mode=J2000 pointing=AUTO source_ra=$ra source_dec=$dec \
@@ -153,7 +167,11 @@ done
 cd $My_Suzaku_D
 # _SuzakuXis_4_addascaspec
 ## addascaspec
-echo ${My_Suzaku_D:=$(pwd)}
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -167,14 +185,14 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
         cat <<EOF >tmp.dat
 $(echo ${xis_cams_fi[@]} | sed -r "s/(xi[0-9])\s*/\1__nongrp.fits /g")
 $(echo ${xis_cams_fi[@]} | sed -r "s/(xi[0-9])\s*/\1__bkg.fits /g")
-$(echo ${xis_cams_fi[@]} | sed -r "s/(xi[0-9])\s*/\1__src.arf /g")
-$(echo ${xis_cams_fi[@]} | sed -r "s/(xi[0-9])\s*/\1__src.rmf /g")
+$(echo ${xis_cams_fi[@]} | sed -r "s/(xi[0-9])\s*/\1__arf.fits /g")
+$(echo ${xis_cams_fi[@]} | sed -r "s/(xi[0-9])\s*/\1__rmf.fits /g")
 EOF
 
         xis_cams_fi_sum=($(echo ${xis_cams_fi[@]} | sed -r -n "s/xi([0-9])\s*/\1/p"))
         fi_head=xis_FI$(echo ${xis_cams_fi_sum[@]} | sed -e "s/xi//g" -e "s/ //g")
-        rm ${fi_head}__nongrp.fits ${fi_head}__bkg.fits ${fi_head}__src.rmf -f
-        addascaspec tmp.dat ${fi_head}__nongrp.fits ${fi_head}__src.rmf ${fi_head}__bkg.fits
+        rm ${fi_head}__nongrp.fits ${fi_head}__bkg.fits ${fi_head}__rmf.fits -f
+        addascaspec tmp.dat ${fi_head}__nongrp.fits ${fi_head}__rmf.fits ${fi_head}__bkg.fits
     fi
 
     xis_cams_bi=($(echo ${xis_cams[@]} | grep xi1 -o))
@@ -187,30 +205,52 @@ done
 cd $My_Suzaku_D
 # _SuzakuXis_5_editHeader
 ## edit header
-echo ${My_Suzaku_D:=$(pwd)}
+FLAG_minimum=false # arg
+FLAG_strict=false # arg
+origSrc=nu%OBSID%A01_sr.pha # arg
+origBkg=nu%OBSID%A01_bk.pha # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
+
+function _ObtainExtNum(){
+    tmp_fits="$1"
+    extName="${2:-SPECTRUM}"
+    if [[ -n "${tmp_fits}" ]]; then
+        _tmp_extNums=($(fkeyprint infile=$tmp_fits keynam=EXTNAME |
+            grep -B 1 $extName |
+            sed -r -n "s/^.*#\s*EXTENSION:\s*([0-9]+)\s*$/\1/p"))
+    else
+        _tmp_extNums=(0)
+    fi
+    echo ${_tmp_extNums[0]:-0}
+}
+
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
 
     My_Suzaku_Dir=$My_Suzaku_D/$My_Suzaku_ID/xis/event_cl
     if [[ ! -r $My_Suzaku_Dir/fit ]]; then continue; fi
     cd $My_Suzaku_Dir/fit
-    find . -regextype sed -regex "xis_[A-Z]+[0-9]+__*.*" |
-        rename "s/(xis_[A-Z]+[0-9]+)__/\$1_${My_Suzaku_ID}_/" -f
+    find . -type f -regextype posix-egrep -regex "\.\/xis_[A-Z]+[0-9]+__.*\..*" -printf "%f\n" |
+        rename -f "s/(xis_[A-Z]+[0-9]+)__/\$1_${My_Suzaku_ID}_/"
     nongrp_names=($(find . -name "xis_*_nongrp.fits" -printf "%f\n"))
     for nongrp_name in ${nongrp_names[@]}; do
         xis_cam_fb=$(echo $nongrp_name | sed -r -n "s/^.*(xis_[A-Z]+[0-9]+)_.*$/\1/p")
         xis_fb=$(echo $xis_cam_fb | sed -r -n "s/^xis_([A-Z]+)[0-9]+$/\1/p")
         if [[ "x${xis_fb}" == "xBI" ]]; then
-
+            nongrpExtNum=$(_ObtainExtNum $nongrp_name SPECTRUM)
             declare -A tr_keys=(
                 ["BACKFILE"]=${xis_cam_fb}_${My_Suzaku_ID}_bkg.fits
-                ["RESPFILE"]=${xis_cam_fb}_${My_Suzaku_ID}_src.rmf
-                ["ANCRFILE"]=${xis_cam_fb}_${My_Suzaku_ID}_src.arf)
+                ["RESPFILE"]=${xis_cam_fb}_${My_Suzaku_ID}_rmf.fits
+                ["ANCRFILE"]=${xis_cam_fb}_${My_Suzaku_ID}_arf.fits)
 
             for key in ${!tr_keys[@]}; do
                 fparkey value="${tr_keys[$key]}" \
-                    fitsfile=${nongrp_name}+1 \
+                    fitsfile="${nongrp_name}+${nongrpExtNum}" \
                     keyword="${key}" add=yes
             done
 
@@ -223,6 +263,8 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
 
             oldName=xi${fi_num}__nongrp.fits
             newName=${nongrp_name}
+            oldExtNum=$(_ObtainExtNum $oldName SPECTRUM)
+            newExtNum=$(_ObtainExtNum $newName SPECTRUM)
 
             cp_keys=(TELESCOP OBS_MODE DATAMODE OBS_ID OBSERVER OBJECT NOM_PNT RA_OBJ DEC_OBJ
                 RA_NOM DEC_NOM PA_NOM MEAN_EA1 MEAN_EA2 MEAN_EA3 RADECSYS EQUINOX DATE-OBS
@@ -232,11 +274,11 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
             declare -A tr_keys=(
                 ["INSTRUME"]="XIS-FI"
                 ["BACKFILE"]=${xis_cam_fb}_${My_Suzaku_ID}_bkg.fits
-                ["RESPFILE"]=${xis_cam_fb}_${My_Suzaku_ID}_src.rmf
+                ["RESPFILE"]=${xis_cam_fb}_${My_Suzaku_ID}_rmf.fits
             )
 
             for key in ${cp_keys[@]}; do
-                orig_val=$(fkeyprint infile="${oldName}+0" keynam="${key}" |
+                orig_val=$(fkeyprint infile="${oldName}+${oldExtNum}" keynam="${key}" |
                     grep "${key}\s*=" |
                     sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
 
@@ -245,7 +287,7 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
 
             for key in ${!tr_keys[@]}; do
                 fparkey value="${tr_keys[$key]}" \
-                    fitsfile=${newName}+1 \
+                    fitsfile="${newName}+${newExtNum}" \
                     keyword="${key}" add=yes
             done
 
@@ -257,8 +299,12 @@ done
 cd $My_Suzaku_D
 # _SuzakuXis_6_grppha
 ## grppha
-declare -A grp_nums=(["FI"]=25 ["BI"]=25) # arg
-echo ${My_Suzaku_D:=$(pwd)}
+declare -A gnums=(["FI"]=25 ["BI"]=25) # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
 obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
@@ -270,7 +316,7 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
     for nongrp_name in ${nongrp_names[@]}; do
         xis_cam_fb=$(echo $nongrp_name | sed -r -n "s/^.*(xis_[A-Z]+[0-9]+)_.*$/\1/p")
         xis_fb=$(echo $xis_cam_fb | sed -r -n "s/^xis_([A-Z]+)[0-9]+$/\1/p")
-        gnum=${grp_nums[$xis_fb]}
+        gnum=${gnums[$xis_fb]}
         grp_name=${nongrp_name/_nongrp.fits/_grp${gnum}.fits}
 
         rm $grp_name -f
@@ -278,7 +324,7 @@ for My_Suzaku_ID in ${obs_dirs[@]}; do
         cat <<EOF | bash
 grppha infile=$nongrp_name \
 outfile=$grp_name
-group min ${grp_nums[$xis_fb]}
+group min $gnum
 exit !$grp_name
 EOF
     done
@@ -287,21 +333,38 @@ done
 cd $My_Suzaku_D
 # _SuzakuXis_7_fitDirectory
 ## fitディレクトリにまとめ
-echo ${My_Suzaku_D:=$(pwd)}
+FLAG_hardCopy=false # arg
+FLAG_symbLink=false # arg
+tmp_prefix="xis_" # arg
+if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+    My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+else 
+    declare -g My_Suzaku_D=${My_Suzaku_D:=$(pwd)} 
+fi
 cd $My_Suzaku_D
-tmp_prefix=xis_
-obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 mkdir -p $My_Suzaku_D/fit $My_Suzaku_D/../fit
+obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
 for My_Suzaku_ID in ${obs_dirs[@]}; do
-    cp $My_Suzaku_D/$My_Suzaku_ID/xis/event_cl/fit/${tmp_prefix}*.* $My_Suzaku_D/fit/ -f
+    if [[ ${FLAG_symbLink:=false} == "true" ]]; then
+        find $My_Suzaku_D/$My_Suzaku_ID/xis/event_cl/fit/ -name "${tmp_prefix}*.*" \
+            -type f -printf "%f\n" |
+            xargs -n 1 -i rm -f $My_Suzaku_D/fit/{}
+        ln -s $My_Suzaku_D/$My_Suzaku_ID/xis/event_cl/fit/${tmp_prefix}* ${My_Suzaku_D}/fit/
+    else
+        cp -f $My_Suzaku_D/$My_Suzaku_ID/xis/event_cl/fit/${tmp_prefix}* ${My_Suzaku_D}/fit/
+    fi
 done
-### remove the files with the same name as new files
-find $My_Suzaku_D/fit/ -name "${tmp_prefix}*.*" \
-    -type f -printf "%f\n" |
-    xargs -n 1 -i rm -f $My_Suzaku_D/../fit/{}
-### remove broken symbolic links
+if [[ ${FLAG_hardCopy:=false} == "true" ]]; then
+    cp -f $My_Suzaku_D/fit/${tmp_prefix}*.* $My_Suzaku_D/../fit/
+else
+        # remove the files with the same name as new files
+    find $My_Suzaku_D/fit/ -name "${tmp_prefix}*.*" \
+        -type f -printf "%f\n" |
+        xargs -n 1 -i rm -f $My_Suzaku_D/../fit/{}
+    # generate symbolic links
+    ln -s $My_Suzaku_D/fit/${tmp_prefix}*.* $My_Suzaku_D/../fit/
+fi
+# remove broken symbolic links
 find -L $My_Suzaku_D/../fit/ -type l -delete
-### generate symbolic links
-ln -s $My_Suzaku_D/fit/${tmp_prefix}*.* $My_Suzaku_D/../fit/
 
 cd $My_Suzaku_D

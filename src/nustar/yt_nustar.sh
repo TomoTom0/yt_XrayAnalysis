@@ -1,10 +1,8 @@
 #!/bin/bash
 
-dir_path=$(
-    cd $(dirname ${BASH_SOURCE:-$0})
-    pwd
-)
+dir_path=$( cd $(dirname ${BASH_SOURCE:-$0}); pwd) # noqa
 source ${dir_path}/../../lib/obtain_options.sh
+
 
 alias yt_nustar_1="_Nustar_1_pipeline"
 alias yt_nustar_pipeline="_Nustar_1_pipeline"
@@ -52,12 +50,14 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    else 
+        declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    fi
     cd $My_Nustar_D
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Nustar_ID in ${obs_dirs[@]}; do
@@ -131,8 +131,6 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
@@ -142,7 +140,11 @@ EOF
             FLAG_simple=true
         fi
     fi
-    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} # 未定義時に代入
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    else 
+        declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    fi # 未定義時に代入
     cd $My_Nustar_D
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Nustar_ID in ${obs_dirs[@]}; do
@@ -151,7 +153,9 @@ EOF
         if [[ ! -r $My_Nustar_Dir/out ]]; then continue; fi
         cd $My_Nustar_Dir/out
 
-        if [[ ! -f ${My_Nustar_D}/saved.reg && ${FLAG_simple:=false} == true ]]; then
+        evt_file=nu${My_Nustar_ID}A01_cl.evt
+
+        if [[ ! -f ${My_Nustar_D}/saved.reg && ${FLAG_simple:=false} == false ]]; then
             # saved.regが存在しないなら、新たに作成する
             declare -A tmp_dict=(["RA_OBJ"]="0" ["DEC_OBJ"]="0")
             for key in ${!tmp_dict[@]}; do
@@ -170,14 +174,16 @@ EOF
             ra_bkg=$(echo "$ra + 0.05 " | bc)
             dec_bkg=$(echo "$dec + 0.05 " | bc)
             # 半径はとりあえず0.026 deg = 100 arcsec
-            ds9 $evt_file \
-                -regions system fk5 \
-                -regions command "fk5; circle $ra $dec 0.026 # source" \
-                -regions command "fk5; circle $ra_bkg $dec_bkg 0.026 # background" \
-                -regions save $My_Nustar_D/saved.reg -exit
+            cat <<EOF > ${My_Nustar_D}/saved.reg
+# Region file format: DS9 version 4.1
+global color=green dashlist=8 3 width=1 font="helvetica 10 normal roman" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1
+fk5
+circle($ra,$dec,0.026)
+circle($ra_bkg,$dec_bkg,0.026) # background
+EOF
         fi
         for cam in A B; do
-            if [[ ${FLAG_simple:=false} == true ]]; then
+            if [[ ${FLAG_simple:=false} == false ]]; then
                 cp ${My_Nustar_D}/saved.reg fpm${cam}.reg -f
                 echo ""
                 echo "----  save as fpm${cam}.reg with overwriting  ----"
@@ -252,12 +258,14 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} # 未定義時に代入
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    else 
+        declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    fi # 未定義時に代入
     cd $My_Nustar_D
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Nustar_ID in ${obs_dirs[@]}; do
@@ -332,12 +340,14 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} # 未定義時に代入
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    else 
+        declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    fi # 未定義時に代入
     cd $My_Nustar_D
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Nustar_ID in ${obs_dirs[@]}; do
@@ -368,7 +378,7 @@ EOF
 
 alias yt_nustar_5="_Nustar_5_editHeader"
 alias yt_nustar_editHeader="_Nustar_5_editHeader"
-function _Nustar_5_editHEader() {
+function _Nustar_5_editHeader() {
     ## edit header
     # args: FLAG_minimum=false
     # args: FLAG_strict=false
@@ -437,8 +447,6 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
@@ -460,8 +468,24 @@ EOF
             origBkg=${kwargs[origBkg__name]}
         fi
     fi
-    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} # 未定義時に代入
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    else 
+        declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    fi # 未定義時に代入
     cd $My_Nustar_D
+    function _ObtainExtNum(){
+        tmp_fits="$1"
+        extName="${2:-SPECTRUM}"
+        if [[ -n "${tmp_fits}" ]]; then
+            _tmp_extNums=($(fkeyprint infile=$tmp_fits keynam=EXTNAME |
+                grep -B 1 $extName |
+                sed -r -n "s/^.*#\s*EXTENSION:\s*([0-9]+)\s*$/\1/p"))
+        else
+            _tmp_extNums=(0)
+        fi
+        echo ${_tmp_extNums[0]:-0}
+    }
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Nustar_ID in ${obs_dirs[@]}; do
 
@@ -472,10 +496,17 @@ EOF
         nongrp_name=AB_${My_Nustar_ID}_nongrp.fits
 
         ### edit header for spectrum file
-        oldName=nu${My_Nustar_ID}A01_sr.pha
+        _oldName_tmp=${origSrc/\%OBSID%/${My_Nustar_ID}}
+        if [[ -r ${_oldName_tmp} ]]; then
+            oldName=${_oldName_tmp}
+        else
+            oldName=nu${My_Nustar_ID}A01_sr.pha
+        fi
         newName=$nongrp_name
+        oldExtNum=$(_ObtainExtNum $oldName SPECTRUM)
+        newExtNum=$(_ObtainExtNum $newName SPECTRUM)
 
-        ### same values
+        #### same values
         cp_keys=(TELESCOP OBS_ID TARG_ID OBJECT RA_OBJ
             DEC_OBJ RA_NOM DEC_NOM RA_PNT DEC_PNT PA_PNT
             EQUINOX RADECSYS TASSIGN TIMESYS MJDREFI MJDREFF
@@ -491,7 +522,7 @@ EOF
             OPTIC1 OPTIC2 HBBOX1 HBBOX2 REFXCTYP REFXCRPX
             REFXCRVL REFXCDLT REFYCTYP REFYCRPX REFYCRVL REFYCDLT)
 
-        ### near values
+        #### near values
         cp_keys2=(INSTRUME TSTART TELAPSE ONTIME LIVETIME
             MJD-OBS FILIN001 DEADC NPIXSOU CRPIX1 CRPIX2 LTV1
             CRVAL1P LTV2 CRVAL2P BBOX1 BBOX2 X-OFFSET
@@ -511,7 +542,7 @@ EOF
         )
 
         for key in ${cp_keys[@]} ${cp_keys2[@]}; do
-            orig_val=$(fkeyprint infile="${oldName}+0" keynam="${key}" |
+            orig_val=$(fkeyprint infile="${oldName}+${oldExtNum}" keynam="${key}" |
                 grep "${key}\s*=" |
                 sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
 
@@ -520,15 +551,22 @@ EOF
 
         for key in ${!tr_keys[@]}; do
             fparkey value="${tr_keys[$key]}" \
-                fitsfile=${newName}+1 \
+                fitsfile="${newName}+${newExtNum}" \
                 keyword="${key}" add=yes
         done
 
         ### edit header for bkg file
-        oldName=nu${My_Nustar_ID}A01_bk.pha
+        _oldName_tmp=${origBkg/\%OBSID%/${My_Nustar_ID}}
+        if [[ -r ${_oldName_tmp} ]]; then
+            oldName=${_oldName_tmp}
+        else
+            oldName=nu${My_Nustar_ID}A01_bk.pha
+        fi
         newName=AB_${My_Nustar_ID}_bkg.fits
+        oldExtNum=$(_ObtainExtNum $oldName SPECTRUM)
+        newExtNum=$(_ObtainExtNum $newName SPECTRUM)
 
-        ### same values
+        #### same values
         cp_keys=(TELESCOP OBS_ID TARG_ID OBJECT RA_OBJ
             DEC_OBJ RA_NOM DEC_NOM RA_PNT DEC_PNT PA_PNT
             EQUINOX RADECSYS TASSIGN TIMESYS MJDREFI MJDREFF
@@ -547,7 +585,7 @@ EOF
             REFXCTYP REFXCRPX REFXCRVL REFXCDLT REFYCTYP
             REFYCRPX REFYCRVL REFYCDLT)
 
-        ### near values
+        #### near values
         cp_keys2=(INSTRUME DATE ONTIME LIVETIME DEADC)
 
         if [[ ${FLAG_strict:=false} == "true" ]]; then
@@ -561,7 +599,7 @@ EOF
         declare -A tr_keys=()
 
         for key in ${cp_keys[@]} ${cp_keys2[@]}; do
-            orig_val=$(fkeyprint infile="${oldName}+1" keynam="${key}" |
+            orig_val=$(fkeyprint infile="${oldName}+${oldExtNum}" keynam="${key}" |
                 grep "${key}\s*=" |
                 sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
 
@@ -570,7 +608,7 @@ EOF
 
         for key in ${!tr_keys[@]}; do
             fparkey value="${tr_keys[$key]}" \
-                fitsfile=${newName}+1 \
+                fitsfile="${newName}+${newExtNum}" \
                 keyword="${key}" add=yes
         done
     done
@@ -583,7 +621,6 @@ alias yt_nustar_grppha="_Nustar_6_grppha"
 function _Nustar_6_grppha() {
     ## grppha
     # args: gnum=50
-    # args: declare -A gnum=50
 
     # ---------------------
     ##     obtain options
@@ -631,8 +668,6 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
@@ -642,15 +677,20 @@ EOF
             declare -i gnum=${kwargs[gnum__gnum]}
         fi
     fi
-    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} # 未定義時に代入
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    else 
+        declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    fi # 未定義時に代入
     cd $My_Nustar_D
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Nustar_ID in ${obs_dirs[@]}; do
 
         My_Nustar_Dir=$My_Nustar_D/$My_Nustar_ID
         if [[ ! -r $My_Nustar_Dir/fit ]]; then continue; fi
-
         cd $My_Nustar_Dir/fit/
+        if [[ ${gnum} -le 0 ]]; then continue; fi
+        grp_name=AB_${My_Nustar_ID}_grp${gnum}.fits
         rm ${grp_name} -f
         cat <<EOF | bash
 grppha infile=AB_${My_Nustar_ID}_nongrp.fits outfile=${grp_name} clobber=true
@@ -728,8 +768,6 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
@@ -748,7 +786,11 @@ EOF
             tmp_prefix=${kwargs[prefixName__name]}
         fi
     fi
-    declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} # 未定義時に代入
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    else 
+        declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
+    fi # 未定義時に代入
     cd $My_Nustar_D
 
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))

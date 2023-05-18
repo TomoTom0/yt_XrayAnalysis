@@ -1,5 +1,9 @@
 #!/bin/bash
 
+dir_path=$( cd $(dirname ${BASH_SOURCE:-$0}); pwd) # noqa
+source ${dir_path}/../../lib/obtain_options.sh
+
+
 alias yt_newton__a="_Newton_a_beforeDs9"
 function _Newton_a_beforeDs9() {
     ## before ds9
@@ -49,12 +53,14 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Newton_D=${My_Newton_D:=$(pwd)} 
+    else 
+        declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+    fi
     yt_newton_1 $@ &&
         yt_newton_2 $@
     return 0
@@ -109,12 +115,14 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Newton_D=${My_Newton_D:=$(pwd)} 
+    else 
+        declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+    fi
     yt_newton_3 $@
     return 0
 }
@@ -168,12 +176,14 @@ EOF
         return 0
     fi
 
-    # ----------------------------------------- #
-
     # ---------------------
     ##         main
     # ---------------------
-    declare -g My_Newton_D=${My_Newton_D:=$(pwd)}
+    if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
+        My_Newton_D=${My_Newton_D:=$(pwd)} 
+    else 
+        declare -g My_Newton_D=${My_Newton_D:=$(pwd)} 
+    fi
 
     yt_newton_4 $@ &&
         yt_newton_5 $@ &&
