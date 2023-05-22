@@ -55,8 +55,8 @@ EOF
             ### adjust fpmA.reg / fpmB.reg
             cp fpm${cam}.reg ${My_Nustar_D}/saved.reg -f
 
-            cat fpm${cam}.reg | grep -v -E "^circle.*# background" >src${cam}.reg
-            cat fpm${cam}.reg | grep -v -E "^circle.*\)$" >bkg${cam}.reg
+            cat fpm${cam}.reg | grep -v -E "^(circle|annulus).*# background" >src${cam}.reg
+            cat fpm${cam}.reg | grep -v -E "^(circle|annulus).*\)$" >bkg${cam}.reg
         else
             echo ""
             echo "----  save as fpm${cam}.reg  ----"

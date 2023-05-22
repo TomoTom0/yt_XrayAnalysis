@@ -130,8 +130,8 @@ EOF
         fi
 
         reg_file=xis.reg
-        cat ${reg_file} | grep -v -E "^circle.*# background" >src.reg
-        cat ${reg_file} | grep -v -E "^circle.*\)$" >bkg.reg
+        cat ${reg_file} | grep -v -E "^(circle|annulus).*# background" >src.reg
+        cat ${reg_file} | grep -v -E "^(circle|annulus).*\)$" >bkg.reg
 
     done
 

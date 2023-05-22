@@ -135,8 +135,8 @@ EOF
                     -regions centroid -regions save $tmp_reg -exit &&
                 cp $tmp_reg ${My_Swift_D}/saved.reg -f
 
-                cat $tmp_reg | grep -v -E "^circle.*# background" > src_${band}.reg
-                cat $tmp_reg | grep -v -E "^circle.*\)$" > bkg_${band}.reg
+                cat $tmp_reg | grep -v -E "^(circle|annulus).*# background" > src_${band}.reg
+                cat $tmp_reg | grep -v -E "^(circle|annulus).*\)$" > bkg_${band}.reg
             else
                 echo ""
                 echo "----  opening $evt_file"

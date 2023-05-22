@@ -61,10 +61,13 @@ EOF
             -regions load $reg_file
         ### adjust xrt.reg
 
-        cp $reg_file ${My_Swift_D}/saved.reg -f
+        tmp_reg="tmp.reg"
+        ds9 $evt_file -regions load $reg_file -regions system fk5 \
+            -regions centroid -regions save $tmp_reg -exit &&
+        cp $tmp_reg ${My_Swift_D}/saved.reg -f
 
-        cat ${reg_file} | grep -v -E "^circle.*# background" >src.reg
-        cat ${reg_file} | grep -v -E "^circle.*\)$" >bkg.reg
+        cat $tmp_reg | grep -v -E "^(circle|annulus).*# background" > src.reg
+        cat $tmp_reg | grep -v -E "^(circle|annulus).*\)$" > bkg.reg
     else
         echo ""
         echo "----  opening $evt_file"
