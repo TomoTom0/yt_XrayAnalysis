@@ -3,7 +3,7 @@
 dir_path=$( cd $(dirname ${BASH_SOURCE:-$0}); pwd) # noqa
 source ${dir_path}/../lib/obtain_options.sh
 
-generated_files=$(find "../tmp/" -maxdepth 1 -name "*.sh" -printf "%f\n" | sort)
+generated_files=$(find "${dir_path}/../tmp/" -maxdepth 1 -name "*.sh" -printf "%f\n" | sort)
 ## read gist list
 config_data=($(gist -l 2>/dev/null | awk "{print \$1 \"___\"  \$2}"))
 declare -A gist_dict=()
@@ -25,7 +25,7 @@ done
 ## upload files to gist
 declare -A valid_gist_dict=()
 for file in ${generated_files[@]}; do
-    diff_tmp=$(diff ../tmp/$file ../gist/$file 2>/dev/null || echo $?)
+    diff_tmp=$(diff "${dir_path}/../tmp/$file" "${dir_path}/../gist/$file" 2>/dev/null || echo $?)
     if [[ -z ${diff_tmp} && -z ${flagsIn[force]} ]]; then
         ### no change -> skip
         echo "$file is skipped becuase of not changing"
@@ -39,14 +39,14 @@ for file in ${generated_files[@]}; do
         echo "${gist_url[0]} for $file"
         if [[ -z ${flagsIn[dry]} ]]; then
             ### update gist
-            tmp_url=$(gist "../tmp/$file" -u $gist_url  2>/dev/null )
+            tmp_url=$(gist "${dir_path}/../tmp/$file" -u $gist_url  2>/dev/null )
             valid_gist_dict[$file]=$tmp_url
         fi
     else
         echo "hash not found for $file"
         if [[ -z "${flagsIn[dry]}" ]]; then
             ### create gist
-            tmp_url=$(gist --no-private "../tmp/$file" 2>/dev/null )
+            tmp_url=$(gist --no-private "${dir_path}/../tmp/$file" 2>/dev/null )
             valid_gist_dict[$file]=$tmp_url
         fi
     fi
@@ -61,6 +61,6 @@ if [[ -z "${flagsIn[dry]}" ]]; then
     done
 
     ## cp generated files to ../gist/
-    rm ../gist -rf && mkdir ../gist -p &&
-        cp ../tmp/*.sh ../gist/ -f
+    rm ${dir_path}/../gist -rf && mkdir ${dir_path}/../gist -p &&
+        cp ${dir_path}/../tmp/*.sh ${dir_path}/../gist/ -f
 fi
