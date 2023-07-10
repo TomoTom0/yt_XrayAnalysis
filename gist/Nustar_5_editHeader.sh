@@ -10,6 +10,7 @@ else
     declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
 fi # 未定義時に代入
 cd $My_Nustar_D
+fitsName_head="nustar_AB_"
 function _ObtainExtNum(){
     tmp_fits="$1"
     extName="${2:-SPECTRUM}"
@@ -29,7 +30,7 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
     if [[ ! -r $My_Nustar_Dir/fit ]]; then continue; fi
 
     cd $My_Nustar_Dir/fit
-    nongrp_name=AB_${My_Nustar_ID}_nongrp.fits
+    nongrp_name=${fitsName_head}${My_Nustar_ID}_nongrp.fits
 
     ### edit header for spectrum file
     _oldName_tmp=${origSrc/\%OBSID%/${My_Nustar_ID}}
@@ -73,20 +74,33 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
     fi
 
     declare -A tr_keys=(
-        ["BACKFILE"]="AB_${My_Nustar_ID}_bkg.fits"
-        ["RESPFILE"]="AB_${My_Nustar_ID}_rsp.fits"
+        ["BACKFILE"]="${fitsName_head}${My_Nustar_ID}_bkg.fits"
+        ["RESPFILE"]="${fitsName_head}${My_Nustar_ID}_rsp.fits"
     )
 
     for key in ${cp_keys[@]} ${cp_keys2[@]}; do
-        orig_val=$(fkeyprint infile="${oldName}+${oldExtNum}" keynam="${key}" |
+        orig_val_ext=$(fkeyprint infile="${oldName}+${oldExtNum}" keynam="${key}" |
             grep "${key}\s*=" |
             sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
-
-        tr_keys[$key]="${orig_val}"
+        
+        if [[ "x${orig_val_ext}" != "x" ]]; then
+            tr_keys[$key]="${orig_val_ext}"
+        else
+            count_tmp=0
+            while read line; do
+                if [[ $count_tmp -gt 0 ]]; then break; fi
+                tr_keys[$key]="${line}"
+                count_tmp=$((count_tmp + 1))
+            done < <(fkeyprint infile="${oldName}" keynam="${key}" | \
+                            grep "${key}\s*=" | \
+                            sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
+        fi
     done
 
     for key in ${!tr_keys[@]}; do
-        fparkey value="${tr_keys[$key]}" \
+        val=${tr_keys[$key]}
+        if [[ "x${val}" == "x" ]]; then continue; fi
+        fparkey value="${val}" \
             fitsfile="${newName}+${newExtNum}" \
             keyword="${key}" add=yes
     done
@@ -98,7 +112,7 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
     else
         oldName=nu${My_Nustar_ID}A01_bk.pha
     fi
-    newName=AB_${My_Nustar_ID}_bkg.fits
+    newName=${fitsName_head}${My_Nustar_ID}_bkg.fits
     oldExtNum=$(_ObtainExtNum $oldName SPECTRUM)
     newExtNum=$(_ObtainExtNum $newName SPECTRUM)
 
@@ -135,17 +149,30 @@ for My_Nustar_ID in ${obs_dirs[@]}; do
     declare -A tr_keys=()
 
     for key in ${cp_keys[@]} ${cp_keys2[@]}; do
-        orig_val=$(fkeyprint infile="${oldName}+${oldExtNum}" keynam="${key}" |
+        orig_val_ext=$(fkeyprint infile="${oldName}+${oldExtNum}" keynam="${key}" |
             grep "${key}\s*=" |
             sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
-
-        tr_keys[$key]="${orig_val}"
+        
+        if [[ "x${orig_val_ext}" != "x" ]]; then
+            tr_keys[$key]="${orig_val_ext}"
+        else
+            count_tmp=0
+            while read line; do
+                if [[ $count_tmp -gt 0 ]]; then break; fi
+                tr_keys[$key]="${line}"
+                count_tmp=$((count_tmp + 1))
+            done < <(fkeyprint infile="${oldName}" keynam="${key}" | \
+                            grep "${key}\s*=" | \
+                            sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
+        fi
     done
 
-    for key in ${!tr_keys[@]}; do
-        fparkey value="${tr_keys[$key]}" \
-            fitsfile="${newName}+${newExtNum}" \
-            keyword="${key}" add=yes
-    done
+    #for key in ${!tr_keys[@]}; do
+    #    val=${tr_keys[$key]}
+    #    if [[ "x${val}" == "x" ]]; then continue; fi
+    #    fparkey value="${val}" \
+    #        fitsfile="${newName}+${newExtNum}" \
+    #        keyword="${key}" add=yes
+    #done
 done
 cd $My_Nustar_D

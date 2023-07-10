@@ -17,7 +17,7 @@ function _ObtainExtNum(){
     else
         _tmp_extNums=(0)
     fi
-    echo ${_tmp_extNums[0]:-0}
+    #echo ${_tmp_extNums[0]:-0}
 }
 prod_IDs=($(find . -maxdepth 1 -type d -printf "%P\n" |
     grep ^xrt_build_[0-9] |
@@ -30,7 +30,6 @@ for prod_ID in ${prod_IDs[@]}; do
     nongrp_names=($(find . -name "xrtBuild*_nongrp.fits" -printf "%f\n"))
     for nongrp_name in ${nongrp_names[@]}; do
         tmp_head=${nongrp_name/_nongrp.fits/}
-        grp_name=${tmp_head}_grp${gnum}.fits
         grpAuto_name=${tmp_head}_grpauto.fits
         nongrpExtNum=$(_ObtainExtNum $nongrp_name SPECTRUM)
         grpAutoExtNum=$(_ObtainExtNum $grpAuto_name SPECTRUM)
@@ -52,11 +51,14 @@ for prod_ID in ${prod_IDs[@]}; do
                 keyword="${key}" add=yes
         done
         if [[ $gnum -le 0 ]]; then continue; fi
-        cat <<EOF | bash
+        for gnum_tmp in $gnum 1; do
+            grp_name=${tmp_head}_grp${gnum_tmp}.fits
+            cat <<EOF | bash
 grppha infile=$nongrp_name outfile=$grp_name
-group min $gnum
+group min $gnum_tmp
 exit !$grp_name
 EOF
+        done
 
     done
 done

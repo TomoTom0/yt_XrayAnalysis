@@ -42,48 +42,53 @@ for prod_ID in ${prod_IDs[@]}; do
 
     # for per Obs
     obs_IDs=($(find . -name "Obs_*[pw][ct].pi" -printf "%f\n" |
-        sed -r -n "s/^\S*Obs_([0-9]+)(pc|wt)\S*$/\1/p"))
-    for obs_ID in ${obs_IDs[@]}; do
-        tmp_head=Obs_${obs_ID}
-        for cam in "pc" "wt"; do
-            declare -A tmp_orig_names=(
-                ["${cam}_nongrp"]=${tmp_head}${cam}source.pi
-                ["${cam}_grpauto"]=${tmp_head}${cam}.pi
-                ["${cam}_bkg"]=${tmp_head}${cam}back.pi
-                ["${cam}_rmf"]=${tmp_head}${cam}.rmf
-                ["${cam}_arf"]=${tmp_head}${cam}.arf)
-
-            for key in ${!tmp_orig_names[@]}; do
-                orig_name=${tmp_orig_names[$key]}
-                if [[ ! -f "$orig_name" ]]; then continue; fi
-                new_name=xrtBuild${prod_ID}_Obs${obs_ID}_${key}.fits
-                new_names[$key]=$new_name
-                cp -f $orig_name $spec_path/fit/$new_name
-            done
-        done
-    done
-
+        sed -r -n "s/^\S*Obs_([0-9]+)(pc|wt)\S*$/\1/p" | uniq))
     # for per project
-    proj_IDs=($(find . -name "[0-9]*[pw][ct].pi" -printf "%f\n" |
-        sed -r -n "s/^([0-9]+)(pc|wt)\S*$/\1/p"))
-    for proj_ID in ${proj_IDs[@]}; do
-        tmp_head=${proj_ID}
-        for cam in "pc" "wt"; do
-            declare -A tmp_orig_names=(
-                ["${cam}_nongrp"]=${tmp_head}${cam}source.pi
-                ["${cam}_grpauto"]=${tmp_head}${cam}.pi
-                ["${cam}_bkg"]=${tmp_head}${cam}back.pi
-                ["${cam}_rmf"]=${tmp_head}${cam}.rmf
-                ["${cam}_arf"]=${tmp_head}${cam}.arf)
+    #proj_IDs=($(find . -name "[0-9]*[pw][ct].pi" -printf "%f\n" |
+    #    sed -r -n "s/^([0-9]+)(pc|wt)\S*$/\1/p"))
+    # for time_averaged
+    proj_IDs=($(find . -regex ".+[pw][ct].pi" -printf "%f\n" |
+        sed -r -n "s/^(.+)(pc|wt)\S*$/\1/p" | uniq))
+    if [[ ${#obs_IDs[@]} -ge 1 ]]; then
+        for obs_ID in ${obs_IDs[@]}; do
+            tmp_head=Obs_${obs_ID}
+            for cam in "pc" "wt"; do
+                declare -A tmp_orig_names=(
+                    ["${cam}_nongrp"]=${tmp_head}${cam}source.pi
+                    ["${cam}_grpauto"]=${tmp_head}${cam}.pi
+                    ["${cam}_bkg"]=${tmp_head}${cam}back.pi
+                    ["${cam}_rmf"]=${tmp_head}${cam}.rmf
+                    ["${cam}_arf"]=${tmp_head}${cam}.arf)
 
-            for key in ${!tmp_orig_names[@]}; do
-                orig_name=${tmp_orig_names[$key]}
-                if [[ ! -f "$orig_name" ]]; then continue; fi
-                new_name=xrtBuild${prod_ID}_Proj${proj_ID}_${key}.fits
-                new_names[$key]=$new_name
-                cp -f $orig_name $spec_path/fit/$new_name
+                for key in ${!tmp_orig_names[@]}; do
+                    orig_name=${tmp_orig_names[$key]}
+                    if [[ ! -f "$orig_name" ]]; then continue; fi
+                    new_name=xrtBuild${prod_ID}_Obs${obs_ID}_${key}.fits
+                    new_names[$key]=$new_name
+                    cp -f $orig_name $spec_path/fit/$new_name
+                done
             done
         done
-    done
+    elif [[ ${#proj_IDs[@]} -ge 1  ]]; then
+        for proj_ID in ${proj_IDs[@]}; do
+            tmp_head=${proj_ID}
+            for cam in "pc" "wt"; do
+                declare -A tmp_orig_names=(
+                    ["${cam}_nongrp"]=${tmp_head}${cam}source.pi
+                    ["${cam}_grpauto"]=${tmp_head}${cam}.pi
+                    ["${cam}_bkg"]=${tmp_head}${cam}back.pi
+                    ["${cam}_rmf"]=${tmp_head}${cam}.rmf
+                    ["${cam}_arf"]=${tmp_head}${cam}.arf)
+
+                for key in ${!tmp_orig_names[@]}; do
+                    orig_name=${tmp_orig_names[$key]}
+                    if [[ ! -f "$orig_name" ]]; then continue; fi
+                    new_name=xrtBuild${prod_ID}_Proj${proj_ID}_${key}.fits
+                    new_names[$key]=$new_name
+                    cp -f $orig_name $spec_path/fit/$new_name
+                done
+            done
+        done
+    fi
 done
 cd $My_Swift_D

@@ -2,7 +2,7 @@
 ## fitディレクトリにまとめ
 FLAG_hardCopy=false # arg
 FLAG_symbLink=false # arg
-tmp_prefix="AB_" # arg
+tmp_prefix="nustar_AB_" # arg
 if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]; then 
     My_Nustar_D=${My_Nustar_D:=$(pwd)} 
 else 

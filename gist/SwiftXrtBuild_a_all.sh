@@ -75,49 +75,54 @@ for prod_ID in ${prod_IDs[@]}; do
 
     # for per Obs
     obs_IDs=($(find . -name "Obs_*[pw][ct].pi" -printf "%f\n" |
-        sed -r -n "s/^\S*Obs_([0-9]+)(pc|wt)\S*$/\1/p"))
-    for obs_ID in ${obs_IDs[@]}; do
-        tmp_head=Obs_${obs_ID}
-        for cam in "pc" "wt"; do
-            declare -A tmp_orig_names=(
-                ["${cam}_nongrp"]=${tmp_head}${cam}source.pi
-                ["${cam}_grpauto"]=${tmp_head}${cam}.pi
-                ["${cam}_bkg"]=${tmp_head}${cam}back.pi
-                ["${cam}_rmf"]=${tmp_head}${cam}.rmf
-                ["${cam}_arf"]=${tmp_head}${cam}.arf)
-
-            for key in ${!tmp_orig_names[@]}; do
-                orig_name=${tmp_orig_names[$key]}
-                if [[ ! -f "$orig_name" ]]; then continue; fi
-                new_name=xrtBuild${prod_ID}_Obs${obs_ID}_${key}.fits
-                new_names[$key]=$new_name
-                cp -f $orig_name $spec_path/fit/$new_name
-            done
-        done
-    done
-
+        sed -r -n "s/^\S*Obs_([0-9]+)(pc|wt)\S*$/\1/p" | uniq))
     # for per project
-    proj_IDs=($(find . -name "[0-9]*[pw][ct].pi" -printf "%f\n" |
-        sed -r -n "s/^([0-9]+)(pc|wt)\S*$/\1/p"))
-    for proj_ID in ${proj_IDs[@]}; do
-        tmp_head=${proj_ID}
-        for cam in "pc" "wt"; do
-            declare -A tmp_orig_names=(
-                ["${cam}_nongrp"]=${tmp_head}${cam}source.pi
-                ["${cam}_grpauto"]=${tmp_head}${cam}.pi
-                ["${cam}_bkg"]=${tmp_head}${cam}back.pi
-                ["${cam}_rmf"]=${tmp_head}${cam}.rmf
-                ["${cam}_arf"]=${tmp_head}${cam}.arf)
+    #proj_IDs=($(find . -name "[0-9]*[pw][ct].pi" -printf "%f\n" |
+    #    sed -r -n "s/^([0-9]+)(pc|wt)\S*$/\1/p"))
+    # for time_averaged
+    proj_IDs=($(find . -regex ".+[pw][ct].pi" -printf "%f\n" |
+        sed -r -n "s/^(.+)(pc|wt)\S*$/\1/p" | uniq))
+    if [[ ${#obs_IDs[@]} -ge 1 ]]; then
+        for obs_ID in ${obs_IDs[@]}; do
+            tmp_head=Obs_${obs_ID}
+            for cam in "pc" "wt"; do
+                declare -A tmp_orig_names=(
+                    ["${cam}_nongrp"]=${tmp_head}${cam}source.pi
+                    ["${cam}_grpauto"]=${tmp_head}${cam}.pi
+                    ["${cam}_bkg"]=${tmp_head}${cam}back.pi
+                    ["${cam}_rmf"]=${tmp_head}${cam}.rmf
+                    ["${cam}_arf"]=${tmp_head}${cam}.arf)
 
-            for key in ${!tmp_orig_names[@]}; do
-                orig_name=${tmp_orig_names[$key]}
-                if [[ ! -f "$orig_name" ]]; then continue; fi
-                new_name=xrtBuild${prod_ID}_Proj${proj_ID}_${key}.fits
-                new_names[$key]=$new_name
-                cp -f $orig_name $spec_path/fit/$new_name
+                for key in ${!tmp_orig_names[@]}; do
+                    orig_name=${tmp_orig_names[$key]}
+                    if [[ ! -f "$orig_name" ]]; then continue; fi
+                    new_name=xrtBuild${prod_ID}_Obs${obs_ID}_${key}.fits
+                    new_names[$key]=$new_name
+                    cp -f $orig_name $spec_path/fit/$new_name
+                done
             done
         done
-    done
+    elif [[ ${#proj_IDs[@]} -ge 1  ]]; then
+        for proj_ID in ${proj_IDs[@]}; do
+            tmp_head=${proj_ID}
+            for cam in "pc" "wt"; do
+                declare -A tmp_orig_names=(
+                    ["${cam}_nongrp"]=${tmp_head}${cam}source.pi
+                    ["${cam}_grpauto"]=${tmp_head}${cam}.pi
+                    ["${cam}_bkg"]=${tmp_head}${cam}back.pi
+                    ["${cam}_rmf"]=${tmp_head}${cam}.rmf
+                    ["${cam}_arf"]=${tmp_head}${cam}.arf)
+
+                for key in ${!tmp_orig_names[@]}; do
+                    orig_name=${tmp_orig_names[$key]}
+                    if [[ ! -f "$orig_name" ]]; then continue; fi
+                    new_name=xrtBuild${prod_ID}_Proj${proj_ID}_${key}.fits
+                    new_names[$key]=$new_name
+                    cp -f $orig_name $spec_path/fit/$new_name
+                done
+            done
+        done
+    fi
 done
 cd $My_Swift_D
 # _SwiftXrtBuild_3_grppha
@@ -139,7 +144,7 @@ function _ObtainExtNum(){
     else
         _tmp_extNums=(0)
     fi
-    echo ${_tmp_extNums[0]:-0}
+    #echo ${_tmp_extNums[0]:-0}
 }
 prod_IDs=($(find . -maxdepth 1 -type d -printf "%P\n" |
     grep ^xrt_build_[0-9] |
@@ -152,7 +157,6 @@ for prod_ID in ${prod_IDs[@]}; do
     nongrp_names=($(find . -name "xrtBuild*_nongrp.fits" -printf "%f\n"))
     for nongrp_name in ${nongrp_names[@]}; do
         tmp_head=${nongrp_name/_nongrp.fits/}
-        grp_name=${tmp_head}_grp${gnum}.fits
         grpAuto_name=${tmp_head}_grpauto.fits
         nongrpExtNum=$(_ObtainExtNum $nongrp_name SPECTRUM)
         grpAutoExtNum=$(_ObtainExtNum $grpAuto_name SPECTRUM)
@@ -174,11 +178,14 @@ for prod_ID in ${prod_IDs[@]}; do
                 keyword="${key}" add=yes
         done
         if [[ $gnum -le 0 ]]; then continue; fi
-        cat <<EOF | bash
+        for gnum_tmp in $gnum 1; do
+            grp_name=${tmp_head}_grp${gnum_tmp}.fits
+            cat <<EOF | bash
 grppha infile=$nongrp_name outfile=$grp_name
-group min $gnum
+group min $gnum_tmp
 exit !$grp_name
 EOF
+        done
 
     done
 done
@@ -193,25 +200,19 @@ if [[ $(declare --help | grep -c -o -E "\-g\s+create global variables") -eq 0 ]]
 else 
     declare -g My_Swift_D=${My_Swift_D:=$(pwd)} 
 fi # 未定義時に代入
-cd $My_Swift_D
+cd $My_Swift_D/xrt
 mkdir -p $My_Swift_D/fit $My_Swift_D/../fit
-obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
-for My_Swift_ID in ${obs_dirs[@]}; do
-    prod_IDs=($(find . -maxdepth 1 -type d -printf "%P\n" |
-        grep ^xrt_build_[0-9] |
-        sed -r -n "s/^xrt_build_([0-9]+)$/\1/p"))
-    for prod_ID in ${prod_IDs[@]}; do
-        if [[ ${FLAG_symbLink:=false} == "true" ]]; then
-            find "$My_Swift_D/xrt//xrt_build_${prod_ID}/spec/fit/" -name "${tmp_prefix}*.*" \
-                -type f -printf "%f\n" |
-                xargs -i rm -f $My_Swift_D/fit/{} #xargs -n 1 -i rm -f $My_Swift_D/fit/{}
-            find "$My_Swift_D/xrt//xrt_build_${prod_ID}/spec/fit/" -name "${tmp_prefix}*.*" -type f -printf "%p\n" |
-                xargs -i ln -s {} $My_Swift_D/fit/
-        else
-            find "$My_Swift_D/xrt//xrt_build_${prod_ID}/spec/fit/" -name "${tmp_prefix}*.*" -type f -printf "%p\n" |
-                xargs -i cp {} $My_Swift_D/fit/
-        fi
-    done
+prod_IDs=($(find . -maxdepth 1 -type d -printf "%P\n" |
+    grep ^xrt_build_[0-9] |
+    sed -r -n "s/^xrt_build_([0-9]+)$/\1/p"))
+for prod_ID in ${prod_IDs[@]}; do
+    if [[ ${FLAG_symbLink:=false} == "true" ]]; then
+        find "$My_Swift_D/xrt/xrt_build_${prod_ID}/spec/fit/" -name "${tmp_prefix}*.*" -type f -printf "%p\n" |
+            xargs -i ln -nfs {} $My_Swift_D/fit/
+    else
+        find "$My_Swift_D/xrt/xrt_build_${prod_ID}/spec/fit/" -name "${tmp_prefix}*.*" -type f -printf "%p\n" |
+            xargs -i cp {} $My_Swift_D/fit/
+    fi
 done
 if [[ ${FLAG_hardCopy:=false} == "true" ]]; then
     cp -f $My_Swift_D/fit/${tmp_prefix}*.* $My_Swift_D/../fit/
@@ -224,3 +225,4 @@ else
 fi
 # remove broken symbolic links
 find -L $My_Swift_D/../fit/ -type l -delete
+cd $My_Swift_D
