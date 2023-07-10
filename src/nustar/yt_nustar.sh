@@ -5,7 +5,7 @@ source ${dir_path}/../../lib/obtain_options.sh
 
 
 alias yt_nustar_1="_Nustar_1_pipeline"
-alias yt_nustar_pipeline="_Nustar_1_pipeline"
+alias yt_nustar_pipeline_1="_Nustar_1_pipeline"
 function _Nustar_1_pipeline() {
     ## pipeline
     # ---------------------
@@ -79,7 +79,7 @@ EOF
 }
 
 alias yt_nustar_2="_Nustar_2_ds9"
-alias yt_nustar_ds9="_Nustar_2_ds9"
+alias yt_nustar_ds9_2="_Nustar_2_ds9"
 function _Nustar_2_ds9() {
     ## ds9で領域指定
     # args: FLAG_simple=false
@@ -213,7 +213,7 @@ EOF
 }
 
 alias yt_nustar_3="_Nustar_3_products"
-alias yt_nustar_products="_Nustar_3_products"
+alias yt_nustar_products_3="_Nustar_3_products"
 function _Nustar_3_products() {
     ## nuproducts
     # ---------------------
@@ -295,7 +295,7 @@ EOF
 }
 
 alias yt_nustar_4="_Nustar_4_addascaspec"
-alias yt_nustar_addascaspec="_Nustar_4_addascaspec"
+alias yt_nustar_addascaspec_4="_Nustar_4_addascaspec"
 function _Nustar_4_addascaspec() {
     ## addascaspec
     # ---------------------
@@ -349,6 +349,7 @@ EOF
         declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
     fi # 未定義時に代入
     cd $My_Nustar_D
+    fitsName_head="nustar_AB_"
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Nustar_ID in ${obs_dirs[@]}; do
 
@@ -364,20 +365,20 @@ nu${My_Nustar_ID}A01_sr.arf nu${My_Nustar_ID}B01_sr.arf
 nu${My_Nustar_ID}A01_sr.rmf nu${My_Nustar_ID}B01_sr.rmf
 EOF
 
-        rm AB_${My_Nustar_ID}_nongrp.fits \
-            AB_${My_Nustar_ID}_rsp.fits \
-            AB_${My_Nustar_ID}_bkg.fits -f
+        rm ${fitsName_head}${My_Nustar_ID}_nongrp.fits \
+            ${fitsName_head}${My_Nustar_ID}_rsp.fits \
+            ${fitsName_head}${My_Nustar_ID}_bkg.fits -f
         addascaspec tmp_fi.add \
-            AB_${My_Nustar_ID}_nongrp.fits \
-            AB_${My_Nustar_ID}_rsp.fits \
-            AB_${My_Nustar_ID}_bkg.fits
+            ${fitsName_head}${My_Nustar_ID}_nongrp.fits \
+            ${fitsName_head}${My_Nustar_ID}_rsp.fits \
+            ${fitsName_head}${My_Nustar_ID}_bkg.fits
     done
     cd $My_Nustar_D
     if [[ x${FUNCNAME} != x ]]; then return 0; fi
 }
 
 alias yt_nustar_5="_Nustar_5_editHeader"
-alias yt_nustar_editHeader="_Nustar_5_editHeader"
+alias yt_nustar_editHeader_5="_Nustar_5_editHeader"
 function _Nustar_5_editHeader() {
     ## edit header
     # args: FLAG_minimum=false
@@ -474,6 +475,7 @@ EOF
         declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
     fi # 未定義時に代入
     cd $My_Nustar_D
+    fitsName_head="nustar_AB_"
     function _ObtainExtNum(){
         tmp_fits="$1"
         extName="${2:-SPECTRUM}"
@@ -493,7 +495,7 @@ EOF
         if [[ ! -r $My_Nustar_Dir/fit ]]; then continue; fi
 
         cd $My_Nustar_Dir/fit
-        nongrp_name=AB_${My_Nustar_ID}_nongrp.fits
+        nongrp_name=${fitsName_head}${My_Nustar_ID}_nongrp.fits
 
         ### edit header for spectrum file
         _oldName_tmp=${origSrc/\%OBSID%/${My_Nustar_ID}}
@@ -537,20 +539,33 @@ EOF
         fi
 
         declare -A tr_keys=(
-            ["BACKFILE"]="AB_${My_Nustar_ID}_bkg.fits"
-            ["RESPFILE"]="AB_${My_Nustar_ID}_rsp.fits"
+            ["BACKFILE"]="${fitsName_head}${My_Nustar_ID}_bkg.fits"
+            ["RESPFILE"]="${fitsName_head}${My_Nustar_ID}_rsp.fits"
         )
 
         for key in ${cp_keys[@]} ${cp_keys2[@]}; do
-            orig_val=$(fkeyprint infile="${oldName}+${oldExtNum}" keynam="${key}" |
+            orig_val_ext=$(fkeyprint infile="${oldName}+${oldExtNum}" keynam="${key}" |
                 grep "${key}\s*=" |
                 sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
-
-            tr_keys[$key]="${orig_val}"
+            
+            if [[ "x${orig_val_ext}" != "x" ]]; then
+                tr_keys[$key]="${orig_val_ext}"
+            else
+                count_tmp=0
+                while read line; do
+                    if [[ $count_tmp -gt 0 ]]; then break; fi
+                    tr_keys[$key]="${line}"
+                    count_tmp=$((count_tmp + 1))
+                done < <(fkeyprint infile="${oldName}" keynam="${key}" | \
+                                grep "${key}\s*=" | \
+                                sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
+            fi
         done
 
         for key in ${!tr_keys[@]}; do
-            fparkey value="${tr_keys[$key]}" \
+            val=${tr_keys[$key]}
+            if [[ "x${val}" == "x" ]]; then continue; fi
+            fparkey value="${val}" \
                 fitsfile="${newName}+${newExtNum}" \
                 keyword="${key}" add=yes
         done
@@ -562,7 +577,7 @@ EOF
         else
             oldName=nu${My_Nustar_ID}A01_bk.pha
         fi
-        newName=AB_${My_Nustar_ID}_bkg.fits
+        newName=${fitsName_head}${My_Nustar_ID}_bkg.fits
         oldExtNum=$(_ObtainExtNum $oldName SPECTRUM)
         newExtNum=$(_ObtainExtNum $newName SPECTRUM)
 
@@ -599,25 +614,38 @@ EOF
         declare -A tr_keys=()
 
         for key in ${cp_keys[@]} ${cp_keys2[@]}; do
-            orig_val=$(fkeyprint infile="${oldName}+${oldExtNum}" keynam="${key}" |
+            orig_val_ext=$(fkeyprint infile="${oldName}+${oldExtNum}" keynam="${key}" |
                 grep "${key}\s*=" |
                 sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
-
-            tr_keys[$key]="${orig_val}"
+            
+            if [[ "x${orig_val_ext}" != "x" ]]; then
+                tr_keys[$key]="${orig_val_ext}"
+            else
+                count_tmp=0
+                while read line; do
+                    if [[ $count_tmp -gt 0 ]]; then break; fi
+                    tr_keys[$key]="${line}"
+                    count_tmp=$((count_tmp + 1))
+                done < <(fkeyprint infile="${oldName}" keynam="${key}" | \
+                                grep "${key}\s*=" | \
+                                sed -r -n "s/^.*${key}\s*=\s*(.*)\s*\/.*$/\1/p")
+            fi
         done
 
-        for key in ${!tr_keys[@]}; do
-            fparkey value="${tr_keys[$key]}" \
-                fitsfile="${newName}+${newExtNum}" \
-                keyword="${key}" add=yes
-        done
+        #for key in ${!tr_keys[@]}; do
+        #    val=${tr_keys[$key]}
+        #    if [[ "x${val}" == "x" ]]; then continue; fi
+        #    fparkey value="${val}" \
+        #        fitsfile="${newName}+${newExtNum}" \
+        #        keyword="${key}" add=yes
+        #done
     done
     cd $My_Nustar_D
     if [[ x${FUNCNAME} != x ]]; then return 0; fi
 }
 
 alias yt_nustar_6="_Nustar_6_grppha"
-alias yt_nustar_grppha="_Nustar_6_grppha"
+alias yt_nustar_grppha_6="_Nustar_6_grppha"
 function _Nustar_6_grppha() {
     ## grppha
     # args: gnum=50
@@ -672,6 +700,7 @@ EOF
     ##         main
     # ---------------------
     declare -A gnum=50
+
     if [[ x${FUNCNAME} != x ]]; then
         if [[ -n ${kwargs[gnum__gnum]} ]]; then
             declare -i gnum=${kwargs[gnum__gnum]}
@@ -683,6 +712,7 @@ EOF
         declare -g My_Nustar_D=${My_Nustar_D:=$(pwd)} 
     fi # 未定義時に代入
     cd $My_Nustar_D
+    fitsName_head="nustar_AB_"
     obs_dirs=($(find . -maxdepth 1 -type d -printf "%P\n" | grep ^[0-9]))
     for My_Nustar_ID in ${obs_dirs[@]}; do
 
@@ -690,10 +720,10 @@ EOF
         if [[ ! -r $My_Nustar_Dir/fit ]]; then continue; fi
         cd $My_Nustar_Dir/fit/
         if [[ ${gnum} -le 0 ]]; then continue; fi
-        grp_name=AB_${My_Nustar_ID}_grp${gnum}.fits
+        grp_name=${fitsName_head}${My_Nustar_ID}_grp${gnum}.fits
         rm ${grp_name} -f
         cat <<EOF | bash
-grppha infile=AB_${My_Nustar_ID}_nongrp.fits outfile=${grp_name} clobber=true
+grppha infile=${fitsName_head}${My_Nustar_ID}_nongrp.fits outfile=${grp_name} clobber=true
 group min ${gnum}
 exit !${grp_name}
 EOF
@@ -703,12 +733,12 @@ EOF
 }
 
 alias yt_nustar_7="_Nustar_7_fitDirectory"
-alias yt_nustar_fitDirectory="_Nustar_7_fitDirectory"
+alias yt_nustar_fitDirectory_7="_Nustar_7_fitDirectory"
 function _Nustar_7_fitDirectory() {
     ## fitディレクトリにまとめ
     # args: FLAG_hardCopy=false
     # args: FLAG_symbLink=false
-    # args: tmp_prefix="AB_"
+    # args: tmp_prefix="nustar_AB_"
 
     # ---------------------
     ##     obtain options
@@ -773,7 +803,7 @@ EOF
     # ---------------------
     FLAG_hardCopy=false
     FLAG_symbLink=false
-    tmp_prefix="AB_"
+    tmp_prefix="nustar_AB_"
 
     if [[ x${FUNCNAME} != x ]]; then
         if [[ -n ${flagsIn[hardCopy]} ]]; then

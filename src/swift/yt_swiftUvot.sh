@@ -7,7 +7,7 @@ dir_path=$(
 source ${dir_path}/../../lib/obtain_options.sh
 
 alias yt_swiftUvot_1="_SwiftUvot_1_ds9"
-alias yt_swiftUvot_ds9="_SwiftUvot_1_ds9"
+alias yt_swiftUvot_ds9_1="_SwiftUvot_1_ds9"
 function _SwiftUvot_1_ds9() {
     ## ds9で領域指定
     # args: FLAG_simple=false
@@ -153,7 +153,7 @@ EOF
 }
 
 alias yt_swiftUvot_2="_SwiftUvot_2_products"
-alias yt_swiftUvot_products="_SwiftUvot_2_products"
+alias yt_swiftUvot_products_2="_SwiftUvot_2_products"
 function _SwiftUvot_2_products() {
     ## products
     # ---------------------
@@ -224,7 +224,7 @@ EOF
             # rspのシンボリックリンク作成
             ## uvotにarfは不要
             _rsp_tmps=($(find "${CALDB}/data/swift/uvota/cpf/rsp/" -name "sw${band}_*.rsp" | sort -r))
-            rsp_file=${_rsp_tmps[-1]}
+            rsp_file=${_rsp_tmps[0]}
             rm fit/tmp_uvot__${band}_rsp.fits -f &&
                 ln -s "$rsp_file" fit/tmp_uvot__${band}_rsp.fits
 
@@ -251,7 +251,7 @@ EOF
 }
 
 alias yt_swiftUvot_3="_SwiftUvot_3_addascaspec"
-alias yt_swiftUvot_addascaspec="_SwiftUvot_3_addascaspec"
+alias yt_swiftUvot_addascaspec_3="_SwiftUvot_3_addascaspec"
 function _SwiftUvot_3_addascaspec() {
     ## obtain rmf
     # ---------------------
@@ -354,7 +354,7 @@ EOF
 }
 
 alias yt_swiftUvot_4="_SwiftUvot_4_fitDirectory"
-alias yt_swiftUvot_fitDirectory="_SwiftUvot_4_fitDirectory"
+alias yt_swiftUvot_fitDirectory_4="_SwiftUvot_4_fitDirectory"
 function _SwiftUvot_4_fitDirectory() {
     ## fitディレクトリにまとめ
     # args: FLAG_hardCopy=false

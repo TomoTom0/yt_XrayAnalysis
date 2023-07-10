@@ -24,7 +24,7 @@ for My_Swift_ID in ${obs_dirs[@]}; do
         # rspのシンボリックリンク作成
         ## uvotにarfは不要
         _rsp_tmps=($(find "${CALDB}/data/swift/uvota/cpf/rsp/" -name "sw${band}_*.rsp" | sort -r))
-        rsp_file=${_rsp_tmps[-1]}
+        rsp_file=${_rsp_tmps[0]}
         rm fit/tmp_uvot__${band}_rsp.fits -f &&
             ln -s "$rsp_file" fit/tmp_uvot__${band}_rsp.fits
 
